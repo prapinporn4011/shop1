@@ -1,7 +1,7 @@
 <?php
-$hostname = "localhost"; // หรือลองเปลี่ยนเป็น "127.0.0.1"
-$username = "ชื่อผู้ใช้ที่คุณสร้างในโฮสติ้ง"; 
-$password = "รหัสผ่านฐานข้อมูลของคุณ"; 
+$hostname = "localhost";
+$username = "ชื่อผู้ใช้ DB ของคุณ"; // ดูจาก Hosting
+$password = "รหัสผ่าน DB ของคุณ"; // ดูจาก Hosting
 $dbname   = "myshop_db"; 
 
 $conn = mysqli_connect($hostname, $username, $password, $dbname);
