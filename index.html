@@ -4,30 +4,37 @@
 <head>
     <meta charset="UTF-8">
     <title>ShadowSport - Elite Football Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ใส่ CSS เดิมของคุณทั้งหมดที่นี่ */
+        /* --- ใช้ CSS เดิมของคุณทั้งหมดที่นี่ --- */
         :root { --blue: #001d5a; --gold: #c5a059; --red: #d32f2f; --white: #ffffff; }
         body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f0f2f5; }
-        .navbar { background: var(--blue); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; sticky; top: 0; z-index: 1000; }
-        .auth-card { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .navbar { background: var(--blue); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        .auth-card { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; padding: 20px; }
-        .product-card { background: white; border-radius: 15px; overflow: hidden; border: 1px solid #eee; text-align: center; padding-bottom: 15px; }
-        .product-card img { width: 100%; height: 250px; object-fit: cover; }
-        .btn-main { background: var(--blue); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 80%; }
+        .product-card { background: white; border-radius: 15px; overflow: hidden; border: 1px solid #eee; transition: 0.3s; text-align: center; }
+        .product-card img { width: 100%; height: 280px; object-fit: cover; }
         .hidden { display: none; }
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); }
-        .modal-content { background: white; margin: 5% auto; padding: 20px; border-radius: 15px; width: 90%; max-width: 400px; }
+        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; }
+        .btn-main { background: var(--blue); color: white; width: 100%; padding: 15px; border: none; border-radius: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
+
+    <div class="cart-btn-float" onclick="openCart()" style="position:fixed; bottom:30px; right:30px; background:var(--gold); color:white; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:1000;">
+        <i class="fas fa-shopping-cart"></i>
+        <span id="cart-count" style="position:absolute; top:0; right:0; background:red; border-radius:50%; padding:2px 6px; font-size:12px;">0</span>
+    </div>
 
     <nav class="navbar">
         <div style="font-size: 22px; font-weight: bold;">⚽ SHADOW SPORT</div>
         <?php if(isset($_SESSION['username'])): ?>
             <div>
-                <span>👤 <?php echo $_SESSION['username']; ?></span>
-                <button onclick="location.href='logout.php'" style="background:red; color:white; border:none; padding:5px 10px; cursor:pointer; margin-left:10px;">ออก</button>
+                <span>👤 ยินดีต้อนรับ: <?php echo $_SESSION['fullname']; ?></span>
+                <a href="logout.php" style="color:white; margin-left:15px; text-decoration:none;"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
             </div>
         <?php endif; ?>
     </nav>
@@ -37,70 +44,99 @@
             <div id="login-box" class="auth-card">
                 <h2>เข้าสู่ระบบ</h2>
                 <form action="login_db.php" method="POST">
-                    <input type="text" name="username" placeholder="ชื่อผู้ใช้งาน" required style="width:100%; margin-bottom:10px; padding:10px;">
-                    <input type="password" name="password" placeholder="รหัสผ่าน" required style="width:100%; margin-bottom:10px; padding:10px;">
-                    <button type="submit" name="login" class="btn-main">ล็อกอิน</button>
+                    <input type="text" name="username" placeholder="ชื่อผู้ใช้งาน" required>
+                    <input type="password" name="password" placeholder="รหัสผ่าน" required>
+                    <button type="submit" name="login" class="btn-main">เข้าสู่ระบบ</button>
                 </form>
-                <p onclick="toggleAuth()" style="cursor:pointer; color:blue; margin-top:10px;">ยังไม่มีบัญชี? สมัครที่นี่</p>
+                <p onclick="toggleAuth()" style="cursor:pointer; color:blue; margin-top:10px;">ยังไม่มีบัญชี? สมัครสมาชิก</p>
             </div>
 
             <div id="reg-box" class="auth-card hidden">
                 <h2>สมัครสมาชิก</h2>
                 <form action="register_db.php" method="POST">
-                    <input type="text" name="username" placeholder="ตั้งชื่อผู้ใช้งาน" required style="width:100%; margin-bottom:10px; padding:10px;">
-                    <input type="email" name="email" placeholder="อีเมล" required style="width:100%; margin-bottom:10px; padding:10px;">
-                    <input type="password" name="password" placeholder="ตั้งรหัสผ่าน" required style="width:100%; margin-bottom:10px; padding:10px;">
-                    <button type="submit" name="register" class="btn-main" style="background:var(--gold)">ยืนยันสมัคร</button>
+                    <input type="text" name="fullname" placeholder="ชื่อ-นามสกุลจริง" required>
+                    <input type="text" name="username" placeholder="ชื่อผู้ใช้งาน" required>
+                    <input type="password" name="password" placeholder="รหัสผ่าน" required>
+                    <button type="submit" name="register" class="btn-main" style="background:var(--gold)">ลงทะเบียน</button>
                 </form>
                 <p onclick="toggleAuth()" style="cursor:pointer; color:blue; margin-top:10px;">มีบัญชีแล้ว? เข้าสู่ระบบ</p>
             </div>
         </div>
     <?php else: ?>
-        <div class="container">
-            <h2 style="padding: 20px;">สินค้าทั้งหมด</h2>
+        <div class="container" style="padding: 20px 5%;">
+            <h2><i class="fas fa-fire" style="color:red"></i> สินค้าแนะนำ</h2>
             <div class="product-grid">
-                <?php for($i=1; $i<=10; $i++): ?>
-                    <div class="product-card">
-                        <img src="<?php echo $i; ?>.jpg" onerror="this.src='https://via.placeholder.com/250x250?text=Product+<?php echo $i; ?>'">
-                        <h3>สินค้าชิ้นที่ <?php echo $i; ?></h3>
-                        <p style="color:red; font-weight:bold;">990 บาท</p>
-                        <button class="btn-main" onclick="openOrder('สินค้าชิ้นที่ <?php echo $i; ?>', 990)">สั่งซื้อทันที</button>
+                <div class="product-card">
+                    <img src="3.jpg" alt="Home Jersey">
+                    <div style="padding:15px;">
+                        <h3>เสื้อทีมชาติ (Home)</h3>
+                        <p style="color:red; font-weight:bold;">790 บาท</p>
+                        <button class="btn-main" onclick="addToCart('เสื้อทีมชาติ (Home)', 790)">เพิ่มลงตะกร้า</button>
                     </div>
-                <?php endfor; ?>
+                </div>
+                <div class="product-card">
+                    <img src="4.jpg" alt="Away Jersey">
+                    <div style="padding:15px;">
+                        <h3>เสื้อทีมชาติ (Away)</h3>
+                        <p style="color:red; font-weight:bold;">890 บาท</p>
+                        <button class="btn-main" onclick="addToCart('เสื้อทีมชาติ (Away)', 890)">เพิ่มลงตะกร้า</button>
+                    </div>
+                </div>
             </div>
         </div>
     <?php endif; ?>
 
-    <div id="orderModal" class="modal">
+    <div id="cartModal" class="modal">
         <div class="modal-content">
-            <h2 id="modal-item-name">ชื่อสินค้า</h2>
-            <p>ราคา: <span id="modal-item-price"></span> บาท</p>
+            <h3><i class="fas fa-shopping-basket"></i> ตะกร้าของคุณ</h3>
+            <div id="cart-list"></div>
             <hr>
+            <h4>📍 ข้อมูลจัดส่งสินค้า</h4>
             <form action="save_order.php" method="POST">
-                <input type="hidden" name="item_name" id="input-item-name">
-                <input type="hidden" name="item_price" id="input-item-price">
-                <input type="text" name="phone" placeholder="เบอร์โทรศัพท์" required style="width:100%; margin-bottom:10px; padding:10px;">
-                <textarea name="address" placeholder="ที่อยู่จัดส่ง" required style="width:100%; margin-bottom:10px; padding:10px;"></textarea>
-                <button type="submit" class="btn-main" style="background:var(--gold)">ยืนยันการสั่งซื้อ</button>
-                <button type="button" onclick="closeOrder()" style="width:100%; margin-top:10px;">ยกเลิก</button>
+                <input type="hidden" name="items" id="input-items">
+                <input type="hidden" name="total" id="input-total">
+                <input type="text" name="phone" placeholder="เบอร์โทรศัพท์" required>
+                <textarea name="address" placeholder="ที่อยู่จัดส่งโดยละเอียด" required></textarea>
+                <button type="submit" name="confirm_order" class="btn-main" style="background:var(--gold)">ยืนยันการสั่งซื้อ</button>
             </form>
+            <button onclick="closeCart()" style="width:100%; margin-top:10px; border:none; background:#ddd; padding:10px; border-radius:10px; cursor:pointer;">ปิดหน้าต่าง</button>
         </div>
     </div>
 
     <script>
+        let cart = [];
+
         function toggleAuth() {
             document.getElementById('login-box').classList.toggle('hidden');
             document.getElementById('reg-box').classList.toggle('hidden');
         }
-        function openOrder(name, price) {
-            document.getElementById('orderModal').style.display = 'block';
-            document.getElementById('modal-item-name').innerText = name;
-            document.getElementById('modal-item-price').innerText = price;
-            document.getElementById('input-item-name').value = name;
-            document.getElementById('input-item-price').value = price;
+
+        function addToCart(name, price) {
+            cart.push({name, price});
+            document.getElementById('cart-count').innerText = cart.length;
+            alert('เพิ่ม ' + name + ' ลงตะกร้าแล้ว');
         }
-        function closeOrder() {
-            document.getElementById('orderModal').style.display = 'none';
+
+        function openCart() {
+            if(cart.length === 0) return alert('ตะกร้าว่างเปล่า');
+            let listHtml = "";
+            let total = 0;
+            let itemNames = [];
+            
+            cart.forEach(item => {
+                listHtml += `<p>${item.name} - ${item.price} บาท</p>`;
+                total += item.price;
+                itemNames.push(item.name);
+            });
+
+            document.getElementById('cart-list').innerHTML = listHtml + `<strong>รวมทั้งสิ้น: ${total} บาท</strong>`;
+            document.getElementById('input-items').value = itemNames.join(', ');
+            document.getElementById('input-total').value = total;
+            document.getElementById('cartModal').style.display = "block";
+        }
+
+        function closeCart() {
+            document.getElementById('cartModal').style.display = "none";
         }
     </script>
 </body>
