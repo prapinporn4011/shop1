@@ -51,6 +51,17 @@
         .order-item { border-left: 4px solid var(--gold); background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
     </style>
 </head>
+<div id="profile-section" class="container hidden">
+    <button onclick="ui.showSection('store')" style="background:#666; color:white; padding:8px 15px; border-radius: 10px; margin-bottom:20px;">
+        <i class="fas fa-arrow-left"></i> กลับหน้าหลัก
+    </button>
+    <div class="auth-card" style="margin: 0 auto;">
+        <h2 style="color:var(--blue)"><i class="fas fa-user-edit"></i> แก้ไขข้อมูลส่วนตัว</h2>
+        <input type="text" id="edit-fullname" placeholder="ชื่อ-นามสกุล">
+        <input type="password" id="edit-pass" placeholder="รหัสผ่านใหม่ (ว่างไว้ถ้าไม่เปลี่ยน)">
+        <button class="btn-main" onclick="auth.updateProfile()">บันทึกการเปลี่ยนแปลง</button>
+    </div>
+</div>
 <body>
 
     <div class="cart-btn-float" onclick="shop.openCart()">
@@ -92,6 +103,11 @@
     </div>
 
     <div id="store-section" class="container hidden">
+        <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+    <button onclick="shop.renderStore('all')" style="padding: 8px 15px; border-radius: 20px; border: 1px solid var(--blue);">ทั้งหมด</button>
+    <button onclick="shop.renderStore('Thai League')" style="padding: 8px 15px; border-radius: 20px; border: 1px solid var(--blue);">ไทยลีก</button>
+    <button onclick="shop.renderStore('National Team')" style="padding: 8px 15px; border-radius: 20px; border: 1px solid var(--blue);">ทีมชาติ</button>
+</div>
         <h2 style="margin-bottom:25px;"><i class="fas fa-fire" style="color:var(--red)"></i> สินค้าแนะนำสำหรับคุณ</h2>
         <div class="product-grid" id="product-list">
             
@@ -200,7 +216,50 @@
         </div>
     </div>
 
-    <script>
+    <script // 1. เพิ่มข้อมูลสินค้าไว้บนสุดของ Script
+const products = [
+    { id: 1, name: "เสื้อฟุตบอลอุทัยธานี FC", price: 790, category: "Thai League", desc: "เสื้อเหย้าฤดูกาลล่าสุด ผ้าเกรดพรีเมียม", img: "2.jpg" },
+    { id: 2, name: "เสื้อทีมชาติไทย", price: 890, category: "National Team", desc: "เสื้อทีมชาติไทย สีน้ำเงิน", img: "4.jpg" },
+    { id: 3, name: "เสื้อทีมทรูแบงค็อก", price: 350, category: "Thai League", desc: "เสื้อแข่งคุณภาพสูง", img: "5.jpg" }
+];
+
+// 2. เพิ่มฟังก์ชัน updateProfile ใน const auth = { ... }
+// (ใส่ต่อจาก logout: () => { ... })
+updateProfile: () => {
+    const user = sessionStorage.getItem('current_user');
+    const newName = document.getElementById('edit-fullname').value;
+    const newPass = document.getElementById('edit-pass').value;
+    if(!newName) return alert('กรุณาระบุชื่อ');
+    
+    let data = JSON.parse(localStorage.getItem('user_' + user));
+    data.name = newName;
+    if(newPass) data.pass = newPass;
+    
+    localStorage.setItem('user_' + user, JSON.stringify(data));
+    sessionStorage.setItem('current_name', newName);
+    document.getElementById('display-fullname').innerText = "👤 " + newName;
+    alert('บันทึกข้อมูลเรียบร้อยแล้ว!');
+}
+
+// 3. เพิ่มฟังก์ชัน renderStore ใน const shop = { ... }
+// (ใส่ต่อจาก renderHistory: () => { ... })
+renderStore: (category = 'all') => {
+    const list = document.getElementById('product-list');
+    const filtered = category === 'all' ? products : products.filter(p => p.category === category);
+    
+    list.innerHTML = filtered.map(p => `
+        <div class="product-card" data-name="${p.name}">
+            <img src="${p.img}" onerror="this.src='https://via.placeholder.com/300x400'">
+            <div style="padding:15px;">
+                <small style="color:var(--gold)">${p.category}</small>
+                <h3>${p.name}</h3>
+                <p style="font-size:0.85em; color:#666;">${p.desc}</p>
+                <p style="color:var(--red); font-weight:bold; font-size:1.2em;">${p.price} บาท</p>
+                <button class="btn-main" onclick="shop.addToCart('${p.name}', ${p.price})">ลงตะกร้า</button>
+            </div>
+        </div>
+    `).join('');
+}>
         const ui = {
             toggleAuth: () => {
                 document.getElementById('login-box').classList.toggle('hidden');
