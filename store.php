@@ -22,6 +22,8 @@
             font-family: 'Sarabun', sans-serif;
         }
 
+
+        
         /* Navbar */
         .navbar {
             background: rgba(15, 15, 15, 0.95) !important;
