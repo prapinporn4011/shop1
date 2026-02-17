@@ -13,7 +13,7 @@
 <div id="auth-section" class="auth-page" style="<?php echo isset($_SESSION['username']) ? 'display:none' : ''; ?>">
     <div id="login-box" class="auth-container">
         <h2>🔒 เข้าสู่ระบบ</h2>
-        <form action="login_db.php" method="POST">
+        <form action="register_db.php" method="POST">
             <input type="text" name="username" placeholder="ชื่อผู้ใช้งาน" required>
             <input type="password" name="password" placeholder="รหัสผ่าน" required>
             <button type="submit" name="login">เข้าสู่ระบบ</button>
