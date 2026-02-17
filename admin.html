@@ -2,71 +2,197 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>ShadowSport - Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShadowSport - Store</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: sans-serif; background: #e9ecef; padding: 20px; }
-        .admin-card { background: white; padding: 25px; border-radius: 12px; max-width: 900px; margin: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .order-row { border-bottom: 1px solid #eee; padding: 15px 0; display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 10px; }
-        input { padding: 10px; margin: 5px 0; width: 200px; }
-        button { cursor: pointer; padding: 8px 15px; border-radius: 5px; border: none; background: #00247d; color: white; }
-        .status-tag { padding: 3px 8px; border-radius: 4px; font-size: 12px; background: #fff3cd; color: #856404; }
+        :root { --blue: #001d5a; --gold: #c5a059; --red: #d32f2f; }
+        body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f4f7f6; }
+        
+        /* Navbar */
+        .navbar { background: var(--blue); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        
+        /* Floating Cart Button */
+        .cart-btn-float {
+            position: fixed; bottom: 30px; right: 30px;
+            background: var(--gold); color: white; width: 70px; height: 70px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3); cursor: pointer; z-index: 999;
+            font-size: 30px; transition: 0.3s;
+        }
+        .cart-count {
+            position: absolute; top: 0; right: 0; background: var(--red);
+            color: white; font-size: 14px; padding: 4px 8px; border-radius: 50%;
+        }
+
+        /* Modal Structure (หน้าต่างตะกร้า) */
+        .modal {
+            display: none; position: fixed; z-index: 2000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .modal-content {
+            background-color: white; margin: 5% auto; padding: 25px;
+            border-radius: 20px; width: 90%; max-width: 500px;
+            max-height: 80vh; overflow-y: auto;
+        }
+
+        /* Product List */
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .product-card { background: white; border-radius: 15px; overflow: hidden; border: 1px solid #eee; text-align: center; padding-bottom: 15px;}
+        .product-card img { width: 100%; height: 300px; object-fit: cover; }
+
+        /* Form Styling */
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        button { cursor: pointer; border: none; border-radius: 10px; font-weight: bold; padding: 12px 20px; }
+        .btn-buy { background: var(--blue); color: white; width: 100%; }
+        .btn-confirm { background: var(--gold); color: white; width: 100%; font-size: 18px; margin-top: 15px; }
+        
+        .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="admin-auth" class="admin-card" style="text-align:center; max-width:400px;">
-        <h2>🔐 ผู้ดูแลระบบ</h2>
-        <input type="text" id="adm-u" placeholder="Admin Username"><br>
-        <input type="password" id="adm-p" placeholder="Admin Password"><br>
-        <button onclick="adminLogin()">เข้าสู่ระบบ</button>
-        <p style="font-size:12px;">(หรือสมัครแอดมินใหม่โดยการกรอกข้อมูลแล้วกดปุ่มด้านล่าง)</p>
-        <button onclick="adminReg()" style="background:#28a745;">สมัครแอดมิน</button>
+    <div class="cart-btn-float" id="cart-trigger" onclick="shop.openCart()">
+        🛒 <span class="cart-count" id="cart-count-val">0</span>
     </div>
 
-    <div id="admin-main" class="admin-card" style="display:none;">
-        <div style="display:flex; justify-content:space-between;">
-            <h1>📋 รายการสั่งซื้อทั้งหมด</h1>
-            <button onclick="location.reload()" style="background:red;">Logout</button>
+    <nav class="navbar">
+        <div style="font-size: 24px; font-weight: bold;">⚽ SHADOW SPORT</div>
+        <div id="nav-user" class="hidden">
+            สวัสดีคุณ <span id="display-fullname"></span> | 
+            <button onclick="auth.logout()" style="background:var(--red); color:white;">ออก</button>
         </div>
-        <hr>
-        <div class="order-row" style="font-weight:bold; background:#f8f9fa;">
-            <div>วันที่/ลูกค้า</div>
-            <div>รายการ/ที่อยู่</div>
-            <div>ยอดรวม</div>
-            <div>สถานะ</div>
+    </nav>
+
+    <div id="cartModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color:var(--blue)">🛒 ตะกร้าสินค้าของคุณ</h2>
+            <div id="cart-items-list">ยังไม่มีสินค้า</div>
+            <hr>
+            
+            <div id="checkout-form" class="hidden">
+                <h3>📍 ข้อมูลสำหรับการจัดส่ง</h3>
+                <input type="text" id="cust-name-input" placeholder="ชื่อ-นามสกุล">
+                <input type="text" id="cust-phone" placeholder="เบอร์โทรศัพท์">
+                <textarea id="cust-address" rows="3" placeholder="ที่อยู่จัดส่งโดยละเอียด"></textarea>
+                <div style="font-size: 20px; font-weight: bold; margin-top: 10px;">
+                    ยอดรวมสุทธิ: <span id="cart-total-modal" style="color:var(--red)">0</span> บาท
+                </div>
+                <button class="btn-confirm" onclick="shop.processOrder()">ยืนยันสั่งซื้อสินค้า</button>
+            </div>
+            
+            <button onclick="shop.closeCart()" style="margin-top: 15px; background:#ccc; width:100%;">ปิดหน้าต่าง</button>
         </div>
-        <div id="admin-order-list"></div>
+    </div>
+
+    <div id="store-section" class="container">
+        <h2>👕 สินค้าแนะนำสำหรับคุณ</h2>
+        <div class="product-grid">
+            <div class="product-card">
+                <img src="1.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Jersey+1'">
+                <div style="padding:15px;">
+                    <h3>เสื้อทีมชาติ (Home)</h3>
+                    <p style="color:var(--red); font-weight:bold;">790 บาท</p>
+                    <button class="btn-buy" onclick="shop.addToCart('เสื้อทีมชาติ (Home)', 790)">ลงตะกร้า</button>
+                </div>
+            </div>
+            <div class="product-card">
+                <img src="2.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Jersey+2'">
+                <div style="padding:15px;">
+                    <h3>เสื้อทีมชาติ (Away)</h3>
+                    <p style="color:var(--red); font-weight:bold;">890 บาท</p>
+                    <button class="btn-buy" onclick="shop.addToCart('เสื้อทีมชาติ (Away)', 890)">ลงตะกร้า</button>
+                </div>
+            </div>
+            </div>
     </div>
 
     <script>
-        function adminReg() {
-            const u = document.getElementById('adm-u').value;
-            const p = document.getElementById('adm-p').value;
-            localStorage.setItem('admin_user_' + u, p);
-            alert('เพิ่มแอดมินแล้ว!');
-        }
+        const shop = {
+            cart: [],
+            
+            // เพิ่มสินค้าลงตะกร้า
+            addToCart: (name, price) => {
+                shop.cart.push({ name, price });
+                document.getElementById('cart-count-val').innerText = shop.cart.length;
+                alert('เพิ่ม ' + name + ' ลงตะกร้าแล้ว!');
+            },
 
-        function adminLogin() {
-            const u = document.getElementById('adm-u').value;
-            const p = document.getElementById('adm-p').value;
-            if(localStorage.getItem('admin_user_' + u) === p || (u==='admin' && p==='1234')) {
-                document.getElementById('admin-auth').style.display = 'none';
-                document.getElementById('admin-main').style.display = 'block';
-                renderAdminOrders();
-            } else { alert('สิทธิ์เข้าถึงไม่ถูกต้อง'); }
-        }
+            // เปิดหน้าต่างตะกร้า
+            openCart: () => {
+                const modal = document.getElementById('cartModal');
+                const list = document.getElementById('cart-items-list');
+                const form = document.getElementById('checkout-form');
+                const totalVal = document.getElementById('cart-total-modal');
+                
+                modal.style.display = "block";
+                
+                if (shop.cart.length === 0) {
+                    list.innerHTML = "ตะกร้าว่างเปล่า";
+                    form.classList.add('hidden');
+                } else {
+                    let sum = 0;
+                    list.innerHTML = shop.cart.map((item, index) => {
+                        sum += item.price;
+                        return `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                    <span>${item.name}</span>
+                                    <span>${item.price} บาท <button onclick="shop.removeItem(${index})" style="color:red; background:none; padding:0;">[ลบ]</button></span>
+                                </div>`;
+                    }).join('');
+                    totalVal.innerText = sum.toLocaleString();
+                    form.classList.remove('hidden');
+                }
+            },
 
-        function renderAdminOrders() {
-            const orders = JSON.parse(localStorage.getItem('all_orders')) || [];
-            const list = document.getElementById('admin-order-list');
-            list.innerHTML = orders.map(o => `
-                <div class="order-row">
-                    <div>${o.date}<br><strong>👤 ${o.user}</strong></div>
-                    <div>${o.items}<br><small>📍 ${o.addr}</small></div>
-                    <div style="color:red;">${o.total} บาท</div>
-                    <div><span class="status-tag">${o.status}</span></div>
-                </div>
-            `).reverse().join('');
+            closeCart: () => {
+                document.getElementById('cartModal').style.display = "none";
+            },
+
+            removeItem: (index) => {
+                shop.cart.splice(index, 1);
+                document.getElementById('cart-count-val').innerText = shop.cart.length;
+                shop.openCart(); // refresh รายการใน modal
+            },
+
+            // ขั้นตอนสั่งซื้อจริง
+            processOrder: () => {
+                const name = document.getElementById('cust-name-input').value;
+                const phone = document.getElementById('cust-phone').value;
+                const addr = document.getElementById('cust-address').value;
+
+                if (!name || !phone || !addr) {
+                    return alert('กรุณากรอกข้อมูลผู้ซื้อให้ครบถ้วน');
+                }
+
+                const order = {
+                    id: Date.now(),
+                    customerName: name,
+                    phone: phone,
+                    address: addr,
+                    items: shop.cart.map(i => i.name).join(', '),
+                    total: document.getElementById('cart-total-modal').innerText,
+                    date: new Date().toLocaleString('th-TH'),
+                    status: 'รอดำเนินการ'
+                };
+
+                // บันทึกลง LocalStorage ให้ Admin มาอ่าน
+                let allOrders = JSON.parse(localStorage.getItem('all_orders')) || [];
+                allOrders.push(order);
+                localStorage.setItem('all_orders', JSON.stringify(allOrders));
+
+                alert('ขอบคุณคุณ ' + name + ' สั่งซื้อเรียบร้อยแล้ว!');
+                shop.cart = [];
+                document.getElementById('cart-count-val').innerText = "0";
+                shop.closeCart();
+            }
+        };
+
+        // ปิด Modal เมื่อคลิกข้างนอกหน้าต่าง
+        window.onclick = function(event) {
+            const modal = document.getElementById('cartModal');
+            if (event.target == modal) modal.style.display = "none";
         }
     </script>
 </body>
