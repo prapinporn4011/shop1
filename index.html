@@ -11,14 +11,11 @@
         :root { --blue: #001d5a; --gold: #c5a059; --red: #d32f2f; --white: #ffffff; }
         body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f0f2f5; color: #333; }
         
-        /* Navbar & Search */
         .navbar { background: var(--blue); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .nav-links button { background: none; border: none; color: white; cursor: pointer; font-size: 16px; margin-left: 15px; }
         .search-box { background: white; border-radius: 20px; padding: 5px 15px; display: flex; align-items: center; width: 300px; }
         .search-box input { border: none; outline: none; width: 100%; padding: 5px; font-family: 'Sarabun'; }
-        .search-box i { color: #888; }
-
-        /* Floating Cart */
+        
         .cart-btn-float {
             position: fixed; bottom: 30px; right: 30px;
             background: var(--gold); color: white; width: 65px; height: 65px;
@@ -28,40 +25,25 @@
         }
         .cart-count { position: absolute; top: -5px; right: -5px; background: var(--red); color: white; font-size: 12px; padding: 4px 8px; border-radius: 50%; border: 2px solid white; }
 
-        /* Product Grid */
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
         .product-card { background: white; border-radius: 15px; overflow: hidden; border: 1px solid #eee; transition: 0.3s; position: relative; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         .product-card img { width: 100%; height: 280px; object-fit: cover; }
-        .badge { position: absolute; top: 10px; left: 10px; background: var(--blue); color: white; padding: 3px 10px; border-radius: 5px; font-size: 12px; }
+        
+        .filter-btn { padding: 8px 20px; border-radius: 20px; border: 1px solid var(--blue); background: white; cursor: pointer; transition: 0.3s; }
+        .filter-btn:hover, .filter-btn.active { background: var(--blue); color: white; }
 
-        /* Modal */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); }
         .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; }
 
-        /* Auth Sections */
         .auth-card { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-family: 'Sarabun'; }
         button { cursor: pointer; border: none; border-radius: 10px; font-weight: bold; transition: 0.3s; }
         .btn-main { background: var(--blue); color: white; width: 100%; padding: 15px; font-size: 16px; }
-        .btn-main:hover { background: #0033a0; }
-
         .hidden { display: none; }
         .order-item { border-left: 4px solid var(--gold); background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
     </style>
 </head>
-<div id="profile-section" class="container hidden">
-    <button onclick="ui.showSection('store')" style="background:#666; color:white; padding:8px 15px; border-radius: 10px; margin-bottom:20px;">
-        <i class="fas fa-arrow-left"></i> กลับหน้าหลัก
-    </button>
-    <div class="auth-card" style="margin: 0 auto;">
-        <h2 style="color:var(--blue)"><i class="fas fa-user-edit"></i> แก้ไขข้อมูลส่วนตัว</h2>
-        <input type="text" id="edit-fullname" placeholder="ชื่อ-นามสกุล">
-        <input type="password" id="edit-pass" placeholder="รหัสผ่านใหม่ (ว่างไว้ถ้าไม่เปลี่ยน)">
-        <button class="btn-main" onclick="auth.updateProfile()">บันทึกการเปลี่ยนแปลง</button>
-    </div>
-</div>
 <body>
 
     <div class="cart-btn-float" onclick="shop.openCart()">
@@ -72,13 +54,14 @@
     <nav class="navbar">
         <div style="font-size: 22px; font-weight: bold; letter-spacing: 1px;">ThanJai shop</div>
         
-        <div class="search-box" id="search-container">
+        <div class="search-box">
             <i class="fas fa-search"></i>
             <input type="text" id="search-input" placeholder="ค้นหาสินค้า..." onkeyup="shop.search()">
         </div>
 
         <div id="nav-user" class="nav-links hidden">
             <span id="display-fullname"></span>
+            <button onclick="ui.showSection('profile')"><i class="fas fa-user-circle"></i> โปรไฟล์</button>
             <button onclick="ui.showSection('history')"><i class="fas fa-list-alt"></i> ประวัติ</button>
             <button onclick="auth.logout()" style="color:var(--red)"><i class="fas fa-sign-out-alt"></i> ออก</button>
         </div>
@@ -103,88 +86,26 @@
     </div>
 
     <div id="store-section" class="container hidden">
-        <div style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-    <button onclick="shop.renderStore('all')" style="padding: 8px 15px; border-radius: 20px; border: 1px solid var(--blue);">ทั้งหมด</button>
-    <button onclick="shop.renderStore('Thai League')" style="padding: 8px 15px; border-radius: 20px; border: 1px solid var(--blue);">ไทยลีก</button>
-    <button onclick="shop.renderStore('National Team')" style="padding: 8px 15px; border-radius: 20px; border: 1px solid var(--blue);">ทีมชาติ</button>
-</div>
-        <h2 style="margin-bottom:25px;"><i class="fas fa-fire" style="color:var(--red)"></i> สินค้าแนะนำสำหรับคุณ</h2>
-        <div class="product-grid" id="product-list">
-            
-            <div class="product-card" data-name="เสื้อฟุตบอลอุทัยธานี FC">
-                <span class="badge">ยอดฮิต</span>
-                <img src="2.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Jersey+Home'">
-                <div style="padding:15px;">
-                    <h3>เสื้อฟุตบอลอุทัยธานี FC</h3>
-                    <p style="color:var(--red); font-weight:bold; font-size:1.2em;">790 บาท</p>
-                    <button class="btn-main" onclick="shop.addToCart('เสื้อทีมชาติ (Home)', 790)">ลงตะกร้า</button>
-                </div>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+            <h2><i class="fas fa-fire" style="color:var(--red)"></i> สินค้าแนะนำ</h2>
+            <div style="display: flex; gap: 10px;">
+                <button class="filter-btn active" onclick="shop.renderStore('all', this)">ทั้งหมด</button>
+                <button class="filter-btn" onclick="shop.renderStore('Thai League', this)">ไทยลีก</button>
+                <button class="filter-btn" onclick="shop.renderStore('National Team', this)">ทีมชาติ</button>
             </div>
+        </div>
+        <div class="product-grid" id="product-list"></div>
+    </div>
 
-            <div class="product-card" data-name="เสื้อทีมชาติไทย">
-                <span class="badge">ยอดฮิต</span>
-                <img src="4.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Jersey+Away'">
-                <div style="padding:15px;">
-                    <h3>เสื้อทีมชาติไทย</h3>
-                    <p style="color:var(--red); font-weight:bold; font-size:1.2em;">890 บาท</p>
-                    <button class="btn-main" onclick="shop.addToCart('เสื้อทีมชาติ (Away)', 890)">ลงตะกร้า</button>
-                </div>
-            </div>
-
-            <div class="product-card" data-name="เสื้อทีมทรูแบงค็อก ยูไนเต็ด">
-                <img src="5.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Shorts'">
-                <div style="padding:15px;">
-                    <h3>เสื้อทีมทรูแบงค็อก ยูไนเต็ด</h3>
-                    <p style="color:var(--red); font-weight:bold; font-size:1.2em;">350 บาท</p>
-                    <button class="btn-main" onclick="shop.addToCart('กางเกงฟุตบอล Elite', 350)">ลงตะกร้า</button>
-                </div>
-            </div>
-
-            <div class="product-card" data-name="เสื้อทีมRoi-Et PB">
-                <img src="6.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Socks'">
-                <div style="padding:15px;">
-                    <h3>เสื้อทีม Roi-Et PB</h3>
-                    <p style="color:var(--red); font-weight:bold; font-size:1.2em;">450 บาท</p>
-                    <button class="btn-main" onclick="shop.addToCart('เสื้อทีม Roi-Et PB', 450)">ลงตะกร้า</button>
-                </div>
-            </div>
-
-            <div class="product-card" data-name="เสื้อบีจีปทุม ยูไนเต็ด">
-                <img src="7.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Guard'">
-                <div style="padding:15px;">
-                    <h3>เสื้อบีจีปทุม ยูไนเต็ด</h3>
-                    <p style="color:var(--red); font-weight:bold; font-size:1.2em;">590 บาท</p>
-                    <button class="btn-main" onclick="shop.addToCart('สนับแข้ง Pro Guard', 290)">ลงตะกร้า</button>
-                </div>
-            </div>
-
-            <div class="product-card" data-name="เสื้อบุรีรัมย์ ยูไนเต็ด">
-                <img src="8.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Training'">
-                <div style="padding:15px;">
-                    <h3>เสื้อบุรีรัมย์ ยูไนเต็ด</h3>
-                    <p style="color:var(--red); font-weight:bold; font-size:1.2em;">450 บาท</p>
-                    <button class="btn-main" onclick="shop.addToCart('เสื้อฝึกซ้อม', 450)">ลงตะกร้า</button>
-                </div>
-            </div>
-
-            <div class="product-card" data-name="เสื้อขอนแก่น ยูไนเต็ด">
-                <img src="9.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Football'">
-                <div style="padding:15px;">
-                    <h3>เสื้อขอนแก่น ยูไนเต็ด</h3>
-                    <p style="color:var(--red); font-weight:bold; font-size:1.2em;">450 บาท</p>
-                    <button class="btn-main" onclick="shop.addToCart('ลูกฟุตบอล', 1200)">ลงตะกร้า</button>
-                </div>
-            </div>
-
-            <div class="product-card" data-name="เสื้อพีทีประจวบ เอฟซี">
-                <img src="10.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Gloves'">
-                <div style="padding:15px;">
-                    <h3>เสื้อพีทีประจวบ เอฟซี</h3>
-                    <p style="color:var(--red); font-weight:bold; font-size:1.2em;">850 บาท</p>
-                    <button class="btn-main" onclick="shop.addToCart('เสื้อพีทีประจวบ เอฟซี', 850)">ลงตะกร้า</button>
-                </div>
-            </div>
-
+    <div id="profile-section" class="container hidden">
+        <button onclick="ui.showSection('store')" style="background:#666; color:white; padding:8px 15px; margin-bottom:20px;">
+            <i class="fas fa-arrow-left"></i> กลับหน้าหลัก
+        </button>
+        <div class="auth-card" style="margin: 0 auto;">
+            <h2 style="color:var(--blue)"><i class="fas fa-user-edit"></i> แก้ไขข้อมูลส่วนตัว</h2>
+            <input type="text" id="edit-fullname" placeholder="ชื่อ-นามสกุลใหม่">
+            <input type="password" id="edit-pass" placeholder="รหัสผ่านใหม่ (ว่างไว้ถ้าไม่เปลี่ยน)">
+            <button class="btn-main" onclick="auth.updateProfile()">บันทึกการเปลี่ยนแปลง</button>
         </div>
     </div>
 
@@ -192,85 +113,51 @@
         <button onclick="ui.showSection('store')" style="background:#666; color:white; padding:8px 15px; margin-bottom:20px;">
             <i class="fas fa-arrow-left"></i> กลับหน้าหลัก
         </button>
-        <h2><i class="fas fa-history"></i> ประวัติการสั่งซื้อของคุณ</h2>
-        <div id="history-content">ยังไม่มีประวัติการสั่งซื้อ</div>
+        <h2><i class="fas fa-history"></i> ประวัติการสั่งซื้อ</h2>
+        <div id="history-content"></div>
     </div>
 
     <div id="cartModal" class="modal">
         <div class="modal-content">
             <h2 style="color:var(--blue)"><i class="fas fa-shopping-basket"></i> ตะกร้าสินค้า</h2>
-            <div id="cart-items-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px;"></div>
+            <div id="cart-items-list"></div>
             <hr>
             <div id="checkout-form" class="hidden">
-                <h3 style="font-size:16px;">📍 ข้อมูลจัดส่ง</h3>
                 <input type="text" id="cust-phone" placeholder="เบอร์โทรศัพท์">
-                <textarea id="cust-address" rows="2" placeholder="ที่อยู่จัดส่งโดยละเอียด"></textarea>
+                <textarea id="cust-address" rows="2" placeholder="ที่อยู่จัดส่ง"></textarea>
                 <div style="font-size: 20px; font-weight: bold; text-align: right; color: var(--red);">
                     รวม: <span id="cart-total-modal">0</span> บาท
                 </div>
-                <button class="btn-main" style="background:var(--gold); margin-top:15px;" onclick="shop.processOrder()">
-                    <i class="fas fa-check-circle"></i> ยืนยันสั่งซื้อ
-                </button>
+                <button class="btn-main" style="background:var(--gold); margin-top:15px;" onclick="shop.processOrder()">ยืนยันสั่งซื้อ</button>
             </div>
-            <button onclick="shop.closeCart()" style="width:100%; margin-top:10px; background:#eee;">ปิด</button>
+            <button onclick="shop.closeCart()" style="width:100%; margin-top:10px; background:#eee; padding:10px;">ปิด</button>
         </div>
     </div>
 
-    <script // 1. เพิ่มข้อมูลสินค้าไว้บนสุดของ Script
-const products = [
-    { id: 1, name: "เสื้อฟุตบอลอุทัยธานี FC", price: 790, category: "Thai League", desc: "เสื้อเหย้าฤดูกาลล่าสุด ผ้าเกรดพรีเมียม", img: "2.jpg" },
-    { id: 2, name: "เสื้อทีมชาติไทย", price: 890, category: "National Team", desc: "เสื้อทีมชาติไทย สีน้ำเงิน", img: "4.jpg" },
-    { id: 3, name: "เสื้อทีมทรูแบงค็อก", price: 350, category: "Thai League", desc: "เสื้อแข่งคุณภาพสูง", img: "5.jpg" }
-];
+    <script>
+        const products = [
+            { id: 1, name: "เสื้อฟุตบอลอุทัยธานี FC", price: 790, category: "Thai League", desc: "เสื้อเหย้าปีล่าสุด เนื้อผ้าเกรดนักเตะ", img: "2.jpg" },
+            { id: 2, name: "เสื้อทีมชาติไทย", price: 890, category: "National Team", desc: "เสื้อทีมชาติไทย พร้อมเทคโนโลยีระบายอากาศ", img: "4.jpg" },
+            { id: 3, name: "เสื้อทีมทรูแบงค็อก", price: 350, category: "Thai League", desc: "เสื้อซ้อมคุณภาพดี ราคาย่อมเยา", img: "5.jpg" },
+            { id: 4, name: "เสื้อทีม Roi-Et PB", price: 450, category: "Thai League", desc: "ดีไซน์เอกลักษณ์ สีสันโดดเด่น", img: "6.jpg" },
+            { id: 5, name: "เสื้อบีจีปทุม ยูไนเต็ด", price: 590, category: "Thai League", desc: "เสื้อสโมสร BGPU เกรดพรีเมียม", img: "7.jpg" },
+            { id: 6, name: "เสื้อบุรีรัมย์ ยูไนเต็ด", price: 450, category: "Thai League", desc: "เสื้อปราสาทสายฟ้า ทรงสปอร์ต", img: "8.jpg" }
+        ];
 
-// 2. เพิ่มฟังก์ชัน updateProfile ใน const auth = { ... }
-// (ใส่ต่อจาก logout: () => { ... })
-updateProfile: () => {
-    const user = sessionStorage.getItem('current_user');
-    const newName = document.getElementById('edit-fullname').value;
-    const newPass = document.getElementById('edit-pass').value;
-    if(!newName) return alert('กรุณาระบุชื่อ');
-    
-    let data = JSON.parse(localStorage.getItem('user_' + user));
-    data.name = newName;
-    if(newPass) data.pass = newPass;
-    
-    localStorage.setItem('user_' + user, JSON.stringify(data));
-    sessionStorage.setItem('current_name', newName);
-    document.getElementById('display-fullname').innerText = "👤 " + newName;
-    alert('บันทึกข้อมูลเรียบร้อยแล้ว!');
-}
-
-// 3. เพิ่มฟังก์ชัน renderStore ใน const shop = { ... }
-// (ใส่ต่อจาก renderHistory: () => { ... })
-renderStore: (category = 'all') => {
-    const list = document.getElementById('product-list');
-    const filtered = category === 'all' ? products : products.filter(p => p.category === category);
-    
-    list.innerHTML = filtered.map(p => `
-        <div class="product-card" data-name="${p.name}">
-            <img src="${p.img}" onerror="this.src='https://via.placeholder.com/300x400'">
-            <div style="padding:15px;">
-                <small style="color:var(--gold)">${p.category}</small>
-                <h3>${p.name}</h3>
-                <p style="font-size:0.85em; color:#666;">${p.desc}</p>
-                <p style="color:var(--red); font-weight:bold; font-size:1.2em;">${p.price} บาท</p>
-                <button class="btn-main" onclick="shop.addToCart('${p.name}', ${p.price})">ลงตะกร้า</button>
-            </div>
-        </div>
-    `).join('');
-}>
         const ui = {
             toggleAuth: () => {
                 document.getElementById('login-box').classList.toggle('hidden');
                 document.getElementById('reg-box').classList.toggle('hidden');
             },
             showSection: (name) => {
-                ['auth-section', 'store-section', 'history-section'].forEach(id => {
+                ['auth-section', 'store-section', 'history-section', 'profile-section'].forEach(id => {
                     document.getElementById(id).classList.add('hidden');
                 });
                 document.getElementById(name + '-section').classList.remove('hidden');
                 if(name === 'history') shop.renderHistory();
+                if(name === 'profile') {
+                    document.getElementById('edit-fullname').value = sessionStorage.getItem('current_name');
+                }
             }
         };
 
@@ -293,7 +180,22 @@ renderStore: (category = 'all') => {
                     document.getElementById('display-fullname').innerText = "👤 " + data.name;
                     document.getElementById('nav-user').classList.remove('hidden');
                     ui.showSection('store');
-                } else { alert('รหัสผ่านผิด!'); }
+                    shop.renderStore(); // แสดงสินค้าทันที
+                } else { alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'); }
+            },
+            updateProfile: () => {
+                const user = sessionStorage.getItem('current_user');
+                const newName = document.getElementById('edit-fullname').value;
+                const newPass = document.getElementById('edit-pass').value;
+                if(!newName) return alert('กรุณากรอกชื่อ');
+                let data = JSON.parse(localStorage.getItem('user_' + user));
+                data.name = newName;
+                if(newPass) data.pass = newPass;
+                localStorage.setItem('user_' + user, JSON.stringify(data));
+                sessionStorage.setItem('current_name', newName);
+                document.getElementById('display-fullname').innerText = "👤 " + newName;
+                alert('แก้ไขข้อมูลสำเร็จ!');
+                ui.showSection('store');
             },
             logout: () => { sessionStorage.clear(); location.reload(); }
         };
@@ -302,16 +204,36 @@ renderStore: (category = 'all') => {
             cart: [],
             search: () => {
                 const term = document.getElementById('search-input').value.toLowerCase();
-                const items = document.querySelectorAll('.product-card');
-                items.forEach(item => {
-                    const name = item.getAttribute('data-name').toLowerCase();
-                    item.style.display = name.includes(term) ? 'block' : 'none';
+                const cards = document.querySelectorAll('.product-card');
+                cards.forEach(card => {
+                    const name = card.querySelector('h3').innerText.toLowerCase();
+                    card.style.display = name.includes(term) ? 'block' : 'none';
                 });
+            },
+            renderStore: (category = 'all', btn = null) => {
+                if(btn) {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                }
+                const list = document.getElementById('product-list');
+                const filtered = category === 'all' ? products : products.filter(p => p.category === category);
+                list.innerHTML = filtered.map(p => `
+                    <div class="product-card">
+                        <img src="${p.img}" onerror="this.src='https://via.placeholder.com/300x400?text=No+Image'">
+                        <div style="padding:15px;">
+                            <small style="color:var(--gold)">${p.category}</small>
+                            <h3>${p.name}</h3>
+                            <p style="font-size:13px; color:#666; margin:5px 0;">${p.desc}</p>
+                            <p style="color:var(--red); font-weight:bold; font-size:1.2em;">${p.price} บาท</p>
+                            <button class="btn-main" onclick="shop.addToCart('${p.name}', ${p.price})">ลงตะกร้า</button>
+                        </div>
+                    </div>
+                `).join('');
             },
             addToCart: (name, price) => {
                 shop.cart.push({name, price});
                 document.getElementById('cart-count-val').innerText = shop.cart.length;
-                alert('เพิ่ม ' + name + ' แล้ว');
+                alert('เพิ่ม ' + name + ' ลงตะกร้าแล้ว');
             },
             openCart: () => {
                 const modal = document.getElementById('cartModal');
@@ -319,15 +241,16 @@ renderStore: (category = 'all') => {
                 const form = document.getElementById('checkout-form');
                 modal.style.display = "block";
                 if(shop.cart.length === 0) {
-                    list.innerHTML = "ไม่มีสินค้า"; form.classList.add('hidden');
+                    list.innerHTML = "<p style='text-align:center'>ไม่มีสินค้าในตะกร้า</p>";
+                    form.classList.add('hidden');
                 } else {
                     let total = 0;
                     list.innerHTML = shop.cart.map((item, i) => {
                         total += item.price;
                         return `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                                    <span>${item.name}</span>
-                                    <span>${item.price} บ. <i class="fas fa-trash" style="color:red; cursor:pointer;" onclick="shop.removeItem(${i})"></i></span>
-                                </div>`;
+                            <span>${item.name}</span>
+                            <span>${item.price} บ. <i class="fas fa-trash" style="color:red; cursor:pointer;" onclick="shop.removeItem(${i})"></i></span>
+                        </div>`;
                     }).join('');
                     document.getElementById('cart-total-modal').innerText = total.toLocaleString();
                     form.classList.remove('hidden');
@@ -338,7 +261,7 @@ renderStore: (category = 'all') => {
             processOrder: () => {
                 const phone = document.getElementById('cust-phone').value;
                 const addr = document.getElementById('cust-address').value;
-                if(!phone || !addr) return alert('กรุณากรอกข้อมูลจัดส่ง');
+                if(!phone || !addr) return alert('กรุณากรอกข้อมูลจัดส่งให้ครบ');
                 const order = {
                     id: Date.now(),
                     user: sessionStorage.getItem('current_user'),
