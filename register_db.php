@@ -2,8 +2,8 @@
 include('db.php');
 if (isset($_POST['register'])) {
     $user = mysqli_real_escape_string($conn, $_POST['username']);
-    $pass = password_hash($_POST['password'], PASSWORD_DEFAULT); // เข้ารหัสลับ
-    $email = mysqli_real_escape_string($conn, $_POST['email'] ?? '');
+    $email = mysqli_real_escape_string($conn, $_POST['email']);
+    $pass = password_hash($_POST['password'], PASSWORD_DEFAULT); // เข้ารหัสผ่าน
 
     $sql = "INSERT INTO users (username, password, email) VALUES ('$user', '$pass', '$email')";
     if (mysqli_query($conn, $sql)) {
