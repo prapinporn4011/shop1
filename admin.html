@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Panel - ShadowSport</title>
+    <style>
+        body { font-family: 'Sarabun', sans-serif; margin: 20px; background: #e9ecef; }
+        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
+        .order-card { border-left: 5px solid #00247d; background: #f8f9fa; padding: 15px; margin-bottom: 15px; position: relative; }
+        .btn-back { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #00247d; font-weight: bold; }
+        .btn-clear { background: red; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <a href="index.html" class="btn-back">⬅️ กลับหน้ากหน้าร้านค้า</a>
+    <h1>📋 รายการจัดการออเดอร์ (Admin)</h1>
+    <button onclick="clearOrders()" class="btn-clear">ล้างข้อมูลทั้งหมด</button>
+    <hr>
+    <div id="order-display">กำลังโหลดข้อมูล...</div>
+</div>
+
+<script>
+    function loadOrders() {
+        const display = document.getElementById('order-display');
+        const orders = JSON.parse(localStorage.getItem('all_orders')) || [];
+
+        if(orders.length === 0) {
+            display.innerHTML = "<p>ยังไม่มีคำสั่งซื้อเข้ามา</p>";
+            return;
+        }
+
+        display.innerHTML = orders.map(o => `
+            <div class="order-card">
+                <strong>📦 ออเดอร์ ID: ${o.id}</strong><br>
+                👤 <strong>ลูกค้า:</strong> ${o.customer} <br>
+                📍 <strong>ที่อยู่:</strong> ${o.address} <br>
+                👕 <strong>สินค้า:</strong> ${o.items} <br>
+                💰 <strong>ยอดรวม:</strong> ${o.total} บาท
+            </div>
+        `).join('');
+    }
+
+    function clearOrders() {
+        if(confirm('ยืนยันการลบข้อมูลออเดอร์ทั้งหมด?')) {
+            localStorage.removeItem('all_orders');
+            loadOrders();
+        }
+    }
+
+    // โหลดข้อมูลเมื่อเปิดหน้า
+    loadOrders();
+</script>
+</body>
+</html>
