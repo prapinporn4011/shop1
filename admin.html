@@ -1,56 +1,73 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel - ThanJai shop</title>
+    <title>ShadowSport - Admin Panel</title>
     <style>
-        body { font-family: 'Sarabun', sans-serif; margin: 20px; background: #e9ecef; }
-        .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 10px; }
-        .order-card { border-left: 5px solid #00247d; background: #f8f9fa; padding: 15px; margin-bottom: 15px; position: relative; }
-        .btn-back { display: inline-block; margin-bottom: 20px; text-decoration: none; color: #00247d; font-weight: bold; }
-        .btn-clear { background: red; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 5px; }
+        body { font-family: sans-serif; background: #e9ecef; padding: 20px; }
+        .admin-card { background: white; padding: 25px; border-radius: 12px; max-width: 900px; margin: auto; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .order-row { border-bottom: 1px solid #eee; padding: 15px 0; display: grid; grid-template-columns: 1fr 2fr 1fr 1fr; gap: 10px; }
+        input { padding: 10px; margin: 5px 0; width: 200px; }
+        button { cursor: pointer; padding: 8px 15px; border-radius: 5px; border: none; background: #00247d; color: white; }
+        .status-tag { padding: 3px 8px; border-radius: 4px; font-size: 12px; background: #fff3cd; color: #856404; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <a href="index.html" class="btn-back">⬅️ กลับหน้ากหน้าร้านค้า</a>
-    <h1>📋 รายการจัดการออเดอร์ (Admin)</h1>
-    <button onclick="clearOrders()" class="btn-clear">ล้างข้อมูลทั้งหมด</button>
-    <hr>
-    <div id="order-display">กำลังโหลดข้อมูล...</div>
-</div>
+    <div id="admin-auth" class="admin-card" style="text-align:center; max-width:400px;">
+        <h2>🔐 ผู้ดูแลระบบ</h2>
+        <input type="text" id="adm-u" placeholder="Admin Username"><br>
+        <input type="password" id="adm-p" placeholder="Admin Password"><br>
+        <button onclick="adminLogin()">เข้าสู่ระบบ</button>
+        <p style="font-size:12px;">(หรือสมัครแอดมินใหม่โดยการกรอกข้อมูลแล้วกดปุ่มด้านล่าง)</p>
+        <button onclick="adminReg()" style="background:#28a745;">สมัครแอดมิน</button>
+    </div>
 
-<script>
-    function loadOrders() {
-        const display = document.getElementById('order-display');
-        const orders = JSON.parse(localStorage.getItem('all_orders')) || [];
+    <div id="admin-main" class="admin-card" style="display:none;">
+        <div style="display:flex; justify-content:space-between;">
+            <h1>📋 รายการสั่งซื้อทั้งหมด</h1>
+            <button onclick="location.reload()" style="background:red;">Logout</button>
+        </div>
+        <hr>
+        <div class="order-row" style="font-weight:bold; background:#f8f9fa;">
+            <div>วันที่/ลูกค้า</div>
+            <div>รายการ/ที่อยู่</div>
+            <div>ยอดรวม</div>
+            <div>สถานะ</div>
+        </div>
+        <div id="admin-order-list"></div>
+    </div>
 
-        if(orders.length === 0) {
-            display.innerHTML = "<p>ยังไม่มีคำสั่งซื้อเข้ามา</p>";
-            return;
+    <script>
+        function adminReg() {
+            const u = document.getElementById('adm-u').value;
+            const p = document.getElementById('adm-p').value;
+            localStorage.setItem('admin_user_' + u, p);
+            alert('เพิ่มแอดมินแล้ว!');
         }
 
-        display.innerHTML = orders.map(o => `
-            <div class="order-card">
-                <strong>📦 ออเดอร์ ID: ${o.id}</strong><br>
-                👤 <strong>ลูกค้า:</strong> ${o.customer} <br>
-                📍 <strong>ที่อยู่:</strong> ${o.address} <br>
-                👕 <strong>สินค้า:</strong> ${o.items} <br>
-                💰 <strong>ยอดรวม:</strong> ${o.total} บาท
-            </div>
-        `).join('');
-    }
-
-    function clearOrders() {
-        if(confirm('ยืนยันการลบข้อมูลออเดอร์ทั้งหมด?')) {
-            localStorage.removeItem('all_orders');
-            loadOrders();
+        function adminLogin() {
+            const u = document.getElementById('adm-u').value;
+            const p = document.getElementById('adm-p').value;
+            if(localStorage.getItem('admin_user_' + u) === p || (u==='admin' && p==='1234')) {
+                document.getElementById('admin-auth').style.display = 'none';
+                document.getElementById('admin-main').style.display = 'block';
+                renderAdminOrders();
+            } else { alert('สิทธิ์เข้าถึงไม่ถูกต้อง'); }
         }
-    }
 
-    // โหลดข้อมูลเมื่อเปิดหน้า
-    loadOrders();
-</script>
+        function renderAdminOrders() {
+            const orders = JSON.parse(localStorage.getItem('all_orders')) || [];
+            const list = document.getElementById('admin-order-list');
+            list.innerHTML = orders.map(o => `
+                <div class="order-row">
+                    <div>${o.date}<br><strong>👤 ${o.user}</strong></div>
+                    <div>${o.items}<br><small>📍 ${o.addr}</small></div>
+                    <div style="color:red;">${o.total} บาท</div>
+                    <div><span class="status-tag">${o.status}</span></div>
+                </div>
+            `).reverse().join('');
+        }
+    </script>
 </body>
 </html>
