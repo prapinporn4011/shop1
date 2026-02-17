@@ -1,254 +1,507 @@
 <!DOCTYPE html>
+
 <html lang="th">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShadowSport - Elite Football Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    
-    <style>
-        :root { --blue: #001d5a; --gold: #c5a059; --red: #d32f2f; --white: #ffffff; }
-        body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f0f2f5; color: #333; }
-        
-        /* Navbar & Search */
-        .navbar { background: var(--blue); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .nav-links button { background: none; border: none; color: white; cursor: pointer; font-size: 16px; margin-left: 15px; }
-        .search-box { background: white; border-radius: 20px; padding: 5px 15px; display: flex; align-items: center; width: 300px; }
-        .search-box input { border: none; outline: none; width: 100%; padding: 5px; font-family: 'Sarabun'; }
-        .search-box i { color: #888; }
 
-        /* Floating Cart */
-        .cart-btn-float {
-            position: fixed; bottom: 30px; right: 30px;
-            background: var(--gold); color: white; width: 65px; height: 65px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.3); cursor: pointer; z-index: 999;
-            font-size: 24px; transition: 0.3s;
-        }
-        .cart-count { position: absolute; top: -5px; right: -5px; background: var(--red); color: white; font-size: 12px; padding: 4px 8px; border-radius: 50%; border: 2px solid white; }
+    <meta charset="UTF-8">
 
-        /* Product Grid */
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
-        .product-card { background: white; border-radius: 15px; overflow: hidden; border: 1px solid #eee; transition: 0.3s; position: relative; }
-        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .product-card img { width: 100%; height: 280px; object-fit: cover; }
-        .badge { position: absolute; top: 10px; left: 10px; background: var(--blue); color: white; padding: 3px 10px; border-radius: 5px; font-size: 12px; }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        /* Modal */
-        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); }
-        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; }
+    <title>ShadowSport - Elite Football Store</title>
 
-        /* Auth Sections */
-        .auth-card { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-family: 'Sarabun'; }
-        button { cursor: pointer; border: none; border-radius: 10px; font-weight: bold; transition: 0.3s; }
-        .btn-main { background: var(--blue); color: white; width: 100%; padding: 15px; font-size: 16px; }
-        .btn-main:hover { background: #0033a0; }
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
 
-        .hidden { display: none; }
-        .order-item { border-left: 4px solid var(--gold); background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
-    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+   
+
+    <style>
+
+        :root { --blue: #001d5a; --gold: #c5a059; --red: #d32f2f; --white: #ffffff; }
+
+        body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f0f2f5; color: #333; }
+
+       
+
+        /* Navbar & Search */
+
+        .navbar { background: var(--blue); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+
+        .nav-links button { background: none; border: none; color: white; cursor: pointer; font-size: 16px; margin-left: 15px; }
+
+        .search-box { background: white; border-radius: 20px; padding: 5px 15px; display: flex; align-items: center; width: 300px; }
+
+        .search-box input { border: none; outline: none; width: 100%; padding: 5px; font-family: 'Sarabun'; }
+
+        .search-box i { color: #888; }
+
+
+
+        /* Floating Cart */
+
+        .cart-btn-float {
+
+            position: fixed; bottom: 30px; right: 30px;
+
+            background: var(--gold); color: white; width: 65px; height: 65px;
+
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3); cursor: pointer; z-index: 999;
+
+            font-size: 24px; transition: 0.3s;
+
+        }
+
+        .cart-count { position: absolute; top: -5px; right: -5px; background: var(--red); color: white; font-size: 12px; padding: 4px 8px; border-radius: 50%; border: 2px solid white; }
+
+
+
+        /* Product Grid */
+
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
+
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; }
+
+        .product-card { background: white; border-radius: 15px; overflow: hidden; border: 1px solid #eee; transition: 0.3s; position: relative; }
+
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+
+        .product-card img { width: 100%; height: 280px; object-fit: cover; }
+
+        .badge { position: absolute; top: 10px; left: 10px; background: var(--blue); color: white; padding: 3px 10px; border-radius: 5px; font-size: 12px; }
+
+
+
+        /* Modal */
+
+        .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(5px); }
+
+        .modal-content { background: white; margin: 5% auto; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; }
+
+
+
+        /* Auth Sections */
+
+        .auth-card { max-width: 400px; margin: 100px auto; background: white; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-family: 'Sarabun'; }
+
+        button { cursor: pointer; border: none; border-radius: 10px; font-weight: bold; transition: 0.3s; }
+
+        .btn-main { background: var(--blue); color: white; width: 100%; padding: 15px; font-size: 16px; }
+
+        .btn-main:hover { background: #0033a0; }
+
+
+
+        .hidden { display: none; }
+
+        .order-item { border-left: 4px solid var(--gold); background: #f9f9f9; padding: 15px; margin-bottom: 10px; border-radius: 5px; }
+
+    </style>
+
 </head>
+
 <body>
 
-    <div class="cart-btn-float" onclick="shop.openCart()">
-        <i class="fas fa-shopping-cart"></i>
-        <span class="cart-count" id="cart-count-val">0</span>
-    </div>
 
-    <nav class="navbar">
-        <div style="font-size: 22px; font-weight: bold; letter-spacing: 1px;">⚽ SHADOW SPORT</div>
-        
-        <div class="search-box" id="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" id="search-input" placeholder="ค้นหาสินค้า..." onkeyup="shop.search()">
-        </div>
 
-        <div id="nav-user" class="nav-links hidden">
-            <span id="display-fullname"></span>
-            <button onclick="ui.showSection('history')"><i class="fas fa-list-alt"></i> ประวัติ</button>
-            <button onclick="auth.logout()" style="color:var(--red)"><i class="fas fa-sign-out-alt"></i> ออก</button>
-        </div>
-    </nav>
+    <div class="cart-btn-float" onclick="shop.openCart()">
 
-    <div id="auth-section">
-        <div id="login-box" class="auth-card">
-            <h2 style="color:var(--blue)"><i class="fas fa-lock"></i> เข้าสู่ระบบ</h2>
-            <input type="text" id="l-user" placeholder="ชื่อผู้ใช้งาน">
-            <input type="password" id="l-pass" placeholder="รหัสผ่าน">
-            <button class="btn-main" onclick="auth.login()">เข้าสู่ระบบ</button>
-            <p style="font-size:14px; margin-top:15px;">ยังไม่มีบัญชี? <a href="#" onclick="ui.toggleAuth()">สมัครสมาชิก</a></p>
-        </div>
-        <div id="reg-box" class="auth-card hidden">
-            <h2 style="color:var(--gold)"><i class="fas fa-user-plus"></i> สมัครสมาชิก</h2>
-            <input type="text" id="r-fullname" placeholder="ชื่อ-นามสกุลจริง">
-            <input type="text" id="r-user" placeholder="ตั้งชื่อผู้ใช้งาน">
-            <input type="password" id="r-pass" placeholder="ตั้งรหัสผ่าน">
-            <button class="btn-main" style="background:var(--gold)" onclick="auth.register()">ลงทะเบียน</button>
-            <p style="font-size:14px; margin-top:15px;"><a href="#" onclick="ui.toggleAuth()">กลับไปหน้าล็อกอิน</a></p>
-        </div>
-    </div>
+        <i class="fas fa-shopping-cart"></i>
 
-    <div id="store-section" class="container hidden">
-        <h2 style="margin-bottom:25px;"><i class="fas fa-fire" style="color:var(--red)"></i> สินค้าแนะนำสำหรับคุณ</h2>
-        <div class="product-grid" id="product-list">
-            <div class="product-card" data-name="เสื้อทีมชาติ Home น้ำเงิน">
-                <span class="badge">เสื้อแข่ง</span>
-                <img src="3.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Jersey+Home'">
-                <div style="padding:15px;">
-                    <h3>เสื้อทีมชาติ (Home)</h3>
-                    <p style="color:var(--red); font-weight:bold; font-size:1.2em;">790 บาท</p>
-                    <button class="btn-main" onclick="shop.addToCart('เสื้อทีมชาติ (Home)', 790)">ลงตะกร้า</button>
-                </div>
-            </div>
-            <div class="product-card" data-name="เสื้อทีมชาติ Away แดง">
-                <span class="badge">เสื้อแข่ง</span>
-                <img src="4.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Jersey+Away'">
-                <div style="padding:15px;">
-                    <h3>เสื้อทีมชาติ (Away)</h3>
-                    <p style="color:var(--red); font-weight:bold; font-size:1.2em;">890 บาท</p>
-                    <button class="btn-main" onclick="shop.addToCart('เสื้อทีมชาติ (Away)', 890)">ลงตะกร้า</button>
-                </div>
-            </div>
-        </div>
-    </div>
+        <span class="cart-count" id="cart-count-val">0</span>
 
-    <div id="history-section" class="container hidden">
-        <button onclick="ui.showSection('store')" style="background:#666; color:white; padding:8px 15px; margin-bottom:20px;">
-            <i class="fas fa-arrow-left"></i> กลับหน้าหลัก
-        </button>
-        <h2><i class="fas fa-history"></i> ประวัติการสั่งซื้อของคุณ</h2>
-        <div id="history-content">ยังไม่มีประวัติการสั่งซื้อ</div>
-    </div>
+    </div>
 
-    <div id="cartModal" class="modal">
-        <div class="modal-content">
-            <h2 style="color:var(--blue)"><i class="fas fa-shopping-basket"></i> ตะกร้าสินค้า</h2>
-            <div id="cart-items-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px;"></div>
-            <hr>
-            <div id="checkout-form" class="hidden">
-                <h3 style="font-size:16px;">📍 ข้อมูลจัดส่ง</h3>
-                <input type="text" id="cust-phone" placeholder="เบอร์โทรศัพท์">
-                <textarea id="cust-address" rows="2" placeholder="ที่อยู่จัดส่งโดยละเอียด"></textarea>
-                <div style="font-size: 20px; font-weight: bold; text-align: right; color: var(--red);">
-                    รวม: <span id="cart-total-modal">0</span> บาท
-                </div>
-                <button class="btn-main" style="background:var(--gold); margin-top:15px;" onclick="shop.processOrder()">
-                    <i class="fas fa-check-circle"></i> ยืนยันสั่งซื้อ
-                </button>
-            </div>
-            <button onclick="shop.closeCart()" style="width:100%; margin-top:10px; background:#eee;">ปิด</button>
-        </div>
-    </div>
 
-    <script>
-        const ui = {
-            toggleAuth: () => {
-                document.getElementById('login-box').classList.toggle('hidden');
-                document.getElementById('reg-box').classList.toggle('hidden');
-            },
-            showSection: (name) => {
-                ['auth-section', 'store-section', 'history-section'].forEach(id => {
-                    document.getElementById(id).classList.add('hidden');
-                });
-                document.getElementById(name + '-section').classList.remove('hidden');
-                if(name === 'history') shop.renderHistory();
-            }
-        };
 
-        const auth = {
-            register: () => {
-                const fn = document.getElementById('r-fullname').value;
-                const u = document.getElementById('r-user').value;
-                const p = document.getElementById('r-pass').value;
-                if(!fn || !u || !p) return alert('กรุณากรอกให้ครบ');
-                localStorage.setItem('user_' + u, JSON.stringify({pass: p, name: fn}));
-                alert('สมัครสำเร็จ!'); ui.toggleAuth();
-            },
-            login: () => {
-                const u = document.getElementById('l-user').value;
-                const p = document.getElementById('l-pass').value;
-                const data = JSON.parse(localStorage.getItem('user_' + u));
-                if(data && data.pass === p) {
-                    sessionStorage.setItem('current_user', u);
-                    sessionStorage.setItem('current_name', data.name);
-                    document.getElementById('display-fullname').innerText = "👤 " + data.name;
-                    document.getElementById('nav-user').classList.remove('hidden');
-                    ui.showSection('store');
-                } else { alert('รหัสผ่านผิด!'); }
-            },
-            logout: () => { sessionStorage.clear(); location.reload(); }
-        };
+    <nav class="navbar">
 
-        const shop = {
-            cart: [],
-            search: () => {
-                const term = document.getElementById('search-input').value.toLowerCase();
-                const items = document.querySelectorAll('.product-card');
-                items.forEach(item => {
-                    const name = item.getAttribute('data-name').toLowerCase();
-                    item.style.display = name.includes(term) ? 'block' : 'none';
-                });
-            },
-            addToCart: (name, price) => {
-                shop.cart.push({name, price});
-                document.getElementById('cart-count-val').innerText = shop.cart.length;
-                alert('เพิ่ม ' + name + ' แล้ว');
-            },
-            openCart: () => {
-                const modal = document.getElementById('cartModal');
-                const list = document.getElementById('cart-items-list');
-                const form = document.getElementById('checkout-form');
-                modal.style.display = "block";
-                if(shop.cart.length === 0) {
-                    list.innerHTML = "ไม่มีสินค้า"; form.classList.add('hidden');
-                } else {
-                    let total = 0;
-                    list.innerHTML = shop.cart.map((item, i) => {
-                        total += item.price;
-                        return `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                                    <span>${item.name}</span>
-                                    <span>${item.price} บ. <i class="fas fa-trash" style="color:red; cursor:pointer;" onclick="shop.removeItem(${i})"></i></span>
-                                </div>`;
-                    }).join('');
-                    document.getElementById('cart-total-modal').innerText = total.toLocaleString();
-                    form.classList.remove('hidden');
-                }
-            },
-            closeCart: () => document.getElementById('cartModal').style.display = "none",
-            removeItem: (i) => { shop.cart.splice(i, 1); shop.openCart(); document.getElementById('cart-count-val').innerText = shop.cart.length; },
-            processOrder: () => {
-                const phone = document.getElementById('cust-phone').value;
-                const addr = document.getElementById('cust-address').value;
-                if(!phone || !addr) return alert('กรุณากรอกข้อมูลจัดส่ง');
-                const order = {
-                    id: Date.now(),
-                    user: sessionStorage.getItem('current_user'),
-                    items: shop.cart.map(i => i.name).join(', '),
-                    total: document.getElementById('cart-total-modal').innerText,
-                    date: new Date().toLocaleString('th-TH'),
-                    status: 'กำลังจัดเตรียม'
-                };
-                let orders = JSON.parse(localStorage.getItem('all_orders')) || [];
-                orders.push(order);
-                localStorage.setItem('all_orders', JSON.stringify(orders));
-                alert('สั่งซื้อสำเร็จ!'); shop.cart = []; shop.closeCart(); 
-                document.getElementById('cart-count-val').innerText = "0";
-            },
-            renderHistory: () => {
-                const user = sessionStorage.getItem('current_user');
-                const orders = (JSON.parse(localStorage.getItem('all_orders')) || []).filter(o => o.user === user);
-                document.getElementById('history-content').innerHTML = orders.reverse().map(o => `
-                    <div class="order-item">
-                        <strong>เลขที่: #${o.id}</strong> | ${o.date}<br>
-                        สินค้า: ${o.items}<br>
-                        ยอดรวม: <span style="color:var(--red)">${o.total} บาท</span> | สถานะ: <span style="color:blue">${o.status}</span>
-                    </div>
-                `).join('') || "ไม่มีประวัติการสั่งซื้อ";
-            }
-        };
-    </script>
+        <div style="font-size: 22px; font-weight: bold; letter-spacing: 1px;">⚽ SHADOW SPORT</div>
+
+       
+
+        <div class="search-box" id="search-container">
+
+            <i class="fas fa-search"></i>
+
+            <input type="text" id="search-input" placeholder="ค้นหาสินค้า..." onkeyup="shop.search()">
+
+        </div>
+
+
+
+        <div id="nav-user" class="nav-links hidden">
+
+            <span id="display-fullname"></span>
+
+            <button onclick="ui.showSection('history')"><i class="fas fa-list-alt"></i> ประวัติ</button>
+
+            <button onclick="auth.logout()" style="color:var(--red)"><i class="fas fa-sign-out-alt"></i> ออก</button>
+
+        </div>
+
+    </nav>
+
+
+
+    <div id="auth-section">
+
+        <div id="login-box" class="auth-card">
+
+            <h2 style="color:var(--blue)"><i class="fas fa-lock"></i> เข้าสู่ระบบ</h2>
+
+            <input type="text" id="l-user" placeholder="ชื่อผู้ใช้งาน">
+
+            <input type="password" id="l-pass" placeholder="รหัสผ่าน">
+
+            <button class="btn-main" onclick="auth.login()">เข้าสู่ระบบ</button>
+
+            <p style="font-size:14px; margin-top:15px;">ยังไม่มีบัญชี? <a href="#" onclick="ui.toggleAuth()">สมัครสมาชิก</a></p>
+
+        </div>
+
+        <div id="reg-box" class="auth-card hidden">
+
+            <h2 style="color:var(--gold)"><i class="fas fa-user-plus"></i> สมัครสมาชิก</h2>
+
+            <input type="text" id="r-fullname" placeholder="ชื่อ-นามสกุลจริง">
+
+            <input type="text" id="r-user" placeholder="ตั้งชื่อผู้ใช้งาน">
+
+            <input type="password" id="r-pass" placeholder="ตั้งรหัสผ่าน">
+
+            <button class="btn-main" style="background:var(--gold)" onclick="auth.register()">ลงทะเบียน</button>
+
+            <p style="font-size:14px; margin-top:15px;"><a href="#" onclick="ui.toggleAuth()">กลับไปหน้าล็อกอิน</a></p>
+
+        </div>
+
+    </div>
+
+
+
+    <div id="store-section" class="container hidden">
+
+        <h2 style="margin-bottom:25px;"><i class="fas fa-fire" style="color:var(--red)"></i> สินค้าแนะนำสำหรับคุณ</h2>
+
+        <div class="product-grid" id="product-list">
+
+            <div class="product-card" data-name="เสื้อทีมชาติ Home น้ำเงิน">
+
+                <span class="badge">เสื้อแข่ง</span>
+
+                <img src="3.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Jersey+Home'">
+
+                <div style="padding:15px;">
+
+                    <h3>เสื้อทีมชาติ (Home)</h3>
+
+                    <p style="color:var(--red); font-weight:bold; font-size:1.2em;">790 บาท</p>
+
+                    <button class="btn-main" onclick="shop.addToCart('เสื้อทีมชาติ (Home)', 790)">ลงตะกร้า</button>
+
+                </div>
+
+            </div>
+
+            <div class="product-card" data-name="เสื้อทีมชาติ Away แดง">
+
+                <span class="badge">เสื้อแข่ง</span>
+
+                <img src="4.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Jersey+Away'">
+
+                <div style="padding:15px;">
+
+                    <h3>เสื้อทีมชาติ (Away)</h3>
+
+                    <p style="color:var(--red); font-weight:bold; font-size:1.2em;">890 บาท</p>
+
+                    <button class="btn-main" onclick="shop.addToCart('เสื้อทีมชาติ (Away)', 890)">ลงตะกร้า</button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div id="history-section" class="container hidden">
+
+        <button onclick="ui.showSection('store')" style="background:#666; color:white; padding:8px 15px; margin-bottom:20px;">
+
+            <i class="fas fa-arrow-left"></i> กลับหน้าหลัก
+
+        </button>
+
+        <h2><i class="fas fa-history"></i> ประวัติการสั่งซื้อของคุณ</h2>
+
+        <div id="history-content">ยังไม่มีประวัติการสั่งซื้อ</div>
+
+    </div>
+
+
+
+    <div id="cartModal" class="modal">
+
+        <div class="modal-content">
+
+            <h2 style="color:var(--blue)"><i class="fas fa-shopping-basket"></i> ตะกร้าสินค้า</h2>
+
+            <div id="cart-items-list" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px;"></div>
+
+            <hr>
+
+            <div id="checkout-form" class="hidden">
+
+                <h3 style="font-size:16px;">📍 ข้อมูลจัดส่ง</h3>
+
+                <input type="text" id="cust-phone" placeholder="เบอร์โทรศัพท์">
+
+                <textarea id="cust-address" rows="2" placeholder="ที่อยู่จัดส่งโดยละเอียด"></textarea>
+
+                <div style="font-size: 20px; font-weight: bold; text-align: right; color: var(--red);">
+
+                    รวม: <span id="cart-total-modal">0</span> บาท
+
+                </div>
+
+                <button class="btn-main" style="background:var(--gold); margin-top:15px;" onclick="shop.processOrder()">
+
+                    <i class="fas fa-check-circle"></i> ยืนยันสั่งซื้อ
+
+                </button>
+
+            </div>
+
+            <button onclick="shop.closeCart()" style="width:100%; margin-top:10px; background:#eee;">ปิด</button>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        const ui = {
+
+            toggleAuth: () => {
+
+                document.getElementById('login-box').classList.toggle('hidden');
+
+                document.getElementById('reg-box').classList.toggle('hidden');
+
+            },
+
+            showSection: (name) => {
+
+                ['auth-section', 'store-section', 'history-section'].forEach(id => {
+
+                    document.getElementById(id).classList.add('hidden');
+
+                });
+
+                document.getElementById(name + '-section').classList.remove('hidden');
+
+                if(name === 'history') shop.renderHistory();
+
+            }
+
+        };
+
+
+
+        const auth = {
+
+            register: () => {
+
+                const fn = document.getElementById('r-fullname').value;
+
+                const u = document.getElementById('r-user').value;
+
+                const p = document.getElementById('r-pass').value;
+
+                if(!fn || !u || !p) return alert('กรุณากรอกให้ครบ');
+
+                localStorage.setItem('user_' + u, JSON.stringify({pass: p, name: fn}));
+
+                alert('สมัครสำเร็จ!'); ui.toggleAuth();
+
+            },
+
+            login: () => {
+
+                const u = document.getElementById('l-user').value;
+
+                const p = document.getElementById('l-pass').value;
+
+                const data = JSON.parse(localStorage.getItem('user_' + u));
+
+                if(data && data.pass === p) {
+
+                    sessionStorage.setItem('current_user', u);
+
+                    sessionStorage.setItem('current_name', data.name);
+
+                    document.getElementById('display-fullname').innerText = "👤 " + data.name;
+
+                    document.getElementById('nav-user').classList.remove('hidden');
+
+                    ui.showSection('store');
+
+                } else { alert('รหัสผ่านผิด!'); }
+
+            },
+
+            logout: () => { sessionStorage.clear(); location.reload(); }
+
+        };
+
+
+
+        const shop = {
+
+            cart: [],
+
+            search: () => {
+
+                const term = document.getElementById('search-input').value.toLowerCase();
+
+                const items = document.querySelectorAll('.product-card');
+
+                items.forEach(item => {
+
+                    const name = item.getAttribute('data-name').toLowerCase();
+
+                    item.style.display = name.includes(term) ? 'block' : 'none';
+
+                });
+
+            },
+
+            addToCart: (name, price) => {
+
+                shop.cart.push({name, price});
+
+                document.getElementById('cart-count-val').innerText = shop.cart.length;
+
+                alert('เพิ่ม ' + name + ' แล้ว');
+
+            },
+
+            openCart: () => {
+
+                const modal = document.getElementById('cartModal');
+
+                const list = document.getElementById('cart-items-list');
+
+                const form = document.getElementById('checkout-form');
+
+                modal.style.display = "block";
+
+                if(shop.cart.length === 0) {
+
+                    list.innerHTML = "ไม่มีสินค้า"; form.classList.add('hidden');
+
+                } else {
+
+                    let total = 0;
+
+                    list.innerHTML = shop.cart.map((item, i) => {
+
+                        total += item.price;
+
+                        return `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+
+                                    <span>${item.name}</span>
+
+                                    <span>${item.price} บ. <i class="fas fa-trash" style="color:red; cursor:pointer;" onclick="shop.removeItem(${i})"></i></span>
+
+                                </div>`;
+
+                    }).join('');
+
+                    document.getElementById('cart-total-modal').innerText = total.toLocaleString();
+
+                    form.classList.remove('hidden');
+
+                }
+
+            },
+
+            closeCart: () => document.getElementById('cartModal').style.display = "none",
+
+            removeItem: (i) => { shop.cart.splice(i, 1); shop.openCart(); document.getElementById('cart-count-val').innerText = shop.cart.length; },
+
+            processOrder: () => {
+
+                const phone = document.getElementById('cust-phone').value;
+
+                const addr = document.getElementById('cust-address').value;
+
+                if(!phone || !addr) return alert('กรุณากรอกข้อมูลจัดส่ง');
+
+                const order = {
+
+                    id: Date.now(),
+
+                    user: sessionStorage.getItem('current_user'),
+
+                    items: shop.cart.map(i => i.name).join(', '),
+
+                    total: document.getElementById('cart-total-modal').innerText,
+
+                    date: new Date().toLocaleString('th-TH'),
+
+                    status: 'กำลังจัดเตรียม'
+
+                };
+
+                let orders = JSON.parse(localStorage.getItem('all_orders')) || [];
+
+                orders.push(order);
+
+                localStorage.setItem('all_orders', JSON.stringify(orders));
+
+                alert('สั่งซื้อสำเร็จ!'); shop.cart = []; shop.closeCart();
+
+                document.getElementById('cart-count-val').innerText = "0";
+
+            },
+
+            renderHistory: () => {
+
+                const user = sessionStorage.getItem('current_user');
+
+                const orders = (JSON.parse(localStorage.getItem('all_orders')) || []).filter(o => o.user === user);
+
+                document.getElementById('history-content').innerHTML = orders.reverse().map(o => `
+
+                    <div class="order-item">
+
+                        <strong>เลขที่: #${o.id}</strong> | ${o.date}<br>
+
+                        สินค้า: ${o.items}<br>
+
+                        ยอดรวม: <span style="color:var(--red)">${o.total} บาท</span> | สถานะ: <span style="color:blue">${o.status}</span>
+
+                    </div>
+
+                `).join('') || "ไม่มีประวัติการสั่งซื้อ";
+
+            }
+
+        };
+
+    </script>
+
 </body>
+
 </html>
