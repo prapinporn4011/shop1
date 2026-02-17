@@ -53,10 +53,14 @@
         .payment-option:hover, .payment-option.active { border-color: var(--blue); background: #f0f7ff; }
         .payment-option.active { border: 2px solid var(--blue); }
         
-        .qr-container { text-align: center; padding: 20px; background: #fff; border: 1px solid #eee; border-radius: 10px; margin-top: 15px; }
-        .timer-box { font-size: 24px; font-weight: bold; color: var(--red); margin: 10px 0; }
+        /* QR Code Area - Updated */
+        .qr-container { text-align: center; padding: 25px; background: #fff; border: 1px solid #eee; border-radius: 10px; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .qr-box { background: white; padding: 10px; border: 2px dashed var(--blue); display: inline-block; border-radius: 10px; margin-bottom: 10px; }
+        .qr-image { width: 180px; height: 180px; display: block; }
+        .timer-box { font-size: 28px; font-weight: bold; color: var(--red); margin: 15px 0 5px; font-family: monospace; }
+        .bank-info { font-size: 14px; background: #f4f4f4; padding: 10px; border-radius: 8px; margin-bottom: 15px; }
 
-        /* Profile Styles (Reused) */
+        /* Profile Styles */
         .profile-grid { display: grid; grid-template-columns: 300px 1fr; gap: 30px; }
         .profile-sidebar { background: white; padding: 30px; border-radius: 20px; text-align: center; }
         .profile-content { background: white; padding: 40px; border-radius: 20px; }
@@ -72,10 +76,12 @@
 <body onload="app.init()">
 
     <nav class="navbar">
-        <div style="font-size: 24px; font-weight: bold; cursor:pointer" onclick="ui.showSection('store')">ThanJai Shop</div>
+        <div style="font-size: 24px; font-weight: bold; cursor:pointer" onclick="ui.showSection('store')">
+            <i class="fas fa-tshirt"></i> ThanJai Shop
+        </div>
         <div id="nav-user" class="hidden">
             <div style="display:flex; align-items:center; gap:15px;">
-                <span onclick="ui.showSection('profile')" id="nav-name-display" style="cursor:pointer"></span>
+                <span onclick="ui.showSection('profile')" id="nav-name-display" style="cursor:pointer; font-weight:bold;"></span>
                 <button onclick="ui.showSection('history')" style="background:none; border:none; color:white; cursor:pointer"><i class="fas fa-list"></i> ประวัติ</button>
                 <button onclick="auth.logout()" style="background:none; border:none; color:var(--gold); cursor:pointer"><i class="fas fa-sign-out-alt"></i> ออก</button>
             </div>
@@ -101,7 +107,7 @@
     </div>
 
     <div id="store-section" class="container hidden">
-        <h2 style="color:var(--blue); border-bottom:2px solid #ddd; padding-bottom:10px;">สินค้าแนะนำ</h2>
+        <h2 style="color:var(--blue); border-bottom:2px solid #ddd; padding-bottom:10px;"><i class="fas fa-star"></i> สินค้าแนะนำ</h2>
         <div class="product-grid" id="product-list"></div>
     </div>
 
@@ -157,9 +163,16 @@
                 </div>
 
                 <div id="qr-area" class="qr-container hidden">
-                    <p style="margin:0 0 10px 0;">สแกนเพื่อชำระเงิน</p>
-                    <img src="QRcode.jpg" style="width:150px;">
-                    <p class="timer-box" id="timer-display">15:00</p>
+                    <p style="margin:0 0 10px 0; font-weight:bold;">สแกนเพื่อชำระเงิน</p>
+                    <div class="qr-box">
+                        <img id="qr-img-display" src="" class="qr-image" alt="Payment QR">
+                    </div>
+                    <div class="bank-info">
+                        ธนาคาร: <strong>กสิกรไทย (K-Bank)</strong><br>
+                        ชื่อบัญชี: <strong>ร้านทันใจ ช็อป</strong><br>
+                        เลขที่: <strong>XXX-X-XXXXX-X</strong>
+                    </div>
+                    <p class="timer-box" id="timer-display">10:00</p>
                     <p style="font-size:12px; color:var(--red);">กรุณาชำระเงินภายในเวลาที่กำหนด</p>
                 </div>
 
@@ -180,7 +193,8 @@
             <div class="profile-sidebar">
                 <div class="profile-pic-container">
                     <img src="https://ui-avatars.com/api/?name=User" id="display-pic" alt="Profile">
-                    <label class="upload-btn" for="pic-input"><i class="fas fa-camera"></i>
+                    <label class="upload-btn" for="pic-input" style="position:absolute; bottom:0; right:10px; background:var(--blue); color:white; width:35px; height:35px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px solid white;">
+                        <i class="fas fa-camera"></i>
                         <input type="file" id="pic-input" class="hidden" accept="image/*" onchange="ui.handlePicUpload(this)">
                     </label>
                 </div>
@@ -189,7 +203,7 @@
             </div>
             <div class="profile-content">
                 <form onsubmit="auth.saveProfile(event)">
-                    <h3 class="section-title">แก้ไขข้อมูลส่วนตัว</h3>
+                    <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">แก้ไขข้อมูลส่วนตัว</h3>
                     <input type="text" id="p-fullname" placeholder="ชื่อ-นามสกุล">
                     <input type="tel" id="p-phone" placeholder="เบอร์โทรศัพท์">
                     <textarea id="p-address" rows="3" placeholder="ที่อยู่"></textarea>
@@ -206,15 +220,16 @@
 
     <script>
         // --- DATA & STATE ---
+        // ใช้รูป placeholder เดิมไปก่อน แต่โค้ดพร้อมรองรับรูปจริง
         const products = [
-            { id: 1, name: "เสื้อเหย้า อุทัยธานี FC 2024", price: 790, img: "3.jpg", desc: "เสื้อแข่งเกรดแฟนบอล เนื้อผ้าระบายอากาศดีเยี่ยม" },
-            { id: 2, name: "เสื้อทีมชาติไทย Warrix 2024", price: 890, img: "4.jpg", desc: "เสื้อเชียร์ทีมชาติไทยรุ่นใหม่ล่าสุด" },
-            { id: 3, name: "เสื้อซ้อม BG Pathum United", price: 590, img: "5.jpg", desc: "เสื้อซ้อมนักเตะ ใส่สบาย แห้งไว" },
-            { id: 4, name: "เสื้อเหย้า Buriram United 2024", price: 790, img: "6.jpg", desc: "เสื้อสีกรมท่าเอกลักษณ์ปราสาทสายฟ้า" },
-            { id: 5, name: "เสื้อเยือน Muangthong Utd", price: 750, img: "7.jpg", desc: "เสื้อเยือนกิเลนผยอง สีขาวคลาสสิก" },
-            { id: 6, name: "เสื้อ Port FC Home Jersey", price: 850, img: "8.jpg", desc: "เสื้อแข่งสิงห์เจ้าท่า สีแสด-น้ำเงิน" },
-            { id: 7, name: "เสื้อ Chonburi FC Shark", price: 690, img: "9.jpg", desc: "ฉลามชลบุก! เสื้อแข่งดีไซน์ลายน้ำทะเล" },
-            { id: 8, name: "เสื้อ Chiangrai United 2024", price: 720, img: "10.jpg", desc: "กว่างโซ้งมหาภัย เสื้อสีส้มไล่เฉดสี" }
+            { id: 1, name: "เสื้อเหย้า อุทัยธานี FC 2024", price: 790, img: "https://via.placeholder.com/300?text=Uthai+FC", desc: "เสื้อแข่งเกรดแฟนบอล เนื้อผ้าระบายอากาศดีเยี่ยม" },
+            { id: 2, name: "เสื้อทีมชาติไทย Warrix 2024", price: 890, img: "https://via.placeholder.com/300?text=Warrix+Thai", desc: "เสื้อเชียร์ทีมชาติไทยรุ่นใหม่ล่าสุด" },
+            { id: 3, name: "เสื้อซ้อม BG Pathum United", price: 590, img: "https://via.placeholder.com/300?text=BG+Pathum", desc: "เสื้อซ้อมนักเตะ ใส่สบาย แห้งไว" },
+            { id: 4, name: "เสื้อเหย้า Buriram United 2024", price: 790, img: "https://via.placeholder.com/300?text=Buriram+Utd", desc: "เสื้อสีกรมท่าเอกลักษณ์ปราสาทสายฟ้า" },
+            { id: 5, name: "เสื้อเยือน Muangthong Utd", price: 750, img: "https://via.placeholder.com/300?text=MTUTD", desc: "เสื้อเยือนกิเลนผยอง สีขาวคลาสสิก" },
+            { id: 6, name: "เสื้อ Port FC Home Jersey", price: 850, img: "https://via.placeholder.com/300?text=Port+FC", desc: "เสื้อแข่งสิงห์เจ้าท่า สีแสด-น้ำเงิน" },
+            { id: 7, name: "เสื้อ Chonburi FC Shark", price: 690, img: "https://via.placeholder.com/300?text=Chonburi", desc: "ฉลามชลบุก! เสื้อแข่งดีไซน์ลายน้ำทะเล" },
+            { id: 8, name: "เสื้อ Chiangrai United 2024", price: 720, img: "https://via.placeholder.com/300?text=Chiangrai", desc: "กว่างโซ้งมหาภัย เสื้อสีส้มไล่เฉดสี" }
         ];
 
         let currentUser = null;
@@ -392,6 +407,9 @@
                 document.getElementById('co-phone').value = db.phone || '';
                 document.getElementById('co-address').value = db.address || '';
                 
+                // Reset Payment to COD by default
+                payment.select('cod');
+                
                 cart.renderPage();
                 ui.showSection('cart');
             },
@@ -435,6 +453,9 @@
                 document.getElementById('sum-subtotal').innerText = subtotal.toLocaleString() + " ฿";
                 document.getElementById('sum-discount').innerText = "-" + currentDiscount.toLocaleString() + " ฿";
                 document.getElementById('sum-total').innerText = (total > 0 ? total : 0).toLocaleString() + " ฿";
+                
+                // Return total for Payment QR calculation
+                return total > 0 ? total : 0;
             },
             checkout: () => {
                 // Validation
@@ -444,10 +465,6 @@
                 
                 if(!name || !phone || !address) return alert("กรุณากรอกชื่อ เบอร์โทร และที่อยู่ให้ครบถ้วน");
                 if(phone.length < 10) return alert("เบอร์โทรศัพท์ต้องมี 10 หลัก");
-                
-                if(selectedPayment === 'qr') {
-                    // Logic for checking timer could go here
-                }
                 
                 if(!confirm("ยืนยันการสั่งซื้อ?")) return;
                 
@@ -494,11 +511,12 @@
             }
         };
 
-        // --- PAYMENT LOGIC ---
+        // --- PAYMENT LOGIC (UPDATED WITH QR IMAGE) ---
         const payment = {
             select: (method) => {
                 selectedPayment = method;
                 document.querySelectorAll('.payment-option').forEach(e => e.classList.remove('active'));
+                
                 if(method === 'cod') {
                     document.getElementById('opt-cod').classList.add('active');
                     document.getElementById('qr-area').classList.add('hidden');
@@ -506,12 +524,23 @@
                 } else {
                     document.getElementById('opt-qr').classList.add('active');
                     document.getElementById('qr-area').classList.remove('hidden');
+                    
+                    // Generate QR Code based on Total Amount
+                    const totalAmount = cart.calcTotal();
+                    payment.generateQR(totalAmount);
                     payment.startTimer();
                 }
             },
+            generateQR: (amount) => {
+                // ใช้ API สร้าง QR Code (api.qrserver.com)
+                // ข้อมูลใน QR เป็นแบบจำลองสำหรับ Demo
+                const qrData = `PromptPay|081-234-5678|${amount}`;
+                const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(qrData)}`;
+                document.getElementById('qr-img-display').src = qrUrl;
+            },
             startTimer: () => {
                 clearInterval(timerInterval);
-                let duration = 600; // 10 minutes (600 seconds)
+                let duration = 600; // 10 minutes
                 const display = document.getElementById('timer-display');
                 
                 timerInterval = setInterval(() => {
