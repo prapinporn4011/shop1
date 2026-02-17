@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShadowSport - Complete System</title>
+    <title>ThanJai shop - Complete System</title>
     <style>
         :root { --primary: #00247d; --secondary: #ed1c24; --success: #28a745; --bg: #f4f7f6; }
         body { font-family: 'Sarabun', Arial, sans-serif; margin: 0; background: var(--bg); }
