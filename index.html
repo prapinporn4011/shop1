@@ -3,301 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShadowSport - Elite Football Store</title>
+    <title>ThanJai Sport - Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --blue: #001d5a; --gold: #c5a059; --red: #d32f2f;
-            --white: #ffffff; --light-bg: #f0f2f5;
-        }
+        :root { --blue: #001d5a; --gold: #c5a059; --red: #d32f2f; }
+        body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f4f7f6; }
         
-        body { 
-            font-family: 'Sarabun', sans-serif; margin: 0; 
-            background: var(--light-bg); color: #333;
-        }
-
         /* Navbar */
-        .navbar { 
-            background: var(--blue); color: white; padding: 10px 5%;
-            display: flex; justify-content: space-between; align-items: center;
-            position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        .navbar { background: var(--blue); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
+        
+        /* Floating Cart Button */
+        .cart-btn-float {
+            position: fixed; bottom: 30px; right: 30px;
+            background: var(--gold); color: white; width: 70px; height: 70px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3); cursor: pointer; z-index: 999;
+            font-size: 30px; transition: 0.3s;
         }
-        .logo { font-size: 26px; font-weight: bold; color: var(--gold); }
-        .search-container { position: relative; width: 300px; }
-        .search-container input { 
-            width: 100%; padding: 8px 15px; border-radius: 20px; border: none; outline: none;
+        .cart-count {
+            position: absolute; top: 0; right: 0; background: var(--red);
+            color: white; font-size: 14px; padding: 4px 8px; border-radius: 50%;
         }
 
-        /* Container & Cards */
+        /* Modal Structure (หน้าต่างตะกร้า) */
+        .modal {
+            display: none; position: fixed; z-index: 2000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
+        }
+        .modal-content {
+            background-color: white; margin: 5% auto; padding: 25px;
+            border-radius: 20px; width: 90%; max-width: 500px;
+            max-height: 80vh; overflow-y: auto;
+        }
+
+        /* Product List */
         .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-        .card { 
-            background: white; border-radius: 20px; padding: 30px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.05); 
-        }
-
-        /* Auth Sections */
-        .auth-card { max-width: 400px; margin: 60px auto; text-align: center; }
-        input[type="text"], input[type="password"], textarea { 
-            width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; 
-            border-radius: 10px; box-sizing: border-box; transition: 0.3s;
-        }
-        input:focus { border-color: var(--gold); box-shadow: 0 0 8px rgba(197,160,89,0.3); }
-
-        /* Product Grid */
-        .product-grid { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
-            gap: 25px; margin-top: 20px;
-        }
-        .product-card { 
-            background: white; border-radius: 15px; overflow: hidden; 
-            transition: 0.4s; border: 1px solid #eee; position: relative;
-        }
-        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+        .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 25px; }
+        .product-card { background: white; border-radius: 15px; overflow: hidden; border: 1px solid #eee; text-align: center; padding-bottom: 15px;}
         .product-card img { width: 100%; height: 300px; object-fit: cover; }
-        .product-info { padding: 15px; text-align: center; }
-        .product-price { color: var(--red); font-weight: bold; font-size: 20px; }
 
-        /* Buttons */
-        button { cursor: pointer; border: none; border-radius: 10px; font-weight: bold; transition: 0.3s; }
-        .btn-blue { background: var(--blue); color: white; padding: 12px 20px; width: 100%; }
-        .btn-blue:hover { background: #0033a0; }
-        .btn-gold { background: var(--gold); color: white; padding: 12px 20px; }
-        .btn-logout { background: var(--red); color: white; padding: 5px 15px; }
-
+        /* Form Styling */
+        input, textarea { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; }
+        button { cursor: pointer; border: none; border-radius: 10px; font-weight: bold; padding: 12px 20px; }
+        .btn-buy { background: var(--blue); color: white; width: 100%; }
+        .btn-confirm { background: var(--gold); color: white; width: 100%; font-size: 18px; margin-top: 15px; }
+        
         .hidden { display: none; }
-        .cart-section { background: #001d5a; color: white; padding: 25px; border-radius: 20px; margin-top: 40px; }
     </style>
 </head>
 <body>
 
+    <div class="cart-btn-float" id="cart-trigger" onclick="shop.openCart()">
+        🛒 <span class="cart-count" id="cart-count-val">0</span>
+    </div>
+
     <nav class="navbar">
-        <div class="logo">ThanJai shop</div>
-        <div class="search-container" id="search-box-ui" style="display:none;">
-            <input type="text" id="search-input" placeholder="🔍 ค้นหาเสื้อที่ต้องการ..." onkeyup="shop.search()">
-        </div>
+        <div style="font-size: 24px; font-weight: bold;">ThanJai Sport</div>
         <div id="nav-user" class="hidden">
-            สวัสดีคุณ <span id="display-fullname" style="color:var(--gold); font-weight:bold;"></span> | 
-            <button onclick="ui.showSection('history')" style="background:none; color:white; text-decoration:underline;">ประวัติ</button> |
-            <button class="btn-logout" onclick="auth.logout()">ออก</button>
+            สวัสดีคุณ <span id="display-fullname"></span> | 
+            <button onclick="auth.logout()" style="background:var(--red); color:white;">ออก</button>
         </div>
     </nav>
 
-    <div id="auth-section" class="container">
-        <div id="login-box" class="card auth-card">
-            <h2 style="color:var(--blue)">เข้าสู่ระบบ</h2>
-            <input type="text" id="l-user" placeholder="Username">
-            <input type="password" id="l-pass" placeholder="Password">
-            <button class="btn-blue" onclick="auth.login()">Login</button>
-            <p>ยังไม่มีสมาชิก? <a href="#" onclick="ui.toggleAuth()">สมัครที่นี่</a></p>
-        </div>
-
-        <div id="reg-box" class="card auth-card hidden">
-            <h2 style="color:var(--gold)">สมัครสมาชิก</h2>
-            <input type="text" id="r-fullname" placeholder="ชื่อ-นามสกุลจริง">
-            <input type="text" id="r-user" placeholder="ตั้งชื่อผู้ใช้งาน (Username)">
-            <input type="password" id="r-pass" placeholder="ตั้งรหัสผ่าน">
-            <button class="btn-blue" style="background:var(--gold)" onclick="auth.register()">ยืนยันสมัครสมาชิก</button>
-            <p><a href="#" onclick="ui.toggleAuth()">กลับไปหน้าล็อกอิน</a></p>
+    <div id="cartModal" class="modal">
+        <div class="modal-content">
+            <h2 style="color:var(--blue)">🛒 ตะกร้าสินค้าของคุณ</h2>
+            <div id="cart-items-list">ยังไม่มีสินค้า</div>
+            <hr>
+            
+            <div id="checkout-form" class="hidden">
+                <h3>📍 ข้อมูลสำหรับการจัดส่ง</h3>
+                <input type="text" id="cust-name-input" placeholder="ชื่อ-นามสกุล">
+                <input type="text" id="cust-phone" placeholder="เบอร์โทรศัพท์">
+                <textarea id="cust-address" rows="3" placeholder="ที่อยู่จัดส่งโดยละเอียด"></textarea>
+                <div style="font-size: 20px; font-weight: bold; margin-top: 10px;">
+                    ยอดรวมสุทธิ: <span id="cart-total-modal" style="color:var(--red)">0</span> บาท
+                </div>
+                <button class="btn-confirm" onclick="shop.processOrder()">ยืนยันสั่งซื้อสินค้า</button>
+            </div>
+            
+            <button onclick="shop.closeCart()" style="margin-top: 15px; background:#ccc; width:100%;">ปิดหน้าต่าง</button>
         </div>
     </div>
 
-    <div id="store-section" class="container hidden">
-        <div style="display:flex; justify-content: space-between; align-items: center;">
-            <h2>🔥 สินค้ามาใหม่ประจำสัปดาห์</h2>
-        </div>
-        
-        <div class="product-grid" id="product-container">
-            <div class="product-card" data-name="เสื้อทีมชาติน้ำเงิน Home">
+    <div id="store-section" class="container">
+        <h2>👕 สินค้าแนะนำสำหรับคุณ</h2>
+        <div class="product-grid">
+            <div class="product-card">
                 <img src="1.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Jersey+1'">
-                <div class="product-info">
+                <div style="padding:15px;">
                     <h3>เสื้อทีมชาติ (Home)</h3>
-                    <p class="product-price">790 บาท</p>
-                    <button class="btn-blue" onclick="shop.addToCart('เสื้อทีมชาติ (Home)', 790)">ลงตะกร้า</button>
+                    <p style="color:var(--red); font-weight:bold;">790 บาท</p>
+                    <button class="btn-buy" onclick="shop.addToCart('เสื้อทีมชาติ (Home)', 790)">ลงตะกร้า</button>
                 </div>
             </div>
-            <div class="product-card" data-name="เสื้อทีมชาติแดง Away">
+            <div class="product-card">
                 <img src="2.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Jersey+2'">
-                <div class="product-info">
+                <div style="padding:15px;">
                     <h3>เสื้อทีมชาติ (Away)</h3>
-                    <p class="product-price">790 บาท</p>
-                    <button class="btn-blue" onclick="shop.addToCart('เสื้อทีมชาติ (Away)', 790)">ลงตะกร้า</button>
+                    <p style="color:var(--red); font-weight:bold;">890 บาท</p>
+                    <button class="btn-buy" onclick="shop.addToCart('เสื้อทีมชาติ (Away)', 890)">ลงตะกร้า</button>
                 </div>
             </div>
-            <div class="product-card" data-name="เสื้อทีมชาติขาว Third">
-                <img src="3.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Jersey+3'">
-                <div class="product-info">
-                    <h3>เสื้อทีมชาติ (Third)</h3>
-                    <p class="product-price">890 บาท</p>
-                    <button class="btn-blue" onclick="shop.addToCart('เสื้อทีมชาติ (Third)', 890)">ลงตะกร้า</button>
-                </div>
             </div>
-            <div class="product-card" data-name="ชุดฝึกซ้อม Training">
-                <img src="4.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Training'">
-                <div class="product-info">
-                    <h3>ชุดฝึกซ้อม (Training)</h3>
-                    <p class="product-price">590 บาท</p>
-                    <button class="btn-blue" onclick="shop.addToCart('ชุดฝึกซ้อม (Training)', 590)">ลงตะกร้า</button>
-                </div>
-            </div>
-            <div class="product-card" data-name="แจ็คเก็ตทีมชาติ Jacket">
-                <img src="5.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Jacket'">
-                <div class="product-info">
-                    <h3>แจ็คเก็ตทีมชาติ</h3>
-                    <p class="product-price">1,290 บาท</p>
-                    <button class="btn-blue" onclick="shop.addToCart('แจ็คเก็ตทีมชาติ', 1290)">ลงตะกร้า</button>
-                </div>
-            </div>
-            <div class="product-card" data-name="กางเกงฟุตบอล Shorts">
-                <img src="6.jpg" onerror="this.src='https://via.placeholder.com/300x400?text=Shorts'">
-                <div class="product-info">
-                    <h3>กางเกงฟุตบอล</h3>
-                    <p class="product-price">350 บาท</p>
-                    <button class="btn-blue" onclick="shop.addToCart('กางเกงฟุตบอล', 350)">ลงตะกร้า</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="cart-section card">
-            <h3>🛒 ตะกร้าสินค้าของคุณ</h3>
-            <div id="cart-content">ยังไม่มีสินค้าในตะกร้า</div>
-            <hr style="opacity:0.3">
-            <div style="margin-top:15px;">
-                <label>📍 ที่อยู่สำหรับจัดส่ง:</label>
-                <textarea id="cust-addr" rows="2" placeholder="บ้านเลขที่, ถนน, แขวง, เขต, จังหวัด..."></textarea>
-            </div>
-            <div style="display:flex; justify-content: space-between; align-items: center; margin-top:10px;">
-                <div style="font-size:24px;">ยอดรวม: <span id="cart-total">0</span> บาท</div>
-                <button class="btn-gold" onclick="shop.checkout()">ยืนยันการสั่งซื้อ</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="history-section" class="container hidden">
-        <div class="card">
-            <button onclick="ui.showSection('store')" class="btn-blue" style="width:auto; margin-bottom:20px;">⬅️ กลับไปหน้าหลัก</button>
-            <h2>📋 ประวัติการสั่งซื้อของคุณ</h2>
-            <div id="history-content"></div>
-        </div>
     </div>
 
     <script>
-        // --- ระบบ UI ---
-        const ui = {
-            toggleAuth: () => {
-                document.getElementById('login-box').classList.toggle('hidden');
-                document.getElementById('reg-box').classList.toggle('hidden');
-            },
-            showSection: (name) => {
-                ['auth-section', 'store-section', 'history-section'].forEach(id => document.getElementById(id).classList.add('hidden'));
-                document.getElementById(name + '-section').classList.remove('hidden');
-                document.getElementById('search-box-ui').style.display = (name === 'store') ? 'block' : 'none';
-                if(name === 'history') shop.renderHistory();
-            }
-        };
-
-        // --- ระบบสมาชิก (เพิ่มการบันทึกชื่อ-นามสกุล) ---
-        const auth = {
-            register: () => {
-                const fn = document.getElementById('r-fullname').value;
-                const u = document.getElementById('r-user').value;
-                const p = document.getElementById('r-pass').value;
-                if(!fn || !u || !p) return alert('กรุณากรอกข้อมูลให้ครบทุกช่อง');
-                
-                const userData = { fullName: fn, password: p };
-                localStorage.setItem('user_profile_' + u, JSON.stringify(userData));
-                alert('สมัครสมาชิกเรียบร้อยแล้วคุณ ' + fn);
-                ui.toggleAuth();
-            },
-            login: () => {
-                const u = document.getElementById('l-user').value;
-                const p = document.getElementById('l-pass').value;
-                const savedData = JSON.parse(localStorage.getItem('user_profile_' + u));
-
-                if((savedData && savedData.password === p) || (u === 'admin' && p === '1234')) {
-                    const nameToDisplay = savedData ? savedData.fullName : "Admin System";
-                    sessionStorage.setItem('current_user', u);
-                    sessionStorage.setItem('current_name', nameToDisplay);
-                    
-                    document.getElementById('display-fullname').innerText = nameToDisplay;
-                    document.getElementById('nav-user').classList.remove('hidden');
-                    ui.showSection('store');
-                } else {
-                    alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง');
-                }
-            },
-            logout: () => { sessionStorage.clear(); location.reload(); }
-        };
-
-        // --- ระบบร้านค้า & ค้นหา ---
         const shop = {
             cart: [],
-            search: () => {
-                const query = document.getElementById('search-input').value.toLowerCase();
-                const cards = document.querySelectorAll('.product-card');
-                cards.forEach(card => {
-                    const name = card.getAttribute('data-name').toLowerCase();
-                    card.style.display = name.includes(query) ? 'block' : 'none';
-                });
-            },
+            
+            // เพิ่มสินค้าลงตะกร้า
             addToCart: (name, price) => {
-                shop.cart.push({name, price});
-                shop.renderCart();
+                shop.cart.push({ name, price });
+                document.getElementById('cart-count-val').innerText = shop.cart.length;
+                alert('เพิ่ม ' + name + ' ลงตะกร้าแล้ว!');
             },
-            renderCart: () => {
-                const content = document.getElementById('cart-content');
-                const total = document.getElementById('cart-total');
-                if(shop.cart.length === 0) { content.innerText = "ยังไม่มีสินค้าในตะกร้า"; total.innerText = "0"; return; }
+
+            // เปิดหน้าต่างตะกร้า
+            openCart: () => {
+                const modal = document.getElementById('cartModal');
+                const list = document.getElementById('cart-items-list');
+                const form = document.getElementById('checkout-form');
+                const totalVal = document.getElementById('cart-total-modal');
                 
-                let sum = 0;
-                content.innerHTML = shop.cart.map((item, index) => {
-                    sum += item.price;
-                    return `<div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                                <span>⚽ ${item.name}</span>
-                                <span>${item.price} บ. <button onclick="shop.removeItem(${index})" style="color:red; background:none;">[ลบ]</button></span>
-                            </div>`;
-                }).join('');
-                total.innerText = sum.toLocaleString();
+                modal.style.display = "block";
+                
+                if (shop.cart.length === 0) {
+                    list.innerHTML = "ตะกร้าว่างเปล่า";
+                    form.classList.add('hidden');
+                } else {
+                    let sum = 0;
+                    list.innerHTML = shop.cart.map((item, index) => {
+                        sum += item.price;
+                        return `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                                    <span>${item.name}</span>
+                                    <span>${item.price} บาท <button onclick="shop.removeItem(${index})" style="color:red; background:none; padding:0;">[ลบ]</button></span>
+                                </div>`;
+                    }).join('');
+                    totalVal.innerText = sum.toLocaleString();
+                    form.classList.remove('hidden');
+                }
             },
-            removeItem: (index) => { shop.cart.splice(index, 1); shop.renderCart(); },
-            checkout: () => {
-                const addr = document.getElementById('cust-addr').value;
-                if(!addr || shop.cart.length === 0) return alert('กรุณาระบุที่อยู่และเลือกสินค้า');
+
+            closeCart: () => {
+                document.getElementById('cartModal').style.display = "none";
+            },
+
+            removeItem: (index) => {
+                shop.cart.splice(index, 1);
+                document.getElementById('cart-count-val').innerText = shop.cart.length;
+                shop.openCart(); // refresh รายการใน modal
+            },
+
+            // ขั้นตอนสั่งซื้อจริง
+            processOrder: () => {
+                const name = document.getElementById('cust-name-input').value;
+                const phone = document.getElementById('cust-phone').value;
+                const addr = document.getElementById('cust-address').value;
+
+                if (!name || !phone || !addr) {
+                    return alert('กรุณากรอกข้อมูลผู้ซื้อให้ครบถ้วน');
+                }
 
                 const order = {
-                    id: Math.floor(Math.random() * 100000),
-                    user: sessionStorage.getItem('current_user'),
+                    id: Date.now(),
+                    customerName: name,
+                    phone: phone,
+                    address: addr,
                     items: shop.cart.map(i => i.name).join(', '),
-                    total: document.getElementById('cart-total').innerText,
+                    total: document.getElementById('cart-total-modal').innerText,
                     date: new Date().toLocaleString('th-TH'),
-                    status: 'รับออเดอร์แล้ว'
+                    status: 'รอดำเนินการ'
                 };
 
-                let orders = JSON.parse(localStorage.getItem('all_orders')) || [];
-                orders.push(order);
-                localStorage.setItem('all_orders', JSON.stringify(orders));
-                
-                alert('สั่งซื้อสำเร็จ! เราจะรีบจัดส่งให้คุณ');
+                // บันทึกลง LocalStorage ให้ Admin มาอ่าน
+                let allOrders = JSON.parse(localStorage.getItem('all_orders')) || [];
+                allOrders.push(order);
+                localStorage.setItem('all_orders', JSON.stringify(allOrders));
+
+                alert('ขอบคุณคุณ ' + name + ' สั่งซื้อเรียบร้อยแล้ว!');
                 shop.cart = [];
-                shop.renderCart();
-                document.getElementById('cust-addr').value = "";
-                ui.showSection('history');
-            },
-            renderHistory: () => {
-                const user = sessionStorage.getItem('current_user');
-                const orders = JSON.parse(localStorage.getItem('all_orders')) || [];
-                const myOrders = orders.filter(o => o.user === user);
-                const content = document.getElementById('history-content');
-                
-                content.innerHTML = myOrders.reverse().map(o => `
-                    <div style="border:1px solid #ddd; padding:15px; border-radius:10px; margin-bottom:10px; background:#f9f9f9;">
-                        <strong>เลขที่คำสั่งซื้อ: #${o.id}</strong> <span style="float:right; color:green;">${o.status}</span><br>
-                        รายการ: ${o.items}<br>
-                        ยอดสุทธิ: <span style="color:red; font-weight:bold;">${o.total} บาท</span><br>
-                        <small>วันที่สั่ง: ${o.date}</small>
-                    </div>
-                `).join('') || "ยังไม่มีประวัติการสั่งซื้อ";
+                document.getElementById('cart-count-val').innerText = "0";
+                shop.closeCart();
             }
         };
+
+        // ปิด Modal เมื่อคลิกข้างนอกหน้าต่าง
+        window.onclick = function(event) {
+            const modal = document.getElementById('cartModal');
+            if (event.target == modal) modal.style.display = "none";
+        }
     </script>
 </body>
 </html>
