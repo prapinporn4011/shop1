@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shopsport - Product Details</title>
+    <title>ThanJai shop - Product Details</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -23,7 +23,7 @@
         }
 
 
-        
+
         /* Navbar */
         .navbar {
             background: rgba(15, 15, 15, 0.95) !important;
@@ -131,7 +131,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container">
         <a class="navbar-brand fw-bold text-uppercase" href="a.php">
-            <span class="text-danger">Shopsport</span> SHOP
+            <span class="text-danger">ThanJai shop</span>
         </a>
         <div class="ms-auto d-flex align-items-center">
             <a class="nav-link me-3" href="a.php text-white">หน้าแรก</a>

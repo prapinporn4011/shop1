@@ -10,7 +10,7 @@
 
 <nav class="navbar navbar-dark bg-dark shadow-sm">
     <div class="container">
-        <span class="navbar-brand fw-bold">🛠️ กลอยใจ Admin</span>
+        <span class="navbar-brand fw-bold"> ThanJai shop</span>
         <a href="a.php" class="btn btn-outline-light btn-sm">ไปที่หน้าร้าน</a>
     </div>
 </nav>
