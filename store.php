@@ -70,7 +70,7 @@
 <div id="main-content">
     <div class="container">
         <button class="btn-logout" onclick="logout()">ออกจากระบบ</button>
-        <h1 style="color: #00247d;">🇹🇭 ระบบจัดการหลังบ้าน ShadowSport</h1>
+        <h1 style="color: #00247d;">🇹🇭 ระบบจัดการหลังบ้าน ThanJai Shop</h1>
         <p>ยินดีต้อนรับคุณ: <strong id="display-user"></strong></p>
         <hr>
 
