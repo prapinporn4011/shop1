@@ -1,21 +1,19 @@
 <?php
-session_start();
-include('db.php');
+include 'db.php'; // เชื่อมต่อฐานข้อมูล
 
-if (isset($_POST['confirm_order'])) {
-    $username = $_SESSION['username'];
-    $items = mysqli_real_escape_string($conn, $_POST['items']);
-    $total = $_POST['total'];
-    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
-    $address = mysqli_real_escape_string($conn, $_POST['address']);
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $p_name = $_POST['p_name'];
+    $p_price = $_POST['p_price'];
+    $p_qty = $_POST['p_qty'];
 
-    $sql = "INSERT INTO orders (username, items, total, phone, address, status) 
-            VALUES ('$username', '$items', '$total', '$phone', '$address', 'รอดำเนินการ')";
+    // คำสั่ง SQL สำหรับเพิ่มข้อมูล
+    $sql = "INSERT INTO products (p_name, p_price, p_qty) VALUES ('$p_name', '$p_price', '$p_qty')";
 
     if (mysqli_query($conn, $sql)) {
-        echo "<script>alert('สั่งซื้อสำเร็จ! ขอบคุณที่ใช้บริการ'); window.location='index.php';</script>";
+        // บันทึกสำเร็จ ให้กลับไปหน้าเดิม (admin.php หรือชื่อไฟล์ที่คุณใช้)
+        echo "<script>alert('บันทึกข้อมูลสำเร็จ'); window.location='admin.php';</script>";
     } else {
-        echo "ผิดพลาด: " . mysqli_error($conn);
+        echo "Error: " . $sql . "<br>" . mysqli_error($conn);
     }
 }
 ?>
