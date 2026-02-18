@@ -3,324 +3,388 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THANJAI SHOP - Premium Store</title>
+    <title>THANJAI PRO SHOP - 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        :root { --navy: #001233; --gold: #ffae00; --light: #f4f7f6; --white: #ffffff; }
-        body { font-family: 'Kanit', sans-serif; margin: 0; background: var(--light); }
+        :root {
+            --primary: #001233; /* สีกรมท่าเข้ม */
+            --accent: #ffae00;  /* สีทองสปอร์ต */
+            --bg: #f4f7f6;
+            --white: #ffffff;
+            --text: #1a1a1a;
+            --shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        body { 
+            font-family: 'Kanit', sans-serif; 
+            margin: 0; background: var(--bg); color: var(--text); 
+            scroll-behavior: smooth;
+        }
+
         .hidden { display: none !important; }
+
+        /* --- Navigation --- */
+        nav {
+            background: var(--primary);
+            padding: 15px 8%;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .logo { color: var(--accent); font-size: 24px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; }
+        .nav-menu { display: flex; gap: 25px; }
+        .nav-menu a { color: white; text-decoration: none; font-size: 15px; transition: 0.3s; cursor: pointer; opacity: 0.9; }
+        .nav-menu a:hover { color: var(--accent); opacity: 1; }
+
+        /* --- UI Components (Forms & Buttons) --- */
+        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
         
-        /* Navbar */
-        nav { background: var(--navy); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; color: white; position: sticky; top: 0; z-index: 1000; }
-        .nav-links a { color: white; text-decoration: none; margin-left: 20px; cursor: pointer; font-size: 14px; }
-        .logo { font-size: 22px; font-weight: bold; color: var(--gold); text-decoration: none; }
+        input, select, textarea {
+            width: 100%; padding: 12px 15px; margin: 8px 0;
+            border: 1px solid #ddd; border-radius: 10px;
+            font-family: 'Kanit', sans-serif; transition: 0.3s;
+            box-sizing: border-box; outline: none;
+        }
+        input:focus { border-color: var(--accent); box-shadow: 0 0 8px rgba(255,174,0,0.2); }
 
-        .container { max-width: 1000px; margin: 30px auto; padding: 20px; }
+        .btn-main {
+            background: var(--primary); color: white; border: none;
+            padding: 12px 25px; border-radius: 10px; cursor: pointer;
+            font-weight: 600; transition: 0.3s; width: 100%;
+        }
+        .btn-main:hover { background: #002855; transform: translateY(-2px); }
+        .btn-gold { background: var(--accent); color: var(--primary); }
+        .btn-gold:hover { background: #e59c00; }
+
+        /* --- Product Grid --- */
+        .product-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 25px;
+        }
+        .p-card {
+            background: var(--white); border-radius: 15px; overflow: hidden;
+            box-shadow: var(--shadow); transition: 0.4s; position: relative;
+        }
+        .p-card:hover { transform: translateY(-10px); }
+        .p-card img { width: 100%; height: 280px; object-fit: cover; cursor: pointer; }
+        .p-info { padding: 20px; }
+        .p-tag { font-size: 11px; background: #eee; padding: 3px 10px; border-radius: 20px; text-transform: uppercase; }
         
-        /* Form Styling */
-        .card { background: var(--white); padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .btn { background: var(--gold); color: var(--navy); border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        .btn:hover { background: #e59c00; }
+        /* --- Banner Slider --- */
+        .hero {
+            height: 400px; border-radius: 20px; margin-bottom: 40px;
+            background: linear-gradient(45deg, #001233, #002855);
+            display: flex; align-items: center; justify-content: center;
+            color: white; text-align: center; overflow: hidden; position: relative;
+        }
+        .hero h1 { font-size: 45px; margin: 0; text-shadow: 2px 2px 10px rgba(0,0,0,0.3); }
 
-        /* Category Icons */
-        .categories { display: flex; justify-content: center; gap: 20px; margin-bottom: 30px; }
-        .cat-item { text-align: center; cursor: pointer; transition: 0.3s; padding: 10px; border-radius: 10px; background: white; width: 80px; }
-        .cat-item:hover { background: var(--gold); }
-        .cat-item i { font-size: 24px; display: block; margin-bottom: 5px; }
+        /* --- Order Status Badge --- */
+        .badge { padding: 5px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+        .status-unpaid { background: #fff1f1; color: #d90429; border: 1px solid #ffccd5; }
+        .status-paid { background: #f0fff4; color: #2d6a4f; border: 1px solid #c7f9cc; }
 
-        /* Product Grid */
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .p-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .p-card img { width: 100%; height: 250px; object-fit: cover; }
-        .p-info { padding: 15px; }
+        /* --- Profile Avatar Selector --- */
+        .avatar-box { display: flex; gap: 15px; justify-content: center; margin: 20px 0; }
+        .avatar-box img { 
+            width: 60px; height: 60px; border-radius: 50%; cursor: pointer; 
+            border: 3px solid transparent; transition: 0.3s;
+        }
+        .avatar-box img.active { border-color: var(--accent); scale: 1.1; }
 
-        /* Address List */
-        .addr-item { border: 1px solid #eee; padding: 10px; margin-bottom: 10px; border-radius: 8px; position: relative; }
-        .addr-item.active { border-color: var(--gold); background: #fff9eb; }
-        
-        /* Countdown Timer */
-        .timer { color: #d90429; font-weight: bold; font-size: 18px; margin: 10px 0; }
-
-        /* Order Status */
-        .status-tag { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .s-pending { background: #fff1f1; color: #d90429; }
-        .s-success { background: #f0fff4; color: #2d6a4f; }
     </style>
 </head>
 <body onload="initApp()">
 
     <nav>
-        <a href="#" class="logo" onclick="showSection('home')">THANJAI SHOP</a>
-        <div class="nav-links">
-            <a onclick="showSection('home')">หน้าหลัก</a>
-            <a onclick="showSection('cart')"><i class="fas fa-shopping-cart"></i> ตะกร้า</a>
-            <a onclick="showSection('history')">ประวัติการสั่งซื้อ</a>
-            <span id="user-display" style="margin-left: 15px; color: var(--gold);"></span>
-            <a id="btn-login-nav" onclick="showSection('auth')">เข้าสู่ระบบ</a>
-            <a id="btn-logout" class="hidden" onclick="logout()">ออกจากระบบ</a>
+        <div class="logo" onclick="showPage('home')">ThanJai <span style="color:white">Shop</span></div>
+        <div class="nav-menu" id="main-nav">
+            <a onclick="showPage('home')">หน้าหลัก</a>
+            <a onclick="showPage('history')">ประวัติการสั่งซื้อ</a>
+            <a onclick="showPage('profile')">โปรไฟล์</a>
         </div>
+        <div id="user-status" style="color: white; font-size: 14px; display: flex; align-items: center; gap: 10px;">
+            </div>
     </nav>
 
     <div class="container">
 
-        <section id="sec-auth" class="hidden">
-            <div class="card" style="max-width: 400px; margin: 0 auto;">
-                <div id="auth-login">
-                    <h2 style="text-align:center">เข้าสู่ระบบ</h2>
-                    <input type="text" id="li-user" placeholder="Username">
-                    <input type="password" id="li-pass" placeholder="Password">
-                    <button class="btn" onclick="auth.login()">เข้าสู่ระบบ</button>
-                    <p style="text-align:center">ยังไม่มีบัญชี? <a href="#" onclick="toggleAuth('reg')">สมัครสมาชิก</a></p>
-                </div>
-                <div id="auth-reg" class="hidden">
-                    <h2 style="text-align:center">สมัครสมาชิก</h2>
-                    <input type="text" id="rg-name" placeholder="ชื่อ-นามสกุล">
-                    <input type="text" id="rg-user" placeholder="Username">
-                    <input type="tel" id="rg-phone" placeholder="เบอร์ติดต่อ">
-                    <input type="password" id="rg-pass" placeholder="รหัสผ่าน">
-                    <button class="btn" onclick="auth.register()">ยืนยันสมัครสมาชิก</button>
-                    <p style="text-align:center">มีบัญชีอยู่แล้ว? <a href="#" onclick="toggleAuth('login')">เข้าสู่ระบบ</a></p>
-                </div>
+        <section id="page-login" class="hidden">
+            <div style="max-width: 400px; margin: 80px auto; background: white; padding: 40px; border-radius: 20px; box-shadow: var(--shadow); text-align: center;">
+                <h2 style="color:var(--primary)">เข้าสู่ระบบก่อนสั่งซื้อ</h2>
+                <input type="text" id="login-user" placeholder="Username (เช่น guest)">
+                <input type="password" id="login-pass" placeholder="Password (เช่น 1234)">
+                <button class="btn-main btn-gold" style="margin-top: 15px;" onclick="handleLogin()">ยืนยันเข้าสู่ระบบ</button>
             </div>
         </section>
 
-        <section id="sec-home">
-            <div class="categories">
-                <div class="cat-item" onclick="renderProducts('all')"><i class="fas fa-th"></i>ทั้งหมด</div>
-                <div class="cat-item" onclick="renderProducts('เหย้า')"><i class="fas fa-tshirt"></i>ชุดเหย้า</div>
-                <div class="cat-item" onclick="renderProducts('เยือน')"><i class="fas fa-tshirt" style="color:#888"></i>ชุดเยือน</div>
-                <div class="cat-item" onclick="renderProducts('ซ้อม')"><i class="fas fa-running"></i>ชุดซ้อม</div>
-            </div>
-            <div class="grid" id="product-list"></div>
-        </section>
-
-        <section id="sec-cart" class="hidden">
-            <div class="card">
-                <h2>ตะกร้าสินค้าของคุณ</h2>
-                <div id="cart-items"></div>
-                <hr>
-                <h3>เลือกที่อยู่จัดส่ง</h3>
-                <div id="address-list"></div>
-                <button class="btn" style="background:#eee; color:#333; margin-bottom:10px;" onclick="showAddressModal()">+ เพิ่มที่อยู่ใหม่</button>
-                
-                <h3>เลือกวิธีชำระเงิน</h3>
-                <select id="pay-method" onchange="togglePayInfo()">
-                    <option value="โอนเงิน">โอนผ่านธนาคาร / QR Code</option>
-                    <option value="ปลายทาง">เก็บเงินปลายทาง (COD)</option>
-                </select>
-                
-                <div id="pay-info-bank" class="card" style="background:#f9f9f9; margin-top:10px;">
-                    <p><strong>ธนาคารกสิกรไทย</strong><br>บจก. ธันใจ ช็อป<br>เลขบัญชี: 123-4-56789-0</p>
-                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=PromptPay" style="width:120px;">
-                    <div class="timer">กรุณาโอนภายใน 30:00 นาที</div>
+        <section id="page-home">
+            <div class="hero">
+                <div>
+                    <h1 id="hero-title">NEW SEASON 2026</h1>
+                    <p>พบกับคอลเลคชั่นใหม่จากทุกสโมสรชื่อดัง</p>
+                    <button class="btn-main btn-gold" style="width:auto;" onclick="document.getElementById('product-section').scrollIntoView()">เริ่มช้อปเลย</button>
                 </div>
+            </div>
 
-                <div id="cart-summary" style="margin-top:20px; text-align:right; font-size:20px;"></div>
-                <button class="btn" style="margin-top:20px;" onclick="placeOrder()">ยืนยันสั่งซื้อ</button>
+            <div id="product-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <h2 style="margin:0">สินค้าแนะนำ</h2>
+                    <input type="text" id="search-bar" onkeyup="searchProduct()" placeholder="🔍 ค้นหาทีมที่ชอบ..." style="width: 250px; margin:0;">
+                </div>
+                <div class="product-grid" id="product-display">
+                    </div>
             </div>
         </section>
 
-        <section id="sec-history" class="hidden">
-            <h2>ติดตามสถานะออเดอร์</h2>
-            <div id="order-history-list"></div>
+        <section id="page-detail" class="hidden">
+            <div id="item-detail-container"></div>
+        </section>
+
+        <section id="page-history" class="hidden">
+            <h2 style="border-left: 5px solid var(--accent); padding-left: 15px;">ติดตามสถานะออเดอร์</h2>
+            <div id="history-display">
+                </div>
+        </section>
+
+        <section id="page-profile" class="hidden">
+            <div style="max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 20px; box-shadow: var(--shadow);">
+                <h2 style="text-align: center;">แก้ไขโปรไฟล์ส่วนตัว</h2>
+                <div class="avatar-box" id="avatar-list">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=A" onclick="selectAvatar(this)">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=B" onclick="selectAvatar(this)">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=C" onclick="selectAvatar(this)">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=D" onclick="selectAvatar(this)">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div><label>ชื่อผู้ใช้งาน</label><input type="text" id="prof-name"></div>
+                    <div><label>เบอร์โทรศัพท์</label><input type="text" id="prof-phone"></div>
+                </div>
+                <label>อีเมล</label><input type="email" id="prof-email">
+                <label>รหัสผ่าน</label><input type="password" id="prof-pass">
+                <button class="btn-main" style="margin-top:20px;" onclick="saveProfile()">บันทึกข้อมูล</button>
+                <button onclick="logout()" style="margin-top:10px; background:none; border:none; color:red; cursor:pointer; width:100%;">ออกจากระบบ</button>
+            </div>
         </section>
 
     </div>
 
-    <div id="addr-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:2000;">
-        <div class="card" style="width:90%; max-width:400px;">
-            <h3>เพิ่มที่อยู่ใหม่</h3>
-            <textarea id="new-addr-text" placeholder="บ้านเลขที่, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์" rows="4"></textarea>
-            <button class="btn" onclick="saveNewAddress()">บันทึก</button>
-            <button class="btn" style="background:none;" onclick="closeAddressModal()">ยกเลิก</button>
-        </div>
+    <div onclick="window.open('https://line.me', '_blank')" style="position:fixed; bottom:30px; right:30px; background:#06c755; color:white; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; cursor:pointer; box-shadow: 0 5px 20px rgba(0,0,0,0.2); z-index:2000;">
+        <i class="fab fa-line" style="font-size: 35px;"></i>
     </div>
 
     <script>
-        // ข้อมูลสินค้า (อิงจากรูปเดิมที่คุณมี)
-        const products = [
-            { id: 2, name: "Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg" },
-            { id: 4, name: "Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg" },
-            { id: 5, name: "Thailand Training", price: 590, type: "ซ้อม", img: "5.jpg" },
-            { id: 6, name: "Port FC Away", price: 750, type: "เยือน", img: "6.jpg" },
-            { id: 7, name: "BGPU Training", price: 490, type: "ซ้อม", img: "7.jpg" }
+        // --- 1. ข้อมูลเดิม (ห้ามหาย) ---
+        const originalProducts = [
+            { id: 2, name: "Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด ผ้าเกรดพรีเมียม" },
+            { id: 4, name: "Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพอันดับ 1 ของเมืองไทย" },
+            { id: 5, name: "Thailand Edition", price: 590, type: "ซ้อม", img: "5.jpg", desc: "เสื้อเชียร์ทีมชาติไทย สวมใส่สบาย ระบายอากาศดี" },
+            { id: 6, name: "Port FC Away Kit", price: 750, type: "เยือน", img: "6.jpg", desc: "สิงห์เจ้าท่า สีเยือนเรียบหรู พร้อมดีไซน์ทันสมัย" },
+            { id: 7, name: "Training BGPU", price: 490, type: "ซ้อม", img: "7.jpg", desc: "เสื้อซ้อมคุณภาพสูงจากสโมสรบีจี ปทุม" },
+            { id: 8, name: "Muangthong Utd Home", price: 790, type: "เหย้า", img: "8.jpg", desc: "กิเลนผยอง คลาสสิกสีแดงดำ ดีไซน์ทรงคุณค่า" },
+            { id: 9, name: "Chonburi FC Away", price: 650, type: "เยือน", img: "9.jpg", desc: "ฉลามชล ดีไซน์สปอร์ตทันสมัย สีเยือนโดดเด่น" },
+            { id: 10, name: "Special Training", price: 390, type: "ซ้อม", img: "10.jpg", desc: "เสื้อซ้อมรวมสโมสร ลิมิเต็ด อิดิชั่น" }
         ];
 
-        let currentUser = JSON.parse(localStorage.getItem('activeUser')) || null;
-        let cart = [];
-        let userAddresses = [];
+        let currentUser = JSON.parse(localStorage.getItem('user_data')) || null;
+        let orders = JSON.parse(localStorage.getItem('all_orders')) || [];
 
+        // --- 2. Core Functions ---
         function initApp() {
-            renderProducts('all');
-            updateUI();
+            renderProducts(originalProducts);
+            updateUserUI();
+            
+            // Auto slider effect
+            const titles = ["NEW SEASON 2026", "THAILAND LEAGUE", "PREMIUM QUALITY"];
+            let i = 0;
+            setInterval(() => {
+                i = (i + 1) % titles.length;
+                document.getElementById('hero-title').innerText = titles[i];
+            }, 3000);
         }
 
-        function showSection(id) {
-            if(!currentUser && (id === 'cart' || id === 'history')) {
-                alert("กรุณาเข้าสู่ระบบก่อนดำเนินการครับ");
-                showSection('auth');
-                return;
+        function showPage(pageId) {
+            // เช็คว่าถ้าจะไปหน้าอื่นนอกจากหน้าหลัก ต้องล็อกอินก่อน
+            if (!currentUser && pageId !== 'home') {
+                alert("🔒 กรุณาเข้าสู่ระบบก่อนดำเนินการครับ");
+                pageId = 'login';
             }
+            
             document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('sec-' + id).classList.remove('hidden');
-            if(id === 'cart') renderCart();
-            if(id === 'history') renderHistory();
+            document.getElementById('page-' + pageId).classList.remove('hidden');
+            window.scrollTo(0, 0);
+            
+            if(pageId === 'history') renderHistory();
+            if(pageId === 'profile') loadProfileData();
         }
 
-        function toggleAuth(type) {
-            document.getElementById('auth-login').classList.toggle('hidden', type === 'reg');
-            document.getElementById('auth-reg').classList.toggle('hidden', type === 'login');
-        }
-
-        const auth = {
-            register: () => {
-                const user = {
-                    name: document.getElementById('rg-name').value,
-                    username: document.getElementById('rg-user').value,
-                    phone: document.getElementById('rg-phone').value,
-                    pass: document.getElementById('rg-pass').value,
-                    addresses: []
-                };
-                if(!user.username || !user.pass) return alert("กรุณากรอกข้อมูลให้ครบ");
-                localStorage.setItem('u_' + user.username, JSON.stringify(user));
-                alert("สมัครสมาชิกสำเร็จ! เข้าสู่ระบบได้เลย");
-                toggleAuth('login');
-            },
-            login: () => {
-                const u = document.getElementById('li-user').value;
-                const p = document.getElementById('li-pass').value;
-                const saved = JSON.parse(localStorage.getItem('u_' + u));
-                if(saved && saved.pass === p) {
-                    currentUser = saved;
-                    localStorage.setItem('activeUser', JSON.stringify(currentUser));
-                    location.reload();
-                } else {
-                    alert("ชื่อผู้ใช้หรือรหัสผ่านผิด");
-                }
-            }
-        };
-
-        function renderProducts(filter) {
-            const list = document.getElementById('product-list');
-            const items = filter === 'all' ? products : products.filter(p => p.type === filter);
-            list.innerHTML = items.map(p => `
+        function renderProducts(items) {
+            const container = document.getElementById('product-display');
+            container.innerHTML = items.map(p => `
                 <div class="p-card">
-                    <img src="${p.img}" onerror="this.src='https://via.placeholder.com/250x250?text=No+Image'">
+                    <img src="${p.img}" onclick="viewDetail(${p.id})" onerror="this.src='https://via.placeholder.com/300x300?text=No+Image'">
                     <div class="p-info">
-                        <strong>${p.name}</strong><br>
-                        <span style="color:var(--gold)">฿${p.price.toLocaleString()}</span>
-                        <button class="btn" style="margin-top:10px;" onclick="addToCart(${p.id})">ลงตะกร้า</button>
+                        <span class="p-tag">${p.type}</span>
+                        <h3 style="margin: 10px 0 5px 0; font-size:17px;">${p.name}</h3>
+                        <div style="color: var(--accent); font-weight: 700; font-size: 18px; margin-bottom:15px;">฿${p.price.toLocaleString()}</div>
+                        <button class="btn-main" onclick="viewDetail(${p.id})">ดูรายละเอียด / สั่งซื้อ</button>
                     </div>
                 </div>
             `).join('');
         }
 
-        function addToCart(id) {
-            if(!currentUser) return showSection('auth');
-            const p = products.find(x => x.id === id);
-            cart.push(p);
-            alert("เพิ่มสินค้าลงตะกร้าแล้ว");
+        function viewDetail(id) {
+            const p = originalProducts.find(x => x.id === id);
+            const detailBox = document.getElementById('item-detail-container');
+            detailBox.innerHTML = `
+                <div style="background: white; border-radius: 20px; overflow: hidden; display: flex; flex-wrap: wrap; box-shadow: var(--shadow);">
+                    <div style="flex: 1; min-width: 300px; background: #eee; display: flex; align-items: center; justify-content: center;">
+                        <img src="${p.img}" style="max-width: 100%; height: auto;">
+                    </div>
+                    <div style="flex: 1; min-width: 300px; padding: 50px;">
+                        <h1 style="margin:0">${p.name}</h1>
+                        <h2 style="color:var(--accent)">฿${p.price.toLocaleString()}</h2>
+                        <p style="color:#666; margin-bottom:30px;">${p.desc}</p>
+                        
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom:30px;">
+                            <div>
+                                <label>เลือกไซส์:</label>
+                                <select id="order-size">
+                                    <option>S (อก 38)</option><option selected>M (อก 40)</option>
+                                    <option>L (อก 42)</option><option>XL (อก 44)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label>จำนวน:</label>
+                                <input type="number" id="order-qty" value="1" min="1">
+                            </div>
+                        </div>
+
+                        <label>เลือกวิธีชำระเงิน:</label>
+                        <select id="order-payment">
+                            <option value="โอนผ่านธนาคาร/QR">โอนผ่านธนาคาร / QR Code</option>
+                            <option value="เก็บเงินปลายทาง">เก็บเงินปลายทาง (COD)</option>
+                        </select>
+
+                        <button class="btn-main btn-gold" style="margin-top:20px; padding:18px;" onclick="processOrder(${p.id})">ยืนยันการสั่งซื้อ</button>
+                        <button onclick="showPage('home')" style="width:100%; border:none; background:none; color:#888; margin-top:15px; cursor:pointer;">ย้อนกลับ</button>
+                    </div>
+                </div>
+            `;
+            showPage('detail');
         }
 
-        function renderCart() {
-            const container = document.getElementById('cart-items');
-            if(cart.length === 0) {
-                container.innerHTML = "ไม่มีสินค้าในตะกร้า";
-                return;
-            }
-            container.innerHTML = cart.map((item, idx) => `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <span>${item.name}</span>
-                    <span>฿${item.price} <i class="fas fa-trash" style="color:red; cursor:pointer;" onclick="removeFromCart(${idx})"></i></span>
-                </div>
-            `).join('');
+        function processOrder(pid) {
+            if(!currentUser) return showPage('login');
             
-            const total = cart.reduce((sum, item) => sum + item.price, 0);
-            document.getElementById('cart-summary').innerHTML = `ราคาสุทธิ: <strong>฿${(total + 50).toLocaleString()}</strong> (รวมค่าส่ง 50.-)`;
-            renderAddresses();
-        }
+            const p = originalProducts.find(x => x.id === pid);
+            const size = document.getElementById('order-size').value;
+            const qty = document.getElementById('order-qty').value;
+            const pay = document.getElementById('order-payment').value;
 
-        function removeFromCart(idx) {
-            cart.splice(idx, 1);
-            renderCart();
-        }
-
-        // ระบบที่อยู่
-        function renderAddresses() {
-            const div = document.getElementById('address-list');
-            const addrs = currentUser.addresses || [];
-            div.innerHTML = addrs.map((a, i) => `
-                <div class="addr-item" onclick="selectAddr(${i})">
-                    ${a} <i class="fas fa-times" style="float:right; color:red;" onclick="deleteAddr(${i})"></i>
-                </div>
-            `).join('');
-        }
-
-        function showAddressModal() { document.getElementById('addr-modal').classList.remove('hidden'); }
-        function closeAddressModal() { document.getElementById('addr-modal').classList.add('hidden'); }
-
-        function saveNewAddress() {
-            const txt = document.getElementById('new-addr-text').value;
-            if(!txt) return;
-            currentUser.addresses.push(txt);
-            localStorage.setItem('u_' + currentUser.username, JSON.stringify(currentUser));
-            localStorage.setItem('activeUser', JSON.stringify(currentUser));
-            renderAddresses();
-            closeAddressModal();
-        }
-
-        function placeOrder() {
-            const method = document.getElementById('pay-method').value;
-            const order = {
-                id: "TJ-" + Math.floor(Math.random()*90000),
-                items: [...cart],
-                status: method === 'ปลายทาง' ? 'ยืนยันออเดอร์แล้ว' : 'รอชำระเงิน',
-                date: new Date().toLocaleString(),
-                delivery: "จัดส่งใน 1-3 วัน"
+            const newOrder = {
+                orderId: "TJ-" + Math.floor(Math.random() * 90000 + 10000),
+                name: p.name,
+                img: p.img,
+                total: p.price * qty + 50,
+                status: pay.includes('โอน') ? 'รอชำระเงิน' : 'เตรียมจัดส่ง',
+                date: new Date().toLocaleDateString('th-TH'),
+                user: currentUser.username
             };
-            const history = JSON.parse(localStorage.getItem('history_' + currentUser.username) || '[]');
-            history.unshift(order);
-            localStorage.setItem('history_' + currentUser.username, JSON.stringify(history));
-            cart = [];
-            alert("สั่งซื้อสำเร็จ! ติดตามได้ที่หน้าประวัติ");
-            showSection('history');
+
+            orders.unshift(newOrder);
+            localStorage.setItem('all_orders', JSON.stringify(orders));
+            
+            alert("📦 สั่งซื้อสำเร็จ! คุณสามารถติดตามสถานะได้ที่หน้า 'ประวัติการสั่งซื้อ'");
+            showPage('history');
         }
 
         function renderHistory() {
-            const list = document.getElementById('order-history-list');
-            const history = JSON.parse(localStorage.getItem('history_' + currentUser.username) || '[]');
-            list.innerHTML = history.map(o => `
-                <div class="card" style="margin-bottom:15px;">
-                    <div style="display:flex; justify-content:space-between">
-                        <strong>เลขออเดอร์: ${o.id}</strong>
-                        <span class="status-tag ${o.status === 'รอชำระเงิน' ? 's-pending' : 's-success'}">${o.status}</span>
+            const container = document.getElementById('history-display');
+            const myOrders = orders.filter(o => o.user === currentUser.username);
+
+            if(myOrders.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:50px; color:#888;">ยังไม่มีประวัติการสั่งซื้อ</div>`;
+                return;
+            }
+
+            container.innerHTML = myOrders.map(o => `
+                <div style="background:white; margin:15px 0; padding:20px; border-radius:15px; display:flex; align-items:center; gap:20px; box-shadow: 0 4px 10px rgba(0,0,0,0.05);">
+                    <img src="${o.img}" style="width:70px; height:70px; border-radius:10px; object-fit:cover;">
+                    <div style="flex-grow:1">
+                        <strong>เลขออเดอร์: ${o.orderId}</strong> <br>
+                        <small style="color:#888">สั่งเมื่อ: ${o.date} | ${o.name}</small>
                     </div>
-                    <div style="font-size:13px; color:#888;">${o.date}</div>
-                    <p>${o.items.map(i => i.name).join(', ')}</p>
-                    <div style="color:var(--navy); font-size:14px;">🚚 สถานะ: ${o.delivery}</div>
+                    <div style="text-align:right">
+                        <div style="font-weight:700; color:var(--primary); margin-bottom:5px;">฿${o.total.toLocaleString()}</div>
+                        <span class="badge ${o.status === 'รอชำระเงิน' ? 'status-unpaid' : 'status-paid'}">${o.status}</span>
+                    </div>
                 </div>
             `).join('');
         }
 
-        function updateUI() {
+        // --- 3. Auth & Profile Functions ---
+        function handleLogin() {
+            const u = document.getElementById('login-user').value;
+            if(!u) return alert("กรุณากรอกชื่อผู้ใช้");
+            
+            currentUser = { 
+                username: u, 
+                name: u, 
+                email: u + "@gmail.com", 
+                phone: "08X-XXX-XXXX",
+                avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=A"
+            };
+            localStorage.setItem('user_data', JSON.stringify(currentUser));
+            updateUserUI();
+            showPage('home');
+        }
+
+        function updateUserUI() {
+            const statusBox = document.getElementById('user-status');
             if(currentUser) {
-                document.getElementById('user-display').innerText = "คุณ " + currentUser.name;
-                document.getElementById('btn-login-nav').classList.add('hidden');
-                document.getElementById('btn-logout').classList.remove('hidden');
+                statusBox.innerHTML = `
+                    <img src="${currentUser.avatar}" style="width:30px; border-radius:50%;">
+                    <span>${currentUser.username}</span>
+                `;
+            } else {
+                statusBox.innerHTML = `<button onclick="showPage('login')" style="background:var(--accent); border:none; padding:5px 15px; border-radius:5px; cursor:pointer;">เข้าสู่ระบบ</button>`;
             }
         }
 
+        function selectAvatar(el) {
+            document.querySelectorAll('.avatar-box img').forEach(i => i.classList.remove('active'));
+            el.classList.add('active');
+            currentUser.avatar = el.src;
+        }
+
+        function loadProfileData() {
+            document.getElementById('prof-name').value = currentUser.name;
+            document.getElementById('prof-phone').value = currentUser.phone;
+            document.getElementById('prof-email').value = currentUser.email;
+        }
+
+        function saveProfile() {
+            currentUser.name = document.getElementById('prof-name').value;
+            currentUser.phone = document.getElementById('prof-phone').value;
+            currentUser.email = document.getElementById('prof-email').value;
+            localStorage.setItem('user_data', JSON.stringify(currentUser));
+            alert("✅ บันทึกข้อมูลเรียบร้อยแล้ว");
+            updateUserUI();
+        }
+
         function logout() {
-            localStorage.removeItem('activeUser');
+            localStorage.removeItem('user_data');
             location.reload();
         }
 
-        function togglePayInfo() {
-            const m = document.getElementById('pay-method').value;
-            document.getElementById('pay-info-bank').classList.toggle('hidden', m !== 'โอนเงิน');
+        function searchProduct() {
+            const val = document.getElementById('search-bar').value.toLowerCase();
+            const filtered = originalProducts.filter(p => p.name.toLowerCase().includes(val));
+            renderProducts(filtered);
         }
+
     </script>
 </body>
 </html>
