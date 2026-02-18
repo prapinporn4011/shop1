@@ -66,7 +66,8 @@
 
         /* Admin Style */
         .admin-panel { background: white; padding: 20px; border-radius: 15px; margin-top: 20px; border: 2px solid var(--blue); }
-        .star-rating { color: #ffc107; cursor: pointer; font-size: 20px; }
+        .star-rating { color: #ffc107; font-size: 14px; }
+        .admin-item { background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; }
     </style>
 </head>
 <body onload="app.init()">
@@ -221,20 +222,15 @@
     </div>
 
     <script>
-        // ข้อมูลสินค้าเดิม ห้ามหาย
         let products = JSON.parse(localStorage.getItem('main_products')) || [
-            { id: 2, name: "เสื้อแข่ง Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด" },
-            { id: 4, name: "เสื้อ Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพพรีเมียม" },
-            { id: 5, name: "เสื้อเชียร์ Thailand Edition", price: 590, type: "ซ้อม", img: "5.jpg", desc: "เสื้อเชียร์ทีมชาติไทย สวมใส่สบาย" },
-            { id: 6, name: "เสื้อ Port FC Away Kit", price: 750, type: "เยือน", img: "6.jpg", desc: "เสื้อสิงห์เจ้าท่า สีเยือนเรียบหรู" },
-            { id: 7, name: "เสื้อ Training BGPU", price: 490, type: "ซ้อม", img: "7.jpg", desc: "เสื้อซ้อมระบายอากาศดีเยี่ยม" },
-            { id: 8, name: "เสื้อ Muangthong Utd Home", price: 790, type: "เหย้า", img: "8.jpg", desc: "กิเลนผยอง คลาสสิกสีแดงดำ" },
-            { id: 9, name: "เสื้อเยือน Chonburi FC", price: 650, type: "เยือน", img: "9.jpg", desc: "ฉลามชล ดีไซน์สปอร์ตทันสมัย" },
-            { id: 10, name: "เสื้อซ้อมรวมดารา", price: 390, type: "ซ้อม", img: "10.jpg", desc: "เสื้อซ้อมรวมสโมสร ลิมิเต็ด" }
+            { id: 2, name: "เสื้อแข่ง Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=400", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด" },
+            { id: 4, name: "เสื้อ Buriram United Home", price: 690, type: "เหย้า", img: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=400", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพพรีเมียม" },
+            { id: 5, name: "เสื้อเชียร์ Thailand Edition", price: 590, type: "ซ้อม", img: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=400", desc: "เสื้อเชียร์ทีมชาติไทย สวมใส่สบาย" }
         ];
 
         let currentUser = null;
         let myCart = [];
+        let hasCoupon = false;
 
         const app = {
             init: () => {
@@ -244,6 +240,9 @@
                     auth.loadUserUI(user);
                     cart.updateUI();
                     if(user === 'admin') document.getElementById('admin-link').classList.remove('hidden');
+                    
+                    // แสดงคูปองถ้าเป็น User ปกติ
+                    if(user !== 'admin') document.getElementById('new-user-coupon').classList.remove('hidden');
                 }
                 shop.render(products);
                 admin.renderList();
@@ -300,7 +299,6 @@
                     document.getElementById('p-preview').src = userData.img;
                 }
                 
-                // เตรียมข้อมูลหน้า Profile
                 document.getElementById('p-fullname').value = userData.name || '';
                 document.getElementById('p-img').value = userData.img || '';
                 document.getElementById('p-phone').value = userData.phone || '';
@@ -313,14 +311,12 @@
             saveProfile: (e) => {
                 e.preventDefault();
                 if(currentUser === 'admin') return alert("แอดมินไม่สามารถแก้ไขได้จากหน้านี้");
-                
                 const db = JSON.parse(localStorage.getItem('db_'+currentUser));
                 db.name = document.getElementById('p-fullname').value;
                 db.img = document.getElementById('p-img').value;
                 db.phone = document.getElementById('p-phone').value;
                 db.email = document.getElementById('p-email').value;
                 db.address = document.getElementById('p-address').value;
-                
                 localStorage.setItem('db_'+currentUser, JSON.stringify(db));
                 alert("บันทึกข้อมูลส่วนตัวเรียบร้อย!");
                 location.reload();
@@ -344,6 +340,11 @@
                         </div>
                     </div>
                 `).join('');
+            },
+            collectCoupon: () => {
+                hasCoupon = true;
+                alert("เก็บคูปองส่วนลด 150 บาทเรียบร้อย! ระบบจะหักส่วนลดอัตโนมัติในหน้าชำระเงิน");
+                document.getElementById('new-user-coupon').classList.add('hidden');
             },
             quickBuy: (id) => {
                 if(!currentUser) return alert("กรุณาเข้าสู่ระบบ");
@@ -384,6 +385,13 @@
                 const query = document.getElementById('search-input').value.toLowerCase();
                 const filtered = products.filter(p => p.name.toLowerCase().includes(query));
                 shop.render(filtered);
+            },
+            showStars: (rating) => {
+                let stars = '';
+                for(let i=1; i<=5; i++) {
+                    stars += `<i class="fas fa-star" style="color:${i <= rating ? '#ffc107' : '#ddd'}"></i>`;
+                }
+                return `<div class="star-rating">${stars}</div>`;
             }
         };
 
@@ -406,12 +414,10 @@
             },
             open: () => {
                 if(myCart.length === 0) return alert("ตะกร้าว่างเปล่า");
-                // ดึงข้อมูลที่อยู่จาก Profile อัตโนมัติ
                 const db = JSON.parse(localStorage.getItem('db_'+currentUser) || '{}');
                 document.getElementById('co-name').value = db.name || '';
                 document.getElementById('co-phone').value = db.phone || '';
                 document.getElementById('co-address').value = db.address || '';
-                
                 cart.renderPage();
                 ui.showSection('cart');
             },
@@ -439,10 +445,13 @@
             },
             calc: () => {
                 const sub = myCart.reduce((s, i) => s + (i.price * i.qty), 0);
-                const total = sub + 50;
+                const discount = hasCoupon ? 150 : 0;
+                const total = Math.max(0, sub + 50 - discount);
+                
                 document.getElementById('price-summary').innerHTML = `
                     <div style="display:flex; justify-content:space-between"><span>ค่าสินค้า:</span><span>฿${sub.toLocaleString()}</span></div>
                     <div style="display:flex; justify-content:space-between"><span>ค่าจัดส่ง:</span><span>฿50</span></div>
+                    ${hasCoupon ? `<div style="display:flex; justify-content:space-between; color:var(--red)"><span>ส่วนลดคูปอง:</span><span>-฿150</span></div>` : ''}
                     <hr>
                     <div style="display:flex; justify-content:space-between; font-weight:bold; color:var(--blue); font-size:1.2em"><span>ยอดสุทธิ:</span><span>฿${total.toLocaleString()}</span></div>
                 `;
@@ -451,11 +460,14 @@
                 const addr = document.getElementById('co-address').value;
                 if(!addr) return alert("กรุณากรอกที่อยู่จัดส่ง");
                 
+                const discount = hasCoupon ? 150 : 0;
+                const finalTotal = Math.max(0, myCart.reduce((s,i)=> s + (i.price*i.qty),0) + 50 - discount);
+
                 const order = {
                     id: "ORD" + Date.now(),
                     date: new Date().toLocaleString(),
                     items: [...myCart],
-                    total: myCart.reduce((s,i)=> s + (i.price*i.qty),0) + 50,
+                    total: finalTotal,
                     status: 'เตรียมจัดส่ง (COD)',
                     rating: 0
                 };
@@ -466,6 +478,7 @@
 
                 myCart = [];
                 localStorage.setItem('cart_'+currentUser, '[]');
+                hasCoupon = false; // ใช้คูปองไปแล้ว
                 cart.updateUI();
                 alert("สั่งซื้อสำเร็จ!");
                 cart.loadHistory();
@@ -481,7 +494,7 @@
                         <div style="margin:10px 0; font-size:14px;">${h.items.map(i => i.name + " (x" + i.qty + ")").join(', ')}</div>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                             <div style="font-weight:bold; color:var(--blue)">ยอดรวม: ฿${h.total.toLocaleString()}</div>
-                            <div id="rate-${h.id}">
+                            <div>
                                 ${h.rating > 0 ? shop.showStars(h.rating) : `<button onclick="cart.rateOrder('${h.id}')" style="padding:5px 10px; cursor:pointer;">ให้คะแนน</button>`}
                             </div>
                         </div>
@@ -520,7 +533,7 @@
 
                 if(!name || !price) return alert("กรุณาใส่ชื่อและราคา");
 
-                const newP = { id: Date.now(), name, price, type, img: img || '8.jpg', desc };
+                const newP = { id: Date.now(), name, price, type, img: img || 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=400', desc };
                 products.push(newP);
                 localStorage.setItem('main_products', JSON.stringify(products));
                 alert("เพิ่มสินค้าสำเร็จ!");
@@ -537,19 +550,19 @@
                 const container = document.getElementById('admin-product-list');
                 if(!container) return;
                 container.innerHTML = products.map(p => `
-                    <div style="display:flex; justify-content:space-between; background:white; padding:10px; margin-bottom:5px; border-radius:5px; align-items:center;">
-                        <span>${p.name} (฿${p.price})</span>
-                        <button onclick="admin.deleteProduct(${p.id})" style="color:red; border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i> ลบ</button>
+                    <div class="admin-item">
+                        <div style="display:flex; gap:10px; align-items:center;">
+                            <img src="${p.img}" style="width:40px; height:40px; border-radius:5px; object-fit:cover;">
+                            <div>
+                                <strong>${p.name}</strong><br>
+                                <small>฿${p.price} | ${p.type}</small>
+                            </div>
+                        </div>
+                        <button onclick="admin.deleteProduct(${p.id})" style="color:var(--red); border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button>
                     </div>
                 `).join('');
             }
         };
-
-        shop.showStars = (n) => {
-            let s = '';
-            for(let i=0; i<5; i++) s += `<i class="fas fa-star" style="color:${i < n ? '#ffc107' : '#ddd'}"></i>`;
-            return s;
-        };
     </script>
 </body>
-</html>
+</html>a
