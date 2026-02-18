@@ -3,239 +3,259 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThanJai Shop - Professional Football Store</title>
+    <title>ThanJai shop - Pro Football Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
         :root { 
             --blue: #001d5a; --gold: #c5a059; --red: #d32f2f; 
             --white: #ffffff; --gray: #f8f9fa; --dark: #212529;
             --success: #2e7d32; --pending: #ffa000;
         }
-        body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f0f2f5; color: var(--dark); }
+        
+        body { font-family: 'Sarabun', sans-serif; margin: 0; background: #f0f2f5; color: var(--dark); line-height: 1.6; }
         .hidden { display: none !important; }
         
         /* Navbar */
-        .navbar { background: var(--blue); color: white; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .nav-links a { color: white; text-decoration: none; margin-left: 20px; cursor: pointer; font-size: 14px; }
-        .search-box { background: white; border-radius: 20px; padding: 5px 15px; display: flex; align-items: center; flex-grow: 0.5; margin: 0 20px; }
-        .search-box input { border: none; outline: none; width: 100%; padding: 5px; }
+        .navbar { background: var(--blue); color: white; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-links a { color: white; text-decoration: none; font-size: 14px; cursor: pointer; transition: 0.3s; }
+        .nav-links a:hover { color: var(--gold); }
 
-        .container { max-width: 1100px; margin: 20px auto; padding: 0 20px; min-height: 80vh; }
-        
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; min-height: 80vh; }
+
+        /* Banner Slider */
+        .banner-slider { width: 100%; height: 300px; border-radius: 15px; overflow: hidden; position: relative; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .slide { position: absolute; width: 100%; height: 100%; display: none; background-size: cover; background-position: center; transition: 0.5s; }
+        .slide.active { display: block; }
+        .slide-overlay { background: rgba(0,0,0,0.4); width: 100%; height: 100%; display: flex; align-items: center; padding-left: 50px; color: white; }
+
         /* Product Cards */
         .product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
-        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); transition: 0.3s; position: relative; }
-        .product-card:hover { transform: translateY(-5px); }
-        .product-card img { width: 100%; height: 220px; object-fit: cover; }
-        .card-body { padding: 15px; }
-        .btn-group { display: flex; gap: 5px; margin-top: 10px; }
-        .btn-main { background: var(--blue); color: white; border: none; padding: 8px; border-radius: 5px; flex: 1; cursor: pointer; }
-        .btn-gold { background: var(--gold); color: white; border: none; padding: 8px; border-radius: 5px; flex: 1; cursor: pointer; }
+        .product-card { background: white; border-radius: 12px; overflow: hidden; border: 1px solid #eee; transition: 0.3s; display: flex; flex-direction: column; }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
+        .product-card img { width: 100%; height: 200px; object-fit: cover; cursor: pointer; }
+        
+        .card-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; padding: 10px; }
+        .btn-buy-now { background: var(--gold); color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .btn-add-cart { background: var(--blue); color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; font-weight: bold; }
 
-        /* Profile AI Selector */
-        .ai-avatar-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 15px 0; }
-        .ai-avatar-item { width: 60px; height: 60px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
-        .ai-avatar-item.active { border-color: var(--blue); scale: 1.1; }
+        /* Status Badge */
+        .status-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-paid { background: #e8f5e9; color: #2e7d32; }
+        .status-wait { background: #fff3e0; color: #ef6c00; }
 
-        /* Payment Styles */
-        .payment-choice { border: 2px solid #eee; padding: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 10px; transition: 0.3s; }
-        .payment-choice.selected { border-color: var(--blue); background: #e3f2fd; }
+        /* Profile AI Selection */
+        .ai-avatars { display: flex; gap: 10px; margin: 15px 0; overflow-x: auto; padding: 10px; }
+        .ai-avatars img { width: 60px; height: 60px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+        .ai-avatars img.selected { border-color: var(--blue); }
 
-        .status-tag { padding: 3px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; }
-        .bg-wait { background: #fff3e0; color: #ef6c00; }
-        .bg-ship { background: #e8f5e9; color: #2e7d32; }
-
-        /* Float Buttons */
-        .float-contact { position: fixed; bottom: 20px; right: 20px; background: #25d366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-decoration: none; z-index: 999; }
+        .star-rating { color: #ffc107; font-size: 14px; }
     </style>
 </head>
 <body onload="app.init()">
 
     <nav class="navbar">
-        <div style="font-size: 20px; font-weight: bold; cursor: pointer;" onclick="ui.showSection('store')">⚽ ThanJai Shop</div>
-        <div class="search-box">
-            <i class="fas fa-search" style="color: #888;"></i>
-            <input type="text" id="main-search" placeholder="ค้นหาชื่อทีม หรือประเภทเสื้อ..." onkeyup="shop.search()">
-        </div>
+        <div style="font-size: 24px; font-weight: bold; cursor:pointer" onclick="ui.showSection('store')">⚽ ThanJai Shop</div>
+        
         <div class="nav-links">
             <a onclick="ui.showSection('store')"><i class="fas fa-home"></i> หน้าหลัก</a>
-            <a onclick="cart.openHistory()"><i class="fas fa-list-ul"></i> ประวัติสั่งซื้อ</a>
-            <span id="user-nav-area"></span>
+            <a onclick="cart.loadHistory()"><i class="fas fa-box"></i> ออเดอร์ของฉัน</a>
+            <a onclick="ui.showSection('profile')"><i class="fas fa-user-circle"></i> โปรไฟล์</a>
         </div>
+
+        <div id="nav-user-info" style="display:flex; align-items:center; gap:10px;">
+            </div>
     </nav>
 
-    <div id="auth-section" class="container hidden">
-        <div style="max-width: 400px; margin: 50px auto; background: white; padding: 30px; border-radius: 15px; text-align: center;">
-            <h2 id="auth-title">เข้าสู่ระบบ</h2>
-            <div id="login-form">
-                <input type="text" id="l-user" placeholder="ชื่อผู้ใช้งาน" style="width: 90%; padding: 10px; margin: 10px 0;">
-                <input type="password" id="l-pass" placeholder="รหัสผ่าน" style="width: 90%; padding: 10px; margin: 10px 0;">
-                <button onclick="auth.login()" class="btn-main" style="width: 95%; padding: 12px; margin-top: 10px;">ตกลง</button>
-                <p onclick="ui.toggleAuth(false)" style="cursor: pointer; color: var(--gold); margin-top: 15px;">ยังไม่มีบัญชี? สมัครที่นี่</p>
-            </div>
-            <div id="reg-form" class="hidden">
-                <input type="text" id="r-name" placeholder="ชื่อ-นามสกุล" style="width: 90%; padding: 10px; margin: 10px 0;">
-                <input type="text" id="r-user" placeholder="ตั้งชื่อผู้ใช้งาน" style="width: 90%; padding: 10px; margin: 10px 0;">
-                <input type="password" id="r-pass" placeholder="ตั้งรหัสผ่าน" style="width: 90%; padding: 10px; margin: 10px 0;">
-                <button onclick="auth.register()" class="btn-gold" style="width: 95%; padding: 12px; margin-top: 10px;">สมัครสมาชิก</button>
-                <p onclick="ui.toggleAuth(true)" style="cursor: pointer; color: var(--blue); margin-top: 15px;">มีบัญชีแล้ว? เข้าสู่ระบบ</p>
-            </div>
+    <div id="auth-section" class="container">
+        <div id="login-box" style="max-width: 400px; margin: 50px auto; background:white; padding:40px; border-radius:20px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.1);">
+            <h2 style="color:var(--blue)">ยินดีต้อนรับ</h2>
+            <p>กรุณาเข้าสู่ระบบเพื่อเริ่มช้อปปิ้ง</p>
+            <input type="text" id="l-user" placeholder="ชื่อผู้ใช้งาน (ลองใช้: guest)">
+            <input type="password" id="l-pass" placeholder="รหัสผ่าน (ลองใช้: 1234)">
+            <button class="btn-buy-now" style="width:100%; padding:12px;" onclick="auth.login()">เข้าสู่ระบบ</button>
+            <p style="margin-top:15px; font-size:14px;">ยังไม่มีบัญชี? <a href="#" onclick="ui.toggleAuth('reg')">สมัครสมาชิก</a></p>
         </div>
     </div>
 
-    <div id="store-section" class="container">
-        <h3 style="border-left: 5px solid var(--blue); padding-left: 10px;">สินค้าแนะนำทั้งหมด</h3>
+    <div id="store-section" class="container hidden">
+        <div class="banner-slider">
+            <div class="slide active" style="background-image: url('4.jpg')">
+                <div class="slide-overlay"><div><h1>New Arrival!</h1><p>Buriram United Home 2024</p></div></div>
+            </div>
+            <div class="slide" style="background-image: url('8.jpg')">
+                <div class="slide-overlay"><div><h1>Best Seller</h1><p>Muangthong Utd Classic Edition</p></div></div>
+            </div>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <input type="text" id="search-input" placeholder="ค้นหาทีมฟุตบอล..." onkeyup="shop.search()" style="padding:10px; border-radius:10px; border:1px solid #ddd; flex-grow:1;">
+            <select id="filter-type" onchange="shop.filter(this.value)" style="width:150px; border-radius:10px;">
+                <option value="all">ทุกหมวดหมู่</option>
+                <option value="เหย้า">เสื้อเหย้า</option>
+                <option value="เยือน">เสื้อเยือน</option>
+                <option value="ซ้อม">เสื้อซ้อม</option>
+            </select>
+        </div>
+
         <div class="product-grid" id="product-list"></div>
     </div>
 
     <div id="detail-section" class="container hidden">
-        <button onclick="ui.showSection('store')" style="border: none; background: none; cursor: pointer; color: var(--blue);"><i class="fas fa-arrow-left"></i> กลับหน้าร้าน</button>
-        <div id="product-detail-box" style="background: white; border-radius: 15px; margin-top: 15px; display: flex; flex-wrap: wrap;"></div>
+        <button onclick="ui.showSection('store')" style="border:none; background:none; cursor:pointer; color:var(--blue); margin-bottom:15px;"><i class="fas fa-chevron-left"></i> กลับหน้าหลัก</button>
+        <div id="detail-content" style="background:white; border-radius:20px; display:grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); overflow:hidden;">
+            </div>
+        <div id="review-section" style="margin-top:30px; background:white; padding:20px; border-radius:15px;">
+            <h3>รีวิวจากลูกค้า</h3>
+            <div id="review-list">ไม่มีรีวิวสำหรับสินค้านี้</div>
+        </div>
     </div>
 
     <div id="cart-section" class="container hidden">
-        <h2><i class="fas fa-shopping-cart"></i> ตะกร้าของฉัน</h2>
-        <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 20px;">
-            <div id="cart-items" style="background: white; padding: 20px; border-radius: 15px;"></div>
-            <div style="background: white; padding: 20px; border-radius: 15px; height: fit-content;">
-                <h4>ข้อมูลการจัดส่ง</h4>
-                <input type="text" id="ship-name" placeholder="ชื่อผู้รับ" style="width: 90%; padding: 8px; margin-bottom: 10px;">
-                <textarea id="ship-addr" placeholder="ที่อยู่รับสินค้า" style="width: 90%; padding: 8px; height: 60px; margin-bottom: 10px;"></textarea>
-                
-                <h4>ช่องทางชำระเงิน</h4>
-                <div class="payment-choice" id="pay-bank" onclick="cart.selectPay('bank')">
-                    <strong><i class="fas fa-university"></i> โอนผ่านธนาคาร</strong><br>
-                    <small>ยืนยันยอดทันทีหลังแนบสลิป</small>
-                </div>
-                <div class="payment-choice" id="pay-cod" onclick="cart.selectPay('cod')">
-                    <strong><i class="fas fa-truck-loading"></i> เก็บเงินปลายทาง (COD)</strong><br>
-                    <small>มีค่าธรรมเนียม +20 บาท</small>
-                </div>
-
-                <div id="total-area" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px;"></div>
-                <button onclick="cart.confirmOrder()" class="btn-main" style="width: 100%; padding: 15px; font-weight: bold; margin-top: 10px;">ยืนยันการสั่งซื้อ</button>
+        <h2 style="color:var(--blue)"><i class="fas fa-shopping-cart"></i> ตะกร้าสินค้า</h2>
+        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:20px;">
+            <div id="cart-items" style="background:white; border-radius:15px; padding:20px;"></div>
+            <div style="background:white; border-radius:15px; padding:20px; height:fit-content;">
+                <h3>สรุปยอดการสั่งซื้อ</h3>
+                <div id="cart-summary"></div>
+                <hr>
+                <p><strong>ช่องทางการชำระเงิน</strong></p>
+                <select id="pay-method" style="margin-bottom:15px;">
+                    <option value="QR">Thai QR Payment (โอนเงิน)</option>
+                    <option value="COD">เก็บเงินปลายทาง</option>
+                </select>
+                <button class="btn-buy-now" style="width:100%; padding:15px;" onclick="cart.checkout()">ยืนยันสั่งซื้อ</button>
             </div>
         </div>
     </div>
 
     <div id="history-section" class="container hidden">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
             <h2>ประวัติการสั่งซื้อ</h2>
-            <input type="text" id="search-order" placeholder="ค้นหาเลขออเดอร์..." onkeyup="cart.searchHistory()" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+            <input type="text" id="search-history" placeholder="ค้นหาเลขออเดอร์..." onkeyup="cart.filterHistory()" style="width:200px; padding:8px;">
         </div>
         <div id="history-list"></div>
     </div>
 
     <div id="profile-section" class="container hidden">
-        <div style="max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 15px;">
-            <h3>ตั้งค่าโปรไฟล์</h3>
-            <div style="text-align: center;">
-                <img id="current-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width: 100px; height: 100px; border-radius: 50%;">
-                <p>เลือกรูปตัวละคร AI ของคุณ</p>
-                <div class="ai-avatar-grid">
-                    <img class="ai-avatar-item" src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" onclick="auth.pickAvatar(this.src)">
-                    <img class="ai-avatar-item" src="https://cdn-icons-png.flaticon.com/512/4140/4140047.png" onclick="auth.pickAvatar(this.src)">
-                    <img class="ai-avatar-item" src="https://cdn-icons-png.flaticon.com/512/4140/4140051.png" onclick="auth.pickAvatar(this.src)">
-                    <img class="ai-avatar-item" src="https://cdn-icons-png.flaticon.com/512/4140/4140061.png" onclick="auth.pickAvatar(this.src)">
+        <div style="max-width:600px; margin:0 auto; background:white; padding:30px; border-radius:20px;">
+            <h3>ข้อมูลส่วนตัว</h3>
+            <div style="text-align:center;">
+                <img id="p-img-display" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" style="width:100px; height:100px; border-radius:50%; border:3px solid var(--blue);">
+                <p>เลือกรูปโปรไฟล์ AI</p>
+                <div class="ai-avatars">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" onclick="auth.setAvatar(this.src)">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Aneka" onclick="auth.setAvatar(this.src)">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Max" onclick="auth.setAvatar(this.src)">
+                    <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Lily" onclick="auth.setAvatar(this.src)">
                 </div>
             </div>
-            <label>ชื่อที่แสดง:</label>
-            <input type="text" id="p-display-name" style="width: 95%; padding: 10px; margin: 10px 0;">
-            <button onclick="auth.saveProfile()" class="btn-main" style="width: 100%;">บันทึกข้อมูล</button>
+            <label>ชื่อ-นามสกุล</label><input type="text" id="p-name">
+            <label>อีเมล</label><input type="email" id="p-email">
+            <label>เบอร์โทรศัพท์</label><input type="tel" id="p-phone">
+            <label>รหัสผ่านใหม่ (หากต้องการเปลี่ยน)</label><input type="password" id="p-pass">
+            <button class="btn-buy-now" style="width:100%; padding:12px; margin-top:20px;" onclick="auth.updateProfile()">บันทึกข้อมูล</button>
+            <button onclick="auth.logout()" style="width:100%; background:none; border:none; color:red; margin-top:10px; cursor:pointer;">ออกจากระบบ</button>
         </div>
     </div>
 
-    <a href="https://m.me/yourpage" target="_blank" class="float-contact" title="ติดต่อแอดมิน">
-        <i class="fab fa-facebook-messenger"></i>
+    <a href="https://m.me/yourpage" target="_blank" style="position:fixed; bottom:20px; right:20px; background:#0084ff; color:white; width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center; text-decoration:none; box-shadow:0 5px 15px rgba(0,0,0,0.3); z-index:9999;">
+        <i class="fab fa-facebook-messenger" style="font-size:30px;"></i>
     </a>
 
     <script>
-        // ข้อมูลเดิมห้ามหาย
+        // ข้อมูลสินค้าเดิม ห้ามหาย
         let products = [
-            { id: 2, name: "เสื้อแข่ง Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด" },
-            { id: 4, name: "เสื้อ Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพพรีเมียม" },
-            { id: 5, name: "เสื้อเชียร์ Thailand Edition", price: 590, type: "ซ้อม", img: "5.jpg", desc: "เสื้อเชียร์ทีมชาติไทย สวมใส่สบาย" },
-            { id: 6, name: "เสื้อ Port FC Away Kit", price: 750, type: "เยือน", img: "6.jpg", desc: "เสื้อสิงห์เจ้าท่า สีเยือนเรียบหรู" },
-            { id: 7, name: "เสื้อ Training BGPU", price: 490, type: "ซ้อม", img: "7.jpg", desc: "เสื้อซ้อมระบายอากาศดีเยี่ยม" },
-            { id: 8, name: "เสื้อ Muangthong Utd Home", price: 790, type: "เหย้า", img: "8.jpg", desc: "กิเลนผยอง คลาสสิกสีแดงดำ" },
-            { id: 9, name: "เสื้อเยือน Chonburi FC", price: 650, type: "เยือน", img: "9.jpg", desc: "ฉลามชล ดีไซน์สปอร์ตทันสมัย" },
-            { id: 10, name: "เสื้อซ้อมรวมดารา", price: 390, type: "ซ้อม", img: "10.jpg", desc: "เสื้อซ้อมรวมสโมสร ลิมิเต็ด" }
+            { id: 2, name: "เสื้อแข่ง Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด ผ้าเกรดนักเตะระบายอากาศดีเยี่ยม" },
+            { id: 4, name: "เสื้อ Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพพรีเมียม ลวดลายอันเป็นเอกลักษณ์" },
+            { id: 5, name: "เสื้อเชียร์ Thailand Edition", price: 590, type: "ซ้อม", img: "5.jpg", desc: "เสื้อเชียร์ทีมชาติไทย สวมใส่สบาย เหมาะกับทุกกิจกรรม" },
+            { id: 6, name: "เสื้อ Port FC Away Kit", price: 750, type: "เยือน", img: "6.jpg", desc: "เสื้อสิงห์เจ้าท่า สีเยือนเรียบหรู พร้อมตราสโมสรแบบ 3D" },
+            { id: 7, name: "เสื้อ Training BGPU", price: 490, type: "ซ้อม", img: "7.jpg", desc: "เสื้อซ้อมระบายอากาศดีเยี่ยม แห้งไว ใส่เล่นกีฬาได้จริง" },
+            { id: 8, name: "เสื้อ Muangthong Utd Home", price: 790, type: "เหย้า", img: "8.jpg", desc: "กิเลนผยอง คลาสสิกสีแดงดำ ดีไซน์ย้อนยุคแต่ร่วมสมัย" },
+            { id: 9, name: "เสื้อเยือน Chonburi FC", price: 650, type: "เยือน", img: "9.jpg", desc: "ฉลามชล ดีไซน์สปอร์ตทันสมัย สีสันโดดเด่นในสนาม" },
+            { id: 10, name: "เสื้อซ้อมรวมดารา", price: 390, type: "ซ้อม", img: "10.jpg", desc: "เสื้อซ้อมรวมสโมสร ลิมิเต็ด อิดิชั่น ผลิตจำนวนจำกัด" }
         ];
 
-        let currentUser = JSON.parse(localStorage.getItem('loggedUser')) || null;
-        let myCart = [];
-        let selectedPay = 'bank';
+        let currentUser = JSON.parse(localStorage.getItem('activeUser')) || null;
+        let cartItems = [];
+        let reviews = JSON.parse(localStorage.getItem('all_reviews')) || {};
 
         const app = {
             init: () => {
+                if(currentUser) {
+                    ui.showSection('store');
+                    app.updateNav();
+                    app.initSlider();
+                } else {
+                    ui.showSection('auth');
+                }
                 shop.render(products);
-                auth.updateUI();
+            },
+            updateNav: () => {
+                const nav = document.getElementById('nav-user-info');
+                nav.innerHTML = `
+                    <div style="text-align:right; line-height:1">
+                        <small>ยินดีต้อนรับ</small><br>
+                        <strong>${currentUser.name}</strong>
+                    </div>
+                    <img src="${currentUser.img}" style="width:35px; height:35px; border-radius:50%; cursor:pointer;" onclick="ui.showSection('profile')">
+                `;
+            },
+            initSlider: () => {
+                let currentSlide = 0;
+                const slides = document.querySelectorAll('.slide');
+                setInterval(() => {
+                    slides[currentSlide].classList.remove('active');
+                    currentSlide = (currentSlide + 1) % slides.length;
+                    slides[currentSlide].classList.add('active');
+                }, 5000);
             }
         };
 
         const ui = {
             showSection: (id) => {
-                document.querySelectorAll('.container').forEach(s => s.classList.add('hidden'));
+                document.querySelectorAll('.container').forEach(c => c.classList.add('hidden'));
                 document.getElementById(id + '-section').classList.remove('hidden');
                 window.scrollTo(0,0);
-            },
-            toggleAuth: (isLogin) => {
-                document.getElementById('auth-title').innerText = isLogin ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก';
-                document.getElementById('login-form').classList.toggle('hidden', !isLogin);
-                document.getElementById('reg-form').classList.toggle('hidden', isLogin);
             }
         };
 
         const auth = {
             login: () => {
-                const u = document.getElementById('l-user').value;
-                const p = document.getElementById('l-pass').value;
-                if(!u || !p) return alert("กรุณากรอกข้อมูล");
+                // ตัวอย่างระบบจำลอง (ถ้าจะใช้จริงต้องเช็ค DB)
+                const user = document.getElementById('l-user').value;
+                if(!user) return alert("กรุณากรอกข้อมูล");
                 
-                const userDB = JSON.parse(localStorage.getItem('user_' + u));
-                if(userDB && userDB.pass === p) {
-                    currentUser = userDB;
-                    localStorage.setItem('loggedUser', JSON.stringify(currentUser));
-                    location.reload();
-                } else alert("ชื่อผู้ใช้หรือรหัสผ่านผิด");
-            },
-            register: () => {
-                const n = document.getElementById('r-name').value;
-                const u = document.getElementById('r-user').value;
-                const p = document.getElementById('r-pass').value;
-                if(!u || !p || !n) return alert("กรอกข้อมูลให้ครบ");
-                
-                const userData = { user: u, pass: p, name: n, avatar: 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png' };
-                localStorage.setItem('user_' + u, JSON.stringify(userData));
-                alert("สมัครสำเร็จ! กรุณาเข้าสู่ระบบ");
-                ui.toggleAuth(true);
-            },
-            updateUI: () => {
-                const area = document.getElementById('user-nav-area');
-                if(currentUser) {
-                    area.innerHTML = `
-                        <span onclick="ui.showSection('profile')" style="cursor:pointer">
-                            <img src="${currentUser.avatar}" style="width:30px; border-radius:50%; vertical-align:middle;"> 
-                            ${currentUser.name}
-                        </span>
-                        <a onclick="auth.logout()" style="color:var(--red)"><i class="fas fa-sign-out-alt"></i></a>
-                    `;
-                } else {
-                    area.innerHTML = `<a onclick="ui.showSection('auth')">เข้าสู่ระบบ / สมัครสมาชิก</a>`;
-                }
-            },
-            logout: () => { localStorage.removeItem('loggedUser'); location.reload(); },
-            pickAvatar: (url) => {
-                document.getElementById('current-avatar').src = url;
-                currentUser.avatar = url;
-            },
-            saveProfile: () => {
-                currentUser.name = document.getElementById('p-display-name').value;
-                localStorage.setItem('user_' + currentUser.user, JSON.stringify(currentUser));
-                localStorage.setItem('loggedUser', JSON.stringify(currentUser));
-                alert("บันทึกสำเร็จ");
+                currentUser = {
+                    user: user,
+                    name: "คุณลูกค้าขาช้อป",
+                    email: user + "@email.com",
+                    phone: "081-xxx-xxxx",
+                    img: "https://api.dicebear.com/7.x/avataaars/svg?seed=Felix",
+                    pass: "1234"
+                };
+                localStorage.setItem('activeUser', JSON.stringify(currentUser));
                 location.reload();
+            },
+            logout: () => {
+                localStorage.removeItem('activeUser');
+                location.reload();
+            },
+            setAvatar: (url) => {
+                document.getElementById('p-img-display').src = url;
+            },
+            updateProfile: () => {
+                currentUser.name = document.getElementById('p-name').value;
+                currentUser.email = document.getElementById('p-email').value;
+                currentUser.phone = document.getElementById('p-phone').value;
+                currentUser.img = document.getElementById('p-img-display').src;
+                if(document.getElementById('p-pass').value) currentUser.pass = document.getElementById('p-pass').value;
+                
+                localStorage.setItem('activeUser', JSON.stringify(currentUser));
+                alert("อัปเดตข้อมูลสำเร็จ!");
+                app.updateNav();
             }
         };
 
@@ -244,177 +264,174 @@
                 const list = document.getElementById('product-list');
                 list.innerHTML = items.map(p => `
                     <div class="product-card">
-                        <img src="${p.img}" onerror="this.src='https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=400'">
-                        <div class="card-body">
+                        <img src="${p.img}" onclick="shop.viewDetail(${p.id})">
+                        <div style="padding:15px; flex-grow:1">
                             <small style="color:var(--gold)">${p.type}</small>
                             <h4 style="margin:5px 0">${p.name}</h4>
-                            <p style="color:var(--blue); font-weight:bold; margin:0">฿${p.price.toLocaleString()}</p>
-                            <div class="btn-group">
-                                <button onclick="shop.openDetail(${p.id})" class="btn-main">ดูรายละเอียด</button>
-                                <button onclick="cart.quickAdd(${p.id})" class="btn-gold"><i class="fas fa-cart-plus"></i></button>
-                            </div>
+                            <div class="star-rating">⭐⭐⭐⭐⭐ (5.0)</div>
+                            <p style="color:var(--blue); font-weight:bold; margin-top:5px;">฿${p.price.toLocaleString()}</p>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-buy-now" onclick="shop.viewDetail(${p.id})">ซื้อเลย</button>
+                            <button class="btn-add-cart" onclick="shop.viewDetail(${p.id})">+ ตะกร้า</button>
                         </div>
                     </div>
                 `).join('');
             },
-            openDetail: (id) => {
-                const p = products.find(x => x.id === id);
-                document.getElementById('product-detail-box').innerHTML = `
-                    <div style="flex:1; min-width:300px; padding:20px;">
-                        <img src="${p.img}" style="width:100%; border-radius:10px;">
+            viewDetail: (id) => {
+                const p = products.find(i => i.id === id);
+                document.getElementById('detail-content').innerHTML = `
+                    <div style="padding:20px; background:#f9f9f9; display:flex; align-items:center; justify-content:center;">
+                        <img src="${p.img}" style="max-width:100%; border-radius:15px; box-shadow:0 5px 15px rgba(0,0,0,0.1);">
                     </div>
-                    <div style="flex:1.2; min-width:300px; padding:40px;">
+                    <div style="padding:40px;">
+                        <small style="color:var(--gold)">เสื้อฟุตบอลเกรดพรีเมียม</small>
                         <h2>${p.name}</h2>
-                        <p style="color:#666">${p.desc}</p>
-                        <h1 style="color:var(--blue)">฿${p.price.toLocaleString()}</h1>
+                        <h2 style="color:var(--blue)">฿${p.price.toLocaleString()}</h2>
+                        <p style="color:#666;">${p.desc}</p>
                         <div style="margin:20px 0;">
-                            <label>เลือกไซส์:</label>
-                            <select id="dt-size" style="padding:10px; width:100px; margin-right:20px;">
-                                <option>S</option><option selected>M</option><option>L</option><option>XL</option>
+                            <label><strong>เลือกไซส์:</strong></label><br>
+                            <select id="s-size" style="width:100%; padding:10px; margin:10px 0;">
+                                <option>S (อก 38)</option>
+                                <option selected>M (อก 40)</option>
+                                <option>L (อก 42)</option>
+                                <option>XL (อก 44)</option>
+                                <option>2XL (อก 46)</option>
                             </select>
-                            <label>จำนวน:</label>
-                            <input type="number" id="dt-qty" value="1" min="1" style="padding:10px; width:60px;">
+                            <label><strong>จำนวน:</strong></label><br>
+                            <input type="number" id="s-qty" value="1" min="1" style="width:100%; padding:10px; box-sizing:border-box;">
                         </div>
-                        <button onclick="cart.addFromDetail(${p.id})" class="btn-main" style="padding:15px 30px; font-size:16px;">เพิ่มลงตะกร้า</button>
+                        <button class="btn-add-cart" style="width:100%; padding:15px; font-size:16px;" onclick="cart.add(${p.id})">ใส่ตะกร้าสินค้า</button>
                     </div>
                 `;
+                shop.loadReviews(id);
                 ui.showSection('detail');
             },
             search: () => {
-                const q = document.getElementById('main-search').value.toLowerCase();
-                const filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.type.includes(q));
+                const val = document.getElementById('search-input').value.toLowerCase();
+                const filtered = products.filter(p => p.name.toLowerCase().includes(val));
                 shop.render(filtered);
+            },
+            filter: (type) => {
+                if(type === 'all') shop.render(products);
+                else shop.render(products.filter(p => p.type === type));
+            },
+            loadReviews: (pid) => {
+                const rList = document.getElementById('review-list');
+                const data = reviews[pid] || [];
+                if(data.length === 0) {
+                    rList.innerHTML = "ยังไม่มีรีวิวสำหรับสินค้านี้ มารีวิวเป็นคนแรกกันเถอะ!";
+                } else {
+                    rList.innerHTML = data.map(r => `
+                        <div style="border-bottom:1px solid #eee; padding:10px 0;">
+                            <strong>${r.user}</strong> <span class="star-rating">${"⭐".repeat(r.star)}</span>
+                            <p style="margin:5px 0; font-size:14px;">${r.msg}</p>
+                        </div>
+                    `).join('');
+                }
             }
         };
 
         const cart = {
-            addFromDetail: (id) => {
-                if(!currentUser) return alert("กรุณาเข้าสู่ระบบก่อนสั่งซื้อ");
-                const size = document.getElementById('dt-size').value;
-                const qty = parseInt(document.getElementById('dt-qty').value);
-                const p = products.find(x => x.id === id);
-                myCart.push({...p, size, qty});
-                cart.open();
+            add: (id) => {
+                const p = products.find(i => i.id === id);
+                const size = document.getElementById('s-size').value;
+                const qty = parseInt(document.getElementById('s-qty').value);
+                cartItems.push({...p, size, qty});
+                alert("เพิ่มลงตะกร้าแล้ว!");
+                cart.showCart();
             },
-            quickAdd: (id) => {
-                if(!currentUser) return alert("กรุณาเข้าสู่ระบบก่อนสั่งซื้อ");
-                const p = products.find(x => x.id === id);
-                myCart.push({...p, size: 'M', qty: 1});
-                alert("เพิ่มลงตะกร้าแล้ว");
-                cart.open();
-            },
-            open: () => {
-                if(myCart.length === 0) return alert("ตะกร้าว่างเปล่า");
-                cart.renderItems();
+            showCart: () => {
                 ui.showSection('cart');
-            },
-            renderItems: () => {
-                let subtotal = 0;
-                document.getElementById('cart-items').innerHTML = myCart.map((item, i) => {
-                    subtotal += (item.price * item.qty);
-                    return `
-                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:10px 0;">
-                            <div style="display:flex; gap:15px; align-items:center;">
-                                <img src="${item.img}" style="width:50px; height:50px; object-fit:cover;">
-                                <div>
-                                    <strong>${item.name}</strong><br>
-                                    <small>ไซส์: ${item.size} x ${item.qty}</small>
-                                </div>
-                            </div>
-                            <div>
-                                <strong>฿${(item.price * item.qty).toLocaleString()}</strong>
-                                <i class="fas fa-trash" onclick="cart.removeItem(${i})" style="color:var(--red); margin-left:15px; cursor:pointer;"></i>
-                            </div>
+                const list = document.getElementById('cart-items');
+                if(cartItems.length === 0) {
+                    list.innerHTML = "ตะกร้าว่างเปล่า";
+                    return;
+                }
+                list.innerHTML = cartItems.map((item, idx) => `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                        <img src="${item.img}" style="width:60px;">
+                        <div style="flex-grow:1; margin-left:15px;">
+                            <strong>${item.name}</strong><br>
+                            <small>ไซส์: ${item.size} x ${item.qty}</small>
                         </div>
-                    `;
-                }).join('');
-                
-                const shipFee = selectedPay === 'cod' ? 70 : 50;
-                document.getElementById('total-area').innerHTML = `
-                    <div style="display:flex; justify-content:space-between"><span>ค่าสินค้า:</span><span>฿${subtotal.toLocaleString()}</span></div>
-                    <div style="display:flex; justify-content:space-between"><span>ค่าส่ง:</span><span>฿${shipFee}</span></div>
-                    <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:20px; color:var(--blue); margin-top:10px;">
-                        <span>รวมทั้งสิ้น:</span><span>฿${(subtotal + shipFee).toLocaleString()}</span>
+                        <div style="text-align:right">
+                            <strong>฿${(item.price * item.qty).toLocaleString()}</strong><br>
+                            <small onclick="cart.remove(${idx})" style="color:red; cursor:pointer;">ลบ</small>
+                        </div>
                     </div>
+                `).join('');
+
+                const subtotal = cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0);
+                document.getElementById('cart-summary').innerHTML = `
+                    <div style="display:flex; justify-content:space-between; margin:10px 0;"><span>ยอดรวม</span><span>฿${subtotal.toLocaleString()}</span></div>
+                    <div style="display:flex; justify-content:space-between; margin:10px 0;"><span>ค่าส่ง (EMS)</span><span>฿50</span></div>
+                    <div style="display:flex; justify-content:space-between; margin:10px 0; font-size:1.2em; font-weight:bold; color:var(--blue);"><span>สุทธิ</span><span>฿${(subtotal + 50).toLocaleString()}</span></div>
                 `;
             },
-            removeItem: (i) => { myCart.splice(i, 1); if(myCart.length==0) ui.showSection('store'); else cart.renderItems(); },
-            selectPay: (type) => {
-                selectedPay = type;
-                document.getElementById('pay-bank').classList.toggle('selected', type==='bank');
-                document.getElementById('pay-cod').classList.toggle('selected', type==='cod');
-                cart.renderItems();
+            remove: (idx) => {
+                cartItems.splice(idx, 1);
+                cart.showCart();
             },
-            confirmOrder: () => {
-                const name = document.getElementById('ship-name').value;
-                const addr = document.getElementById('ship-addr').value;
-                if(!name || !addr) return alert("กรุณากรอกข้อมูลจัดส่ง");
-
+            checkout: () => {
+                if(cartItems.length === 0) return;
+                const payMethod = document.getElementById('pay-method').value;
                 const order = {
-                    id: 'TJ' + Date.now().toString().slice(-6),
-                    items: [...myCart],
-                    total: myCart.reduce((s, x) => s + (x.price * x.qty), 0) + (selectedPay==='cod'?70:50),
-                    status: selectedPay === 'bank' ? 'รอตรวจสอบยอดเงิน' : 'เตรียมจัดส่ง (COD)',
+                    id: "ORD" + Date.now(),
                     date: new Date().toLocaleString(),
-                    arrival: 'ภายใน 2-3 วัน',
-                    pay: selectedPay,
-                    reviewed: false
+                    items: [...cartItems],
+                    total: cartItems.reduce((acc, item) => acc + (item.price * item.qty), 0) + 50,
+                    status: payMethod === 'COD' ? "เตรียมจัดส่ง" : "รอตรวจสอบยอดเงิน",
+                    tracking: "TH" + Math.floor(Math.random() * 100000000),
+                    isPaid: payMethod === 'COD' ? false : true
                 };
 
-                let history = JSON.parse(localStorage.getItem('history_' + currentUser.user)) || [];
+                let history = JSON.parse(localStorage.getItem('order_history_'+currentUser.user)) || [];
                 history.unshift(order);
-                localStorage.setItem('history_' + currentUser.user, JSON.stringify(history));
-
-                myCart = [];
-                alert("สั่งซื้อสำเร็จ! ขอบคุณที่ใช้บริการ");
-                cart.openHistory();
+                localStorage.setItem('order_history_'+currentUser.user, JSON.stringify(history));
+                
+                cartItems = [];
+                alert("สั่งซื้อสำเร็จ! ขอบคุณที่ใช้บริการครับ");
+                cart.loadHistory();
             },
-            openHistory: () => {
-                if(!currentUser) return alert("กรุณาเข้าสู่ระบบ");
-                const history = JSON.parse(localStorage.getItem('history_' + currentUser.user)) || [];
+            loadHistory: () => {
+                ui.showSection('history');
                 const list = document.getElementById('history-list');
+                const history = JSON.parse(localStorage.getItem('order_history_'+currentUser.user)) || [];
+                
                 list.innerHTML = history.map(h => `
                     <div style="background:white; padding:20px; border-radius:15px; margin-top:15px;">
                         <div style="display:flex; justify-content:space-between;">
-                            <strong>เลขออเดอร์: #${h.id}</strong>
-                            <span class="status-tag ${h.status.includes('จัดส่ง') ? 'bg-ship' : 'bg-wait'}">${h.status}</span>
+                            <strong>ออเดอร์: ${h.id}</strong>
+                            <span class="status-badge ${h.isPaid ? 'status-paid' : 'status-wait'}">${h.status}</span>
                         </div>
-                        <div style="margin:10px 0; font-size:14px; color:#666;">
-                            รายการ: ${h.items.map(i => i.name + '(' + i.size + ')').join(', ')}
-                        </div>
+                        <div style="font-size:14px; color:#666;">วันที่: ${h.date}</div>
+                        <hr>
+                        ${h.items.map(i => `<div>${i.name} (ไซส์ ${i.size}) x ${i.qty}</div>`).join('')}
+                        <hr>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <small>วันที่สั่ง: ${h.date}</small><br>
-                                <small style="color:var(--success)">คาดว่าจะได้รับ: ${h.arrival}</small>
-                            </div>
-                            <div style="text-align:right">
-                                <strong style="font-size:18px; color:var(--blue)">฿${h.total.toLocaleString()}</strong><br>
-                                ${h.status.includes('COD') || h.status.includes('สำเร็จ') ? `<button onclick="cart.review('${h.id}')" style="font-size:12px; cursor:pointer;" ${h.reviewed?'disabled':''}>${h.reviewed?'รีวิวแล้ว':'ให้คะแนนสินค้า'}</button>` : ''}
-                            </div>
+                            <div>ยอดชำระ: <strong>฿${h.total.toLocaleString()}</strong><br><small>เลขพัสดุ: ${h.tracking}</small></div>
+                            <button onclick="cart.writeReview('${h.items[0].id}')" style="padding:5px 10px; border-radius:5px; border:1px solid var(--blue); background:none; cursor:pointer;">เขียนรีวิว</button>
                         </div>
                     </div>
-                `).join('') || '<p style="text-align:center; padding:50px;">ยังไม่มีประวัติการสั่งซื้อ</p>';
-                ui.showSection('history');
+                `).join('');
             },
-            searchHistory: () => {
-                const q = document.getElementById('search-order').value.toLowerCase();
-                const history = JSON.parse(localStorage.getItem('history_' + currentUser.user)) || [];
-                const filtered = history.filter(h => h.id.toLowerCase().includes(q));
-                // แสดงเฉพาะที่ค้นหา (เหมือนฟังก์ชัน openHistory แต่ใช้ filtered)
-                // ... (ประยุกต์ใช้ซ้ำ)
-            },
-            review: (id) => {
-                const score = prompt("ให้คะแนนสินค้า (1-5 ดาว):", "5");
-                if(score >= 1 && score <= 5) {
-                    let history = JSON.parse(localStorage.getItem('history_' + currentUser.user));
-                    const idx = history.findIndex(h => h.id === id);
-                    history[idx].reviewed = true;
-                    localStorage.setItem('history_' + currentUser.user, JSON.stringify(history));
-                    alert("ขอบคุณสำหรับรีวิว " + "⭐".repeat(score));
-                    cart.openHistory();
+            writeReview: (pid) => {
+                const msg = prompt("เขียนรีวิวของคุณ:");
+                const star = prompt("ให้คะแนนกี่ดาว (1-5):");
+                if(msg && star) {
+                    if(!reviews[pid]) reviews[pid] = [];
+                    reviews[pid].push({
+                        user: currentUser.name,
+                        star: parseInt(star),
+                        msg: msg
+                    });
+                    localStorage.setItem('all_reviews', JSON.stringify(reviews));
+                    alert("ขอบคุณสำหรับรีวิวครับ!");
                 }
             }
         };
+
     </script>
 </body>
-</html>ฟ
+</html>
