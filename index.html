@@ -56,6 +56,9 @@
         .status-pending { background: #fff3e0; color: #ef6c00; }
         .status-paid { background: #e8f5e9; color: #2e7d32; }
 
+        /* Profile Image Navbar */
+        .nav-profile-img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 2px solid var(--gold); }
+
         /* Floating Buttons */
         .cart-btn-float { position: fixed; bottom: 30px; right: 30px; background: var(--gold); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2); cursor: pointer; z-index: 999; }
         .admin-contact-float { position: fixed; bottom: 100px; right: 30px; background: #25d366; color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 5px 15px rgba(0,0,0,0.2); cursor: pointer; z-index: 999; text-decoration: none; }
@@ -84,7 +87,10 @@
 
         <div id="nav-user" class="hidden">
             <div style="display:flex; align-items:center; gap:15px;">
-                <span onclick="ui.showSection('profile')" id="nav-name-display" style="cursor:pointer; font-weight: bold; border-bottom: 1px dashed white;"></span>
+                <div onclick="ui.showSection('profile')" style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+                    <img id="nav-avatar" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" class="nav-profile-img">
+                    <span id="nav-name-display" style="font-weight: bold; border-bottom: 1px dashed white;"></span>
+                </div>
                 <button onclick="auth.logout()" style="background:none; border:none; color:var(--gold); cursor:pointer; font-size: 18px;"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </div>
@@ -93,8 +99,8 @@
     <div id="auth-section" class="container">
         <div id="login-box" style="max-width: 400px; margin: 50px auto; background:white; padding:40px; border-radius:20px; box-shadow:0 10px 30px rgba(0,0,0,0.1); text-align: center;">
             <h2 style="color:var(--blue)">เข้าสู่ระบบ</h2>
-            <input type="text" id="l-user" placeholder="ชื่อผู้ใช้งาน (แอดมินใช้: admin)">
-            <input type="password" id="l-pass" placeholder="รหัสผ่าน (แอดมินใช้: 1234)">
+            <input type="text" id="l-user" placeholder="ชื่อผู้ใช้งาน">
+            <input type="password" id="l-pass" placeholder="รหัสผ่าน">
             <button class="btn-save" onclick="auth.login()">เข้าสู่ระบบ</button>
             <p style="margin-top:20px;">ยังไม่มีบัญชี? <a href="#" onclick="ui.toggleAuth('reg')">สมัครสมาชิก</a></p>
         </div>
@@ -172,7 +178,7 @@
                     <option value="เยือน">เยือน</option>
                     <option value="ซ้อม">ซ้อม</option>
                 </select>
-                <input type="text" id="adm-img" placeholder="URL รูปภาพ (หรือใส่ชื่อไฟล์เดิม)">
+                <input type="text" id="adm-img" placeholder="URL รูปภาพ">
             </div>
             <textarea id="adm-desc" placeholder="รายละเอียดสินค้า"></textarea>
             <button class="btn-save" onclick="admin.saveProduct()">บันทึกสินค้าลงระบบ</button>
@@ -185,10 +191,20 @@
 
     <div id="profile-section" class="container hidden">
         <div style="background:white; padding:40px; border-radius:20px; max-width: 600px; margin: 0 auto;">
-            <h2>ข้อมูลส่วนตัว</h2>
+            <div style="text-align: center; margin-bottom: 20px;">
+                <img id="p-preview" src="https://cdn-icons-png.flaticon.com/512/149/149071.png" style="width: 120px; height: 120px; border-radius: 50%; object-fit: cover; border: 3px solid var(--blue);">
+            </div>
+            <h2>แก้ไขข้อมูลส่วนตัว</h2>
             <form onsubmit="auth.saveProfile(event)">
+                <label>ชื่อ-นามสกุล:</label>
                 <input type="text" id="p-fullname" placeholder="ชื่อ-นามสกุล">
+                <label>URL รูปโปรไฟล์:</label>
+                <input type="text" id="p-img" placeholder="วางลิงก์รูปภาพของคุณที่นี่" onchange="document.getElementById('p-preview').src = this.value">
+                <label>เบอร์โทรศัพท์:</label>
                 <input type="tel" id="p-phone" placeholder="เบอร์โทรศัพท์">
+                <label>อีเมล:</label>
+                <input type="email" id="p-email" placeholder="example@email.com">
+                <label>ที่อยู่หลัก:</label>
                 <textarea id="p-address" rows="3" placeholder="ที่อยู่หลัก"></textarea>
                 <button type="submit" class="btn-save">บันทึกข้อมูล</button>
             </form>
@@ -205,7 +221,7 @@
     </div>
 
     <script>
-        // ข้อมูลเริ่มต้น (ห้ามหาย)
+        // ข้อมูลสินค้าเดิม ห้ามหาย
         let products = JSON.parse(localStorage.getItem('main_products')) || [
             { id: 2, name: "เสื้อแข่ง Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด" },
             { id: 4, name: "เสื้อ Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพพรีเมียม" },
@@ -219,7 +235,6 @@
 
         let currentUser = null;
         let myCart = [];
-        let currentDiscount = 0;
 
         const app = {
             init: () => {
@@ -255,7 +270,7 @@
                 const p = document.getElementById('r-pass').value;
                 const n = document.getElementById('r-fullname').value;
                 if(!u || !p) return alert("กรุณากรอกข้อมูล");
-                const userData = { user: u, pass: p, name: n, hasNewCoupon: true };
+                const userData = { user: u, pass: p, name: n, img: '', phone: '', address: '', email: '' };
                 localStorage.setItem('db_'+u, JSON.stringify(userData));
                 alert("สมัครสมาชิกสำเร็จ!");
                 ui.toggleAuth('login');
@@ -264,11 +279,9 @@
                 const u = document.getElementById('l-user').value;
                 const p = document.getElementById('l-pass').value;
                 
-                // แอดมินล็อกอินพิเศษ
                 if(u === 'admin' && p === '1234') {
                     sessionStorage.setItem('activeUser', 'admin');
-                    location.reload();
-                    return;
+                    location.reload(); return;
                 }
 
                 const db = JSON.parse(localStorage.getItem('db_'+u));
@@ -280,9 +293,37 @@
             loadUserUI: (u) => {
                 ui.showSection('store');
                 document.getElementById('nav-user').classList.remove('hidden');
-                document.getElementById('nav-name-display').innerText = (u === 'admin') ? 'ADMIN' : JSON.parse(localStorage.getItem('db_'+u)).name;
+                const userData = (u === 'admin') ? {name: 'ADMIN', img: ''} : JSON.parse(localStorage.getItem('db_'+u));
+                document.getElementById('nav-name-display').innerText = userData.name;
+                if(userData.img) {
+                    document.getElementById('nav-avatar').src = userData.img;
+                    document.getElementById('p-preview').src = userData.img;
+                }
+                
+                // เตรียมข้อมูลหน้า Profile
+                document.getElementById('p-fullname').value = userData.name || '';
+                document.getElementById('p-img').value = userData.img || '';
+                document.getElementById('p-phone').value = userData.phone || '';
+                document.getElementById('p-address').value = userData.address || '';
+                document.getElementById('p-email').value = userData.email || '';
+
                 document.getElementById('auth-section').classList.add('hidden');
                 document.getElementById('cart-float-btn').style.display = 'flex';
+            },
+            saveProfile: (e) => {
+                e.preventDefault();
+                if(currentUser === 'admin') return alert("แอดมินไม่สามารถแก้ไขได้จากหน้านี้");
+                
+                const db = JSON.parse(localStorage.getItem('db_'+currentUser));
+                db.name = document.getElementById('p-fullname').value;
+                db.img = document.getElementById('p-img').value;
+                db.phone = document.getElementById('p-phone').value;
+                db.email = document.getElementById('p-email').value;
+                db.address = document.getElementById('p-address').value;
+                
+                localStorage.setItem('db_'+currentUser, JSON.stringify(db));
+                alert("บันทึกข้อมูลส่วนตัวเรียบร้อย!");
+                location.reload();
             },
             logout: () => { sessionStorage.clear(); location.reload(); }
         };
@@ -298,11 +339,19 @@
                             <p style="color:var(--blue); font-weight:bold; margin:0">฿${p.price.toLocaleString()}</p>
                         </div>
                         <div class="card-actions">
-                            <button class="btn-buy-now" onclick="shop.openDetail(${p.id})">ซื้อเลย</button>
+                            <button class="btn-buy-now" onclick="shop.quickBuy(${p.id})">ซื้อเลย</button>
                             <button class="btn-add-cart" onclick="shop.openDetail(${p.id})">+ ตะกร้า</button>
                         </div>
                     </div>
                 `).join('');
+            },
+            quickBuy: (id) => {
+                if(!currentUser) return alert("กรุณาเข้าสู่ระบบ");
+                const p = products.find(x => x.id === id);
+                myCart = [{...p, size: 'M', qty: 1, cartId: Date.now()}];
+                localStorage.setItem('cart_'+currentUser, JSON.stringify(myCart));
+                cart.updateUI();
+                cart.open();
             },
             openDetail: (id) => {
                 const p = products.find(x => x.id === id);
@@ -324,6 +373,12 @@
                     </div>
                 `;
                 ui.showSection('detail');
+            },
+            filter: (type, btn) => {
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                if(type === 'all') shop.render(products);
+                else shop.render(products.filter(p => p.type === type));
             },
             search: () => {
                 const query = document.getElementById('search-input').value.toLowerCase();
@@ -351,6 +406,12 @@
             },
             open: () => {
                 if(myCart.length === 0) return alert("ตะกร้าว่างเปล่า");
+                // ดึงข้อมูลที่อยู่จาก Profile อัตโนมัติ
+                const db = JSON.parse(localStorage.getItem('db_'+currentUser) || '{}');
+                document.getElementById('co-name').value = db.name || '';
+                document.getElementById('co-phone').value = db.phone || '';
+                document.getElementById('co-address').value = db.address || '';
+                
                 cart.renderPage();
                 ui.showSection('cart');
             },
