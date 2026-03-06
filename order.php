@@ -3,7 +3,7 @@
 $host = "localhost";
 $user = "root";
 $pass = "";
-$db   = "your_database_name"; // ใส่ชื่อ DB ของคุณ
+$db   = "shop1ss"; // ใส่ชื่อ DB ของคุณ
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); }
