@@ -21,40 +21,38 @@
         .btn-buy:hover { background: var(--accent); color: var(--primary); }
         .member-badge { font-size: 0.7rem; background: var(--accent); color: var(--primary); padding: 2px 8px; border-radius: 10px; font-weight: bold; }
         
-        /* สไตล์เพิ่มเติมสำหรับระบบตะกร้า */
         .cart-badge { font-size: 0.6rem; padding: 2px 5px; }
         #cart-items-list { max-height: 400px; overflow-y: auto; }
 
-        /* สไตล์เพิ่มเติมสำหรับระบบชำระเงิน */
         .payment-box { border: 2px solid #ddd; border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.2s; text-align: center; }
         .payment-box:hover { border-color: var(--accent); background: #fffdf5; }
         .payment-box.active { border-color: var(--accent); background: #fff8e1; font-weight: bold; }
         
-        /* สไตล์สำหรับ Timeline สถานะสั่งซื้อ */
-        .order-timeline { border-left: 3px solid #ddd; padding-left: 20px; margin-left: 10px; }
-        .timeline-step { position: relative; margin-bottom: 20px; }
-        .timeline-step::before { content: ''; position: absolute; left: -28px; top: 0; width: 14px; height: 14px; border-radius: 50%; background: #ddd; }
-        .timeline-step.active::before { background: var(--accent); border: 3px solid #fff; box-shadow: 0 0 0 2px var(--accent); }
+        /* สไตล์ใหม่ที่เพิ่มขึ้น */
+        .promo-banner { background: #dc3545; color: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; text-align: center;}
+        .coupon-card { border: 2px dashed #ffae00; background: #fff; padding: 15px; border-radius: 10px; text-align: center; cursor: pointer;}
+        #qr-timer { font-size: 2rem; font-weight: bold; color: #dc3545; }
+        .profile-img-edit { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); cursor: pointer; }
+        .hidden-file-input { display: none; }
     </style>
 </head>
 <body onload="initStore()">
 
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="#" onclick="filterProducts('ทั้งหมด')">ThanJai <span class="text-warning">Shop</span></a>
+        <a class="navbar-brand fw-bold" href="#" onclick="switchPage('home')">ThanJai <span class="text-warning">Shop</span></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link active" href="#" onclick="filterProducts('ทั้งหมด')">หน้าหลัก</a></li>
-                <li class="nav-item"><a class="nav-link" href="#product-list">สินค้าทั้งหมด</a></li>
-                <li class="nav-item"><a class="nav-link" href="#">โปรโมชั่น</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="switchPage('home')">หน้าหลัก</a></li>
+                <li class="nav-item"><a class="nav-link" href="#" onclick="switchPage('promo')">โปรโมชั่น <span class="badge bg-danger">ลดราคา!</span></a></li>
                 <li class="nav-item"><a class="nav-link text-warning fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#contactModal"><i class="fa fa-phone-alt me-1"></i>ติดต่อเรา</a></li>
             </ul>
             
             <div class="d-flex align-items-center gap-3">
-                <div class="input-group input-group-sm d-none d-md-flex">
+                <div class="input-group input-group-sm d-none d-md-flex" id="search-bar-nav">
                     <input type="text" id="search-input" class="form-control" placeholder="ค้นหาชื่อทีม..." onkeyup="searchProducts()">
                 </div>
 
@@ -64,20 +62,20 @@
 
                 <div id="user-zone" class="d-none">
                     <div class="dropdown text-white">
-                        <span class="me-2 d-none d-md-inline">ยินดีต้อนรับ, <strong id="display-username">คุณธีรศิลป์</strong> <span class="member-badge">Member</span></span>
+                        <span class="me-2 d-none d-md-inline">ยินดีต้อนรับ, <strong id="nav-username">ผู้ใช้</strong></span>
                         <a href="#" class="link-light dropdown-toggle" data-bs-toggle="dropdown">
-                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" width="35" class="rounded-circle border">
+                            <img id="nav-avatar" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Guest" width="35" height="35" class="rounded-circle border" style="object-fit:cover;">
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal"><i class="fa fa-user me-2"></i>โปรไฟล์ของฉัน</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="alert('กำลังพัฒนาระบบออเดอร์ย้อนหลัง')"><i class="fa fa-shopping-bag me-2"></i>ออเดอร์ของฉัน</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal"><i class="fa fa-user me-2"></i>จัดการโปรไฟล์</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="alert('แสดงสถานะ: รอการจัดส่ง')"><i class="fa fa-shopping-bag me-2"></i>ออเดอร์ของฉัน</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="#" onclick="logoutUser()"><i class="fa fa-sign-out-alt me-2"></i>ออกจากระบบ</a></li>
                         </ul>
                     </div>
                 </div>
                 
-                <a href="#" class="text-white position-relative" data-bs-toggle="modal" data-bs-target="#cartModal">
+                <a href="#" class="text-white position-relative" onclick="openCart()">
                     <i class="fa fa-shopping-cart fs-5"></i>
                     <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge">0</span>
                 </a>
@@ -86,185 +84,132 @@
     </div>
 </nav>
 
-<header class="hero-banner text-center">
-    <div class="container">
-        <h1 class="display-4 fw-bold">NEW SEASON 2026</h1>
-        <p class="lead">คอลเลคชั่นใหม่ล่าสุดจากสโมสรดังทั่วโลก พร้อมส่งแล้ววันนี้!</p>
-        <a href="#product-list" class="btn btn-warning btn-lg px-5 fw-bold">เลือกช้อปเลย</a>
-    </div>
-</header>
+<div id="home-page">
+    <header class="hero-banner text-center">
+        <div class="container">
+            <h1 class="display-4 fw-bold">NEW SEASON 2026</h1>
+            <p class="lead">คอลเลคชั่นใหม่ล่าสุดจากสโมสรดังทั่วโลก พร้อมส่งแล้ววันนี้!</p>
+            <a href="#product-list" class="btn btn-warning btn-lg px-5 fw-bold">เลือกช้อปเลย</a>
+        </div>
+    </header>
 
-<main class="container my-5" id="product-list">
-    <div class="d-flex justify-content-center gap-2 mb-5 overflow-auto pb-2">
-        <button class="btn btn-dark px-4 rounded-pill filter-btn" onclick="filterProducts('ทั้งหมด')">ทั้งหมด</button>
-        <button class="btn btn-outline-dark px-4 rounded-pill filter-btn" onclick="filterProducts('เหย้า')">เหย้า</button>
-        <button class="btn btn-outline-dark px-4 rounded-pill filter-btn" onclick="filterProducts('เยือน')">เยือน</button>
-        <button class="btn btn-outline-dark px-4 rounded-pill filter-btn" onclick="filterProducts('ซ้อม')">เสื้อซ้อม</button>
-    </div>
+    <main class="container my-5" id="product-list">
+        <div class="d-flex justify-content-center gap-2 mb-5 overflow-auto pb-2">
+            <button class="btn btn-dark px-4 rounded-pill filter-btn" onclick="filterProducts('ทั้งหมด')">ทั้งหมด</button>
+            <button class="btn btn-outline-dark px-4 rounded-pill filter-btn" onclick="filterProducts('เหย้า')">เหย้า</button>
+            <button class="btn btn-outline-dark px-4 rounded-pill filter-btn" onclick="filterProducts('เยือน')">เยือน</button>
+            <button class="btn btn-outline-dark px-4 rounded-pill filter-btn" onclick="filterProducts('ซ้อม')">เสื้อซ้อม</button>
+        </div>
+        <div class="row g-4" id="store-display"></div>
+    </main>
+</div>
 
-    <div class="row g-4" id="store-display">
+<div id="promo-page" class="container my-5 d-none">
+    <div class="promo-banner shadow">
+        <h2>🔥 โค้ดส่วนลดลูกค้าใหม่ 🔥</h2>
+        <p>เก็บโค้ดคูปองด้านล่างเพื่อใช้เป็นส่วนลดในหน้าชำระเงิน</p>
+        <div class="coupon-card d-inline-block mt-2" onclick="collectCoupon('NEWUSER50')">
+            <h3 class="text-warning mb-0 fw-bold">NEWUSER50</h3>
+            <small class="text-muted">ลดทันที 50 บาท! (คลิกเพื่อเก็บ)</small>
+        </div>
     </div>
-</main>
+    <h3 class="fw-bold mb-4">สินค้าจัดโปรโมชั่น</h3>
+    <div class="row g-4" id="promo-display"></div>
+</div>
 
 <div class="modal fade" id="authModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
-                <ul class="nav nav-pills w-100 justify-content-center" id="authTab" role="tablist">
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link active text-white" data-bs-toggle="pill" data-bs-target="#login-tab">เข้าสู่ระบบ</button>
-                    </li>
-                    <li class="nav-item" role="presentation">
-                        <button class="nav-link text-white" data-bs-toggle="pill" data-bs-target="#register-tab">สมัครสมาชิก</button>
-                    </li>
+                <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+                    <li class="nav-item"><a class="nav-link active text-warning" id="login-tab" data-bs-toggle="tab" href="#login-pane">เข้าสู่ระบบ</a></li>
+                    <li class="nav-item"><a class="nav-link text-white" id="reg-tab" data-bs-toggle="tab" href="#reg-pane">สมัครสมาชิก</a></li>
                 </ul>
-                <button type="button" class="btn-close btn-close-white position-absolute end-0 me-3" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="tab-content">
-                    <div class="tab-pane fade show active" id="login-tab">
+                    <div class="tab-pane fade show active" id="login-pane">
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Username</label>
-                            <input type="text" id="login-user" class="form-control" placeholder="ชื่อผู้ใช้งาน">
+                            <label class="form-label">ชื่อผู้ใช้ (Username)</label>
+                            <input type="text" id="login-user" class="form-control">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">Password</label>
-                            <input type="password" id="login-pass" class="form-control" placeholder="รหัสผ่าน">
+                            <label class="form-label">รหัสผ่าน</label>
+                            <input type="password" id="login-pass" class="form-control">
                         </div>
-                        <button class="btn btn-warning w-100 fw-bold" onclick="processLogin()">เข้าสู่ระบบ</button>
+                        <button class="btn btn-warning w-100 fw-bold" onclick="login()">เข้าสู่ระบบ</button>
                     </div>
-                    <div class="tab-pane fade" id="register-tab">
-                        <div class="mb-2">
-                            <label class="form-label small fw-bold">ชื่อ Username</label>
-                            <input type="text" id="reg-user" class="form-control" placeholder="ชื่อผู้ใช้งาน">
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small fw-bold">อีเมล</label>
-                            <input type="email" id="reg-email" class="form-control" placeholder="email@example.com">
+                    <div class="tab-pane fade" id="reg-pane">
+                        <div class="mb-3">
+                            <label class="form-label">ชื่อ-นามสกุล</label>
+                            <input type="text" id="reg-name" class="form-control">
                         </div>
                         <div class="mb-3">
-                            <label class="form-label small fw-bold">รหัสผ่าน</label>
-                            <input type="password" id="reg-pass" class="form-control" placeholder="รหัสผ่าน">
+                            <label class="form-label">อีเมล</label>
+                            <input type="email" id="reg-email" class="form-control">
                         </div>
-                        <button class="btn btn-dark w-100 fw-bold" onclick="processRegister()">ลงทะเบียน</button>
+                        <div class="mb-3">
+                            <label class="form-label">ชื่อผู้ใช้ (Username)</label>
+                            <input type="text" id="reg-user" class="form-control">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">รหัสผ่าน</label>
+                            <input type="password" id="reg-pass" class="form-control">
+                        </div>
+                        <button class="btn btn-success w-100 fw-bold" onclick="register()">สมัครสมาชิก</button>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="editProfileModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title fw-bold"><i class="fa fa-user-edit me-2"></i>แก้ไขข้อมูลส่วนตัว</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">ชื่อ-นามสกุล</label>
-                    <input type="text" id="edit-fullname" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">เบอร์โทรศัพท์</label>
-                    <input type="text" id="edit-phone" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">ที่อยู่จัดส่งเริ่มต้น</label>
-                    <textarea id="edit-address" class="form-control" rows="3"></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                <button type="button" class="btn btn-dark" onclick="saveProfile()">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
 </div>
 
 <div class="modal fade" id="profileModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content text-center py-4">
-            <div class="modal-body">
-                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" width="100" class="rounded-circle border border-warning shadow-sm mb-3">
-                <h4 class="fw-bold mb-1" id="profile-name">ชื่อลูกค้า</h4>
-                <p class="text-muted small mb-2" id="profile-email">อีเมล: -</p>
-                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">Member</span>
-                <hr class="my-4">
-                <button class="btn btn-outline-dark btn-sm w-100 mb-2" onclick="openEditProfile()">แก้ไขข้อมูลส่วนตัว</button>
-                <button class="btn btn-danger btn-sm w-100" onclick="logoutUser()">ออกจากระบบ</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="orderStatusModal" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-success text-white">
-                <h5 class="modal-title fw-bold"><i class="fa fa-box me-2"></i>สถานะคำสั่งซื้อของคุณ</h5>
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold">ตั้งค่าบัญชีส่วนตัว</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <h6 class="fw-bold text-center text-success mb-4" id="order-success-msg">สั่งซื้อสำเร็จ!</h6>
-                <div class="order-timeline" id="order-timeline-box">
-                    <div class="timeline-step active" id="step-1">
-                        <h6 class="fw-bold mb-0">รอยืนยันจากแอดมิน</h6>
-                        <small class="text-muted">ระบบได้รับคำสั่งซื้อของคุณแล้ว</small>
-                    </div>
-                    <div class="timeline-step" id="step-2">
-                        <h6 class="fw-bold mb-0">แอดมินยืนยันแล้ว / เตรียมจัดส่ง</h6>
-                        <small class="text-muted d-none" id="delivery-details">
-                            <strong class="text-danger" id="delivery-price">ยอดชำระ: ฿0</strong><br>
-                            คาดว่าจะได้รับของภายใน: <strong>2-3 วันทำการ</strong><br>
-                            เส้นทางจัดส่ง: <span id="delivery-route">กรุงเทพฯ -> ปลายทาง</span>
-                        </small>
-                    </div>
+                <div class="text-center mb-4">
+                    <img id="profile-edit-img" src="" class="profile-img-edit shadow-sm" onclick="document.getElementById('avatar-upload').click()" title="คลิกเพื่อเปลี่ยนรูป">
+                    <input type="file" id="avatar-upload" class="hidden-file-input" accept="image/*" onchange="previewAvatar(event)">
+                    <p class="small text-muted mt-2">คลิกที่รูปเพื่อเปลี่ยนรูปโปรไฟล์</p>
                 </div>
-                
-                <div class="text-center mt-4 pt-3 border-top">
-                    <small class="text-muted d-block mb-2">(ปุ่มสำหรับทดสอบระบบ)</small>
-                    <button class="btn btn-outline-primary btn-sm" id="btn-mock-admin" onclick="simulateAdminConfirm()">จำลอง: แอดมินกดยืนยันออเดอร์</button>
+                <div class="mb-2">
+                    <label class="form-label small fw-bold">ชื่อ-นามสกุล</label>
+                    <input type="text" id="edit-name" class="form-control">
                 </div>
+                <div class="mb-2">
+                    <label class="form-label small fw-bold">อีเมล</label>
+                    <input type="email" id="edit-email" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small fw-bold">เบอร์โทรศัพท์</label>
+                    <input type="text" id="edit-phone" class="form-control">
+                </div>
+                <div class="mb-2">
+                    <label class="form-label small fw-bold">เปลี่ยนรหัสผ่านใหม่ (ปล่อยว่างถ้าไม่เปลี่ยน)</label>
+                    <input type="password" id="edit-pass" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-warning w-100 fw-bold" onclick="saveProfile()">บันทึกข้อมูล</button>
             </div>
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="qrTimerModal" tabindex="-1" data-bs-backdrop="static">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content text-center">
-            <div class="modal-header bg-primary text-white justify-content-center">
-                <h5 class="modal-title fw-bold"><i class="fa fa-qrcode me-2"></i>สแกนเพื่อชำระเงิน</h5>
-            </div>
-            <div class="modal-body py-4">
-                <h3 class="text-danger fw-bold mb-3" id="qr-pay-amount">฿0</h3>
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=promptpay12345" alt="QR Code" class="img-thumbnail mb-3">
-                <p class="small text-muted mb-1">กรุณาชำระเงินภายในเวลาที่กำหนด</p>
-                <h2 class="fw-bold text-primary" id="qr-timer-display">05:00</h2>
-                
-                <div class="mt-4 border-top pt-3">
-                    <small class="text-muted d-block mb-2">(ปุ่มสำหรับทดสอบระบบ)</small>
-                    <button class="btn btn-success btn-sm w-100" onclick="simulateQRPaymentSuccess()">จำลอง: ลูกค้าโอนเงินสำเร็จ</button>
-                    <button class="btn btn-outline-danger btn-sm w-100 mt-2" onclick="cancelQRPayment()">ยกเลิกการชำระเงิน</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="contactModal" tabindex="-1">... (ละไว้เพื่อความกระชับ โค้ดด้านล่างนี้มีครบ) ...</div>
 
 <div class="modal fade" id="contactModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title fw-bold"><i class="fa fa-headset me-2"></i>ช่องทางการติดต่อ</h5>
+                <h5 class="modal-title fw-bold"><i class="fa fa-headset me-2"></i>ช่องทางการติดต่อแอดมิน</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body text-center py-4">
-                <h5 class="fw-bold mb-3">ThanJai Shop ยินดีให้บริการครับ!</h5>
                 <p class="mb-2"><i class="fa fa-phone-alt text-success fs-5 me-2"></i> <strong>โทร:</strong> 081-XXX-XXXX</p>
                 <p class="mb-2"><i class="fab fa-line text-success fs-5 me-2"></i> <strong>Line ID:</strong> @thanjai_shop</p>
                 <p class="mb-0"><i class="fab fa-facebook text-primary fs-5 me-2"></i> <strong>Facebook:</strong> ThanJai Shop Official</p>
@@ -283,7 +228,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-5 text-center mb-3 mb-md-0">
-                        <img id="detail-img" src="" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;">
+                        <img id="detail-img" src="" class="img-fluid rounded shadow-sm" style="max-height: 350px;">
                     </div>
                     <div class="col-md-7">
                         <span id="detail-type" class="badge bg-secondary mb-2"></span>
@@ -295,11 +240,8 @@
                             <div class="col-6">
                                 <label class="form-label fw-bold">เลือกไซส์ (Size):</label>
                                 <select id="detail-size" class="form-select border-dark">
-                                    <option value="S">S (อก 36")</option>
-                                    <option value="M" selected>M (อก 38")</option>
-                                    <option value="L">L (อก 40")</option>
-                                    <option value="XL">XL (อก 42")</option>
-                                    <option value="2XL">2XL (อก 44")</option>
+                                    <option value="S">S (อก 36")</option><option value="M" selected>M (อก 38")</option>
+                                    <option value="L">L (อก 40")</option><option value="XL">XL (อก 42")</option>
                                 </select>
                             </div>
                             <div class="col-6">
@@ -310,12 +252,10 @@
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-0 pt-0">
+            <div class="modal-footer">
                 <input type="hidden" id="detail-id">
                 <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">ยกเลิก</button>
-                <button type="button" id="btn-confirm-action" class="btn btn-warning fw-bold px-4" onclick="confirmProductSelection()">
-                    ยืนยัน
-                </button>
+                <button type="button" id="btn-confirm-action" class="btn btn-warning fw-bold px-4" onclick="confirmProductSelection()">ยืนยัน</button>
             </div>
         </div>
     </div>
@@ -325,20 +265,20 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title fw-bold"><i class="fa fa-shopping-cart me-2"></i>ตะกร้าสินค้าของคุณ</h5>
+                <h5 class="modal-title fw-bold">ตะกร้าสินค้าของคุณ</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div id="cart-items-list"></div>
                 <hr>
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold">ราคารวมทั้งสิ้น:</h5>
+                    <h5 class="fw-bold">ราคารวม:</h5>
                     <h4 class="text-danger fw-bold" id="cart-total">฿0</h4>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ช้อปต่อ</button>
-                <button type="button" class="btn btn-warning fw-bold" onclick="openCheckoutModal()">ยืนยันรายการสั่งซื้อ</button>
+                <button type="button" class="btn btn-warning fw-bold" onclick="openCheckoutModal()">ดำเนินการชำระเงิน</button>
             </div>
         </div>
     </div>
@@ -348,61 +288,64 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title fw-bold"><i class="fa fa-check-circle me-2"></i>ยืนยันคำสั่งซื้อและชำระเงิน</h5>
+                <h5 class="modal-title fw-bold">ยืนยันคำสั่งซื้อและชำระเงิน</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-6 mb-3">
-                        <h6 class="fw-bold border-bottom pb-2">ข้อมูลการจัดส่ง</h6>
-                        <div class="mb-2">
-                            <label class="form-label small fw-bold">ชื่อ-นามสกุล</label>
-                            <input type="text" id="ship-name" class="form-control" placeholder="ระบุชื่อผู้รับ">
+                        <h6 class="fw-bold border-bottom pb-2 d-flex justify-content-between">
+                            ข้อมูลการจัดส่ง 
+                            <button class="btn btn-sm btn-outline-primary" onclick="saveAddressToProfile()">บันทึกที่อยู่</button>
+                        </h6>
+                        <div class="mb-2"><input type="text" id="ship-name" class="form-control" placeholder="ชื่อ-นามสกุลผู้รับ"></div>
+                        <div class="mb-2"><input type="text" id="ship-phone" class="form-control" placeholder="เบอร์โทรศัพท์"></div>
+                        <div class="mb-2"><textarea id="ship-address" class="form-control" rows="3" placeholder="ที่อยู่จัดส่งแบบละเอียด"></textarea></div>
+                        
+                        <h6 class="fw-bold border-bottom pb-2 mt-4">รหัสส่วนลด (ถ้ามี)</h6>
+                        <div class="input-group">
+                            <input type="text" id="coupon-code" class="form-control" placeholder="กรอกรหัสคูปอง">
+                            <button class="btn btn-dark" onclick="applyCoupon()">ใช้คูปอง</button>
                         </div>
-                        <div class="mb-2">
-                            <label class="form-label small fw-bold">เบอร์ติดต่อ</label>
-                            <input type="text" id="ship-phone" class="form-control" placeholder="08X-XXX-XXXX">
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label small fw-bold">ที่อยู่จัดส่ง</label>
-                            <textarea id="ship-address" class="form-control" rows="3" placeholder="บ้านเลขที่, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์"></textarea>
-                        </div>
+                        <small id="coupon-msg" class="text-success d-none mt-1"></small>
                     </div>
 
                     <div class="col-md-6 bg-light p-3 rounded">
                         <h6 class="fw-bold border-bottom pb-2">สรุปรายการสินค้า</h6>
-                        <div id="checkout-summary-list" style="max-height: 150px; overflow-y: auto; font-size: 0.9rem;" class="mb-3">
-                        </div>
-                        <div class="d-flex justify-content-between fw-bold mb-3">
-                            <span>ยอดสุทธิที่ต้องชำระ:</span>
-                            <span class="text-danger fs-5" id="checkout-total-price">฿0</span>
-                        </div>
+                        <div id="checkout-summary-list" style="max-height: 120px; overflow-y: auto; font-size: 0.9rem;" class="mb-2"></div>
+                        
+                        <div class="d-flex justify-content-between small"><span>รวมค่าสินค้า:</span><span id="chk-subtotal">฿0</span></div>
+                        <div class="d-flex justify-content-between small"><span>ค่าจัดส่ง (คงที่):</span><span>฿50</span></div>
+                        <div class="d-flex justify-content-between small text-success"><span>ส่วนลดคูปอง:</span><span id="chk-discount">-฿0</span></div>
+                        <hr>
+                        <div class="d-flex justify-content-between fw-bold mb-3"><span>ยอดสุทธิที่ต้องชำระ:</span><span class="text-danger fs-5" id="checkout-total-price">฿0</span></div>
 
                         <h6 class="fw-bold border-bottom pb-2">เลือกวิธีชำระเงิน</h6>
                         <div class="row g-2">
                             <div class="col-6">
                                 <div class="payment-box active" id="pay-cod" onclick="selectPaymentMethod('COD')">
-                                    <i class="fa fa-truck fa-2x mb-2 text-dark"></i>
-                                    <div class="small">เก็บเงินปลายทาง</div>
+                                    <i class="fa fa-truck fa-2x mb-2 text-dark"></i><div class="small">เก็บเงินปลายทาง</div>
                                 </div>
                             </div>
                             <div class="col-6">
                                 <div class="payment-box" id="pay-qr" onclick="selectPaymentMethod('QR')">
-                                    <i class="fa fa-qrcode fa-2x mb-2 text-primary"></i>
-                                    <div class="small">QR PromptPay</div>
+                                    <i class="fa fa-qrcode fa-2x mb-2 text-primary"></i><div class="small">QR PromptPay</div>
                                 </div>
                             </div>
                         </div>
 
-                        <div id="qr-code-section" class="text-center mt-3 d-none">
-                            <p class="small text-muted mt-2">เมื่อกดยืนยัน ระบบจะสร้าง QR Code พร้อมจับเวลา 5 นาที</p>
+                        <div id="qr-code-section" class="text-center mt-3 d-none bg-white p-3 border rounded">
+                            <p class="fw-bold text-danger mb-1">กรุณาชำระเงินภายใน <span id="qr-timer">05:00</span></p>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=081xxxxxxx" alt="QR Code">
+                            <p class="small text-muted mt-2">สแกนเพื่อโอนเงิน ระบบจะยืนยันอัตโนมัติ(จำลอง)</p>
+                            <button id="btn-mock-pay" class="btn btn-sm btn-outline-success mt-2" onclick="mockQRSuccess()">จำลองว่าโอนสำเร็จแล้ว</button>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-target="#cartModal" data-bs-toggle="modal">กลับไปแก้ไขตะกร้า</button>
-                <button type="button" class="btn btn-success fw-bold px-4" onclick="processOrder()">
+                <button type="button" id="btn-confirm-order" class="btn btn-success fw-bold px-4" onclick="processOrder()">
                     <i class="fa fa-check"></i> ยืนยันคำสั่งซื้อ
                 </button>
             </div>
@@ -410,168 +353,188 @@
     </div>
 </div>
 
-<footer class="bg-dark text-white py-5 mt-5">
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-md-4">
-                <h5 class="fw-bold text-warning">ThanJai Shop</h5>
-                <p class="text-muted small">ร้านขายอุปกรณ์กีฬาและเสื้อบอลอันดับ 1 มั่นใจ ได้ของไว ถึงมือแน่นอน ประสบการณ์กว่า 10 ปี</p>
-            </div>
-            <div class="col-md-4">
-                <h5>ติดต่อเรา</h5>
-                <p class="text-muted mb-1 small"><i class="fa fa-phone me-2"></i> 081-XXX-XXXX</p>
-                <p class="text-muted small"><i class="fab fa-line me-2"></i> @thanjai_shop</p>
-            </div>
-            <div class="col-md-4">
-                <h5>ติดตามข่าวสาร</h5>
-                <div class="input-group input-group-sm">
-                    <input type="text" class="form-control" placeholder="อีเมลของคุณ">
-                    <button class="btn btn-warning btn-sm">สมัคร</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</footer>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // --- ฐานข้อมูลจำลอง ---
     const originalProducts = [
-        { id: 2, name: "Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด ผ้าเกรดพรีเมียม" },
-        { id: 4, name: "Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพอันดับ 1 ของเมืองไทย" },
-        { id: 5, name: "Thailand Edition", price: 590, type: "ซ้อม", img: "5.jpg", desc: "เสื้อเชียร์ทีมชาติไทย สวมใส่สบาย ระบายอากาศดี" },
-        { id: 6, name: "Port FC Away Kit", price: 750, type: "เยือน", img: "6.jpg", desc: "สิงห์เจ้าท่า สีเยือนเรียบหรู พร้อมดีไซน์ทันสมัย" },
-        { id: 7, name: "Training BGPU", price: 490, type: "ซ้อม", img: "7.jpg", desc: "เสื้อซ้อมคุณภาพสูงจากสโมสรบีจี ปทุม" },
-        { id: 8, name: "Muangthong Utd Home", price: 790, type: "เหย้า", img: "8.jpg", desc: "กิเลนผยอง คลาสสิกสีแดงดำ ดีไซน์ทรงคุณค่า" },
-        { id: 9, name: "Chonburi FC Away", price: 650, type: "เยือน", img: "9.jpg", desc: "ฉลามชล ดีไซน์สปอร์ตทันสมัย สีเยือนโดดเด่น" },
-        { id: 10, name: "Special Training", price: 390, type: "ซ้อม", img: "10.jpg", desc: "เสื้อซ้อมรวมสโมสร ลิมิเต็ด อิดิชั่น" }
+        { id: 2, name: "Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี" },
+        { id: 4, name: "Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า" },
+        { id: 5, name: "Thailand Edition", price: 590, type: "ซ้อม", img: "5.jpg", desc: "เสื้อเชียร์ทีมชาติไทย" },
+        { id: 6, name: "Port FC Away Kit", price: 750, type: "เยือน", img: "6.jpg", desc: "สิงห์เจ้าท่า สีเยือนเรียบหรู" }
+    ];
+    
+    // สินค้าโปรโมชั่น
+    const promoProducts = [
+        { id: 101, name: "Muangthong Utd (Clearance)", price: 390, type: "เหย้า", img: "8.jpg", desc: "ลดล้างสต๊อก!" },
+        { id: 102, name: "Chonburi FC (Sale)", price: 450, type: "เยือน", img: "9.jpg", desc: "โปรโมชั่นพิเศษ" }
     ];
 
     let cart = [];
+    let currentUser = null; // เก็บข้อมูลผู้ใช้ที่ล็อกอิน
     let currentAction = 'cart';
     let selectedPayment = 'COD';
-    let currentCheckoutTotal = 0;
+    let discountAmt = 0;
+    let qrInterval;
 
-    // ระบบ User & LocalStorage
-    let usersDB = JSON.parse(localStorage.getItem('thanjai_users')) || [];
-    let loggedInUser = JSON.parse(localStorage.getItem('thanjai_active_user')) || null;
-
+    // --- ระบบ Initialize (โหลดข้อมูลจาก localStorage) ---
     function initStore() {
-        renderProducts(originalProducts);
-        updateUserUI();
-    }
-
-    function updateUserUI() {
-        if (loggedInUser) {
-            document.getElementById('guest-zone').classList.add('d-none');
-            document.getElementById('user-zone').classList.remove('d-none');
-            
-            document.getElementById('display-username').innerText = loggedInUser.user;
-            document.getElementById('profile-name').innerText = loggedInUser.fullname || loggedInUser.user;
-            document.getElementById('profile-email').innerText = `อีเมล: ${loggedInUser.email}`;
-            
-            // อัปเดตข้อมูลในช่อง Checkout อัตโนมัติ
-            document.getElementById('ship-name').value = loggedInUser.fullname || '';
-            document.getElementById('ship-phone').value = loggedInUser.phone || '';
-            document.getElementById('ship-address').value = loggedInUser.address || '';
-        } else {
-            document.getElementById('guest-zone').classList.remove('d-none');
-            document.getElementById('user-zone').classList.add('d-none');
+        // ตรวจสอบ LocalStorage ว่ามี User ล็อกอินค้างไว้ไหม
+        const savedUser = localStorage.getItem('thanjai_session');
+        if (savedUser) {
+            currentUser = JSON.parse(savedUser);
+            updateNavForUser();
         }
+
+        renderProducts(originalProducts, 'store-display');
+        renderProducts(promoProducts, 'promo-display');
+        updateCartUI();
     }
 
-    function processRegister() {
-        const user = document.getElementById('reg-user').value.trim();
-        const email = document.getElementById('reg-email').value.trim();
-        const pass = document.getElementById('reg-pass').value.trim();
-        
-        if(!user || !email || !pass) return alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-        if(usersDB.find(u => u.user === user)) return alert("ชื่อผู้ใช้งานนี้มีในระบบแล้ว");
+    // --- ระบบสมาชิก (Auth) ---
+    function register() {
+        const name = document.getElementById('reg-name').value;
+        const email = document.getElementById('reg-email').value;
+        const user = document.getElementById('reg-user').value;
+        const pass = document.getElementById('reg-pass').value;
 
-        const newUser = { user, email, pass, fullname: '', phone: '', address: '' };
+        if(!name || !email || !user || !pass) return alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+
+        // โหลดข้อมูลเก่าจากจำลอง DB
+        let usersDB = JSON.parse(localStorage.getItem('thanjai_users')) || [];
+        if(usersDB.find(u => u.username === user)) return alert('ชื่อผู้ใช้นี้มีในระบบแล้ว!');
+
+        const newUser = { 
+            username: user, password: pass, name: name, email: email, phone: '',
+            avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed='+user,
+            address: ''
+        };
         usersDB.push(newUser);
         localStorage.setItem('thanjai_users', JSON.stringify(usersDB));
         
-        alert("สมัครสมาชิกสำเร็จ! กำลังเข้าสู่ระบบ...");
-        loginAs(newUser);
+        alert('สมัครสมาชิกสำเร็จ! กรุณาเข้าสู่ระบบ');
+        bootstrap.Tab.getInstance(document.getElementById('login-tab')).show();
     }
 
-    function processLogin() {
-        const user = document.getElementById('login-user').value.trim();
-        const pass = document.getElementById('login-pass').value.trim();
-        const found = usersDB.find(u => u.user === user && u.pass === pass);
+    function login() {
+        const user = document.getElementById('login-user').value;
+        const pass = document.getElementById('login-pass').value;
         
-        if(found) {
-            loginAs(found);
-        } else {
-            alert("ชื่อผู้ใช้งานหรือรหัสผ่านไม่ถูกต้อง");
-        }
-    }
+        let usersDB = JSON.parse(localStorage.getItem('thanjai_users')) || [];
+        const foundUser = usersDB.find(u => u.username === user && u.password === pass);
 
-    function loginAs(userObj) {
-        loggedInUser = userObj;
-        localStorage.setItem('thanjai_active_user', JSON.stringify(loggedInUser));
-        bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
-        updateUserUI();
+        if (foundUser) {
+            currentUser = foundUser;
+            localStorage.setItem('thanjai_session', JSON.stringify(currentUser));
+            updateNavForUser();
+            bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
+        } else {
+            alert('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือคุณยังไม่สมัครสมาชิก!');
+            bootstrap.Tab.getInstance(document.getElementById('reg-tab')).show();
+        }
     }
 
     function logoutUser() {
-        if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
-            loggedInUser = null;
-            localStorage.removeItem('thanjai_active_user');
-            updateUserUI();
-            
-            const profileModalEl = document.getElementById('profileModal');
-            if(profileModalEl.classList.contains('show')){
-                bootstrap.Modal.getInstance(profileModalEl).hide();
-            }
+        if(confirm("ออกจากระบบใช่หรือไม่?")) {
+            currentUser = null;
+            localStorage.removeItem('thanjai_session');
+            document.getElementById('user-zone').classList.add('d-none');
+            document.getElementById('guest-zone').classList.remove('d-none');
         }
     }
 
-    // ฟังก์ชันแก้ไขโปรไฟล์
-    function openEditProfile() {
-        bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide();
-        document.getElementById('edit-fullname').value = loggedInUser.fullname || '';
-        document.getElementById('edit-phone').value = loggedInUser.phone || '';
-        document.getElementById('edit-address').value = loggedInUser.address || '';
-        new bootstrap.Modal(document.getElementById('editProfileModal')).show();
+    function updateNavForUser() {
+        document.getElementById('guest-zone').classList.add('d-none');
+        document.getElementById('user-zone').classList.remove('d-none');
+        document.getElementById('nav-username').innerText = currentUser.name;
+        document.getElementById('nav-avatar').src = currentUser.avatar;
+    }
+
+    function requireLogin() {
+        if (!currentUser) {
+            alert("กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนทำรายการครับ");
+            new bootstrap.Modal(document.getElementById('authModal')).show();
+            return false;
+        }
+        return true;
+    }
+
+    // --- ระบบโปรไฟล์ (แก้ไขข้อมูล & รูปภาพ) ---
+    // เมื่อเปิด Modal โปรไฟล์ ให้ดึงข้อมูลมาแสดง
+    document.getElementById('profileModal').addEventListener('show.bs.modal', function () {
+        if(currentUser) {
+            document.getElementById('profile-edit-img').src = currentUser.avatar;
+            document.getElementById('edit-name').value = currentUser.name;
+            document.getElementById('edit-email').value = currentUser.email;
+            document.getElementById('edit-phone').value = currentUser.phone || '';
+        }
+    });
+
+    function previewAvatar(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('profile-edit-img').src = e.target.result;
+            }
+            reader.readAsDataURL(file); // แปลงเป็น Base64 เพื่อเซฟลง LocalStorage ได้
+        }
     }
 
     function saveProfile() {
-        loggedInUser.fullname = document.getElementById('edit-fullname').value.trim();
-        loggedInUser.phone = document.getElementById('edit-phone').value.trim();
-        loggedInUser.address = document.getElementById('edit-address').value.trim();
+        currentUser.name = document.getElementById('edit-name').value;
+        currentUser.email = document.getElementById('edit-email').value;
+        currentUser.phone = document.getElementById('edit-phone').value;
+        currentUser.avatar = document.getElementById('profile-edit-img').src;
         
-        // อัปเดตใน DB หลัก
-        const index = usersDB.findIndex(u => u.user === loggedInUser.user);
-        if(index > -1) usersDB[index] = loggedInUser;
-        
+        const newPass = document.getElementById('edit-pass').value;
+        if(newPass) currentUser.password = newPass;
+
+        // บันทึกลง DB (localStorage)
+        let usersDB = JSON.parse(localStorage.getItem('thanjai_users')) || [];
+        const index = usersDB.findIndex(u => u.username === currentUser.username);
+        if(index !== -1) usersDB[index] = currentUser;
         localStorage.setItem('thanjai_users', JSON.stringify(usersDB));
-        localStorage.setItem('thanjai_active_user', JSON.stringify(loggedInUser));
-        
-        bootstrap.Modal.getInstance(document.getElementById('editProfileModal')).hide();
-        updateUserUI();
-        alert("บันทึกข้อมูลเรียบร้อยแล้ว");
+        localStorage.setItem('thanjai_session', JSON.stringify(currentUser));
+
+        updateNavForUser();
+        alert('อัปเดตข้อมูลเรียบร้อย!');
+        bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide();
     }
 
-    // ส่วนของสินค้า (คงเดิม)
-    function renderProducts(items) {
-        const container = document.getElementById('store-display');
+    // --- สลับหน้าหลัก / โปรโมชั่น ---
+    function switchPage(page) {
+        if(page === 'home') {
+            document.getElementById('home-page').classList.remove('d-none');
+            document.getElementById('promo-page').classList.add('d-none');
+            document.getElementById('search-bar-nav').classList.remove('d-none');
+        } else {
+            document.getElementById('home-page').classList.add('d-none');
+            document.getElementById('promo-page').classList.remove('d-none');
+            document.getElementById('search-bar-nav').classList.add('d-none');
+        }
+    }
+
+    function collectCoupon(code) {
+        if(!requireLogin()) return;
+        localStorage.setItem('saved_coupon', code);
+        alert('เก็บคูปอง ' + code + ' เรียบร้อยแล้ว! นำไปใช้ในหน้าชำระเงินได้เลย');
+    }
+
+    // --- ระบบสินค้า & ตะกร้า ---
+    function renderProducts(items, targetId) {
+        const container = document.getElementById(targetId);
         container.innerHTML = items.map(p => `
             <div class="col-6 col-md-3 mb-4">
                 <div class="card product-card shadow-sm border-0">
-                    <img src="${p.img}" class="card-img-top" alt="${p.name}">
+                    <img src="${p.img}" class="card-img-top" alt="${p.name}" onerror="this.src='https://via.placeholder.com/250x250?text=No+Image'">
                     <div class="card-body">
                         <span class="badge bg-secondary mb-2" style="font-size: 10px;">${p.type}</span>
                         <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 14px;">${p.name}</h6>
                         <div class="mt-3">
                             <span class="text-danger fw-bold fs-5 d-block mb-2">฿${p.price.toLocaleString()}</span>
                             <div class="d-flex gap-1">
-                                <button class="btn btn-outline-dark btn-sm flex-fill" onclick="openProductDetail(${p.id}, 'cart')" title="เพิ่มลงตะกร้า">
-                                    <i class="fa fa-cart-plus"></i>
-                                </button>
-                                <button class="btn btn-buy btn-sm flex-fill fw-bold" onclick="openProductDetail(${p.id}, 'buy')">
-                                    <i class="fa fa-bolt text-warning"></i> ซื้อเลย
-                                </button>
+                                <button class="btn btn-outline-dark btn-sm flex-fill" onclick="openProductDetail(${p.id}, 'cart')" title="เพิ่มลงตะกร้า"><i class="fa fa-cart-plus"></i></button>
+                                <button class="btn btn-buy btn-sm flex-fill fw-bold" onclick="openProductDetail(${p.id}, 'buy')">ซื้อเลย</button>
                             </div>
                         </div>
                     </div>
@@ -580,18 +543,16 @@
         `).join('');
     }
 
-    function searchProducts() {
-        const term = document.getElementById('search-input').value.toLowerCase();
-        renderProducts(originalProducts.filter(p => p.name.toLowerCase().includes(term)));
-    }
-
     function filterProducts(type) {
-        renderProducts(type === 'ทั้งหมด' ? originalProducts : originalProducts.filter(p => p.type === type));
+        const filtered = type === 'ทั้งหมด' ? originalProducts : originalProducts.filter(p => p.type === type);
+        renderProducts(filtered, 'store-display');
     }
 
     function openProductDetail(id, action) {
+        if(!requireLogin()) return; // เช็คก่อนกดสั่งซื้อ
+        
         currentAction = action;
-        const p = originalProducts.find(x => x.id === id);
+        let p = originalProducts.find(x => x.id === id) || promoProducts.find(x => x.id === id);
         
         document.getElementById('detail-id').value = p.id;
         document.getElementById('detail-name').innerText = p.name;
@@ -599,17 +560,7 @@
         document.getElementById('detail-desc').innerText = p.desc;
         document.getElementById('detail-type').innerText = p.type;
         document.getElementById('detail-img').src = p.img; 
-        document.getElementById('detail-qty').value = 1;
-        document.getElementById('detail-size').selectedIndex = 1; 
 
-        const btnConfirm = document.getElementById('btn-confirm-action');
-        if(action === 'buy') {
-            btnConfirm.innerHTML = '<i class="fa fa-bolt"></i> สั่งซื้อทันที';
-            btnConfirm.className = 'btn btn-success fw-bold px-4';
-        } else {
-            btnConfirm.innerHTML = '<i class="fa fa-cart-plus"></i> เพิ่มลงตะกร้า';
-            btnConfirm.className = 'btn btn-warning fw-bold px-4';
-        }
         new bootstrap.Modal(document.getElementById('productDetailModal')).show();
     }
 
@@ -617,28 +568,32 @@
         const id = parseInt(document.getElementById('detail-id').value);
         const size = document.getElementById('detail-size').value;
         const qty = parseInt(document.getElementById('detail-qty').value);
-        const product = originalProducts.find(p => p.id === id);
+        let product = originalProducts.find(p => p.id === id) || promoProducts.find(p => p.id === id);
 
-        const existingItemIndex = cart.findIndex(item => item.id === id && item.size === size);
-        if (existingItemIndex > -1) cart[existingItemIndex].qty += qty; 
+        const existIdx = cart.findIndex(item => item.id === id && item.size === size);
+        if (existIdx > -1) cart[existIdx].qty += qty; 
         else cart.push({ ...product, size: size, qty: qty }); 
 
         updateCartUI();
         bootstrap.Modal.getInstance(document.getElementById('productDetailModal')).hide();
 
         if(currentAction === 'buy') {
-            setTimeout(() => new bootstrap.Modal(document.getElementById('cartModal')).show(), 400); 
+            setTimeout(() => openCheckoutModal(), 400); 
         }
+    }
+
+    function openCart() {
+        if(!requireLogin()) return;
+        new bootstrap.Modal(document.getElementById('cartModal')).show();
     }
 
     function updateCartUI() {
         document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
         const list = document.getElementById('cart-items-list');
-        const totalElem = document.getElementById('cart-total');
         
         if (cart.length === 0) {
             list.innerHTML = '<p class="text-center text-muted my-4">ไม่มีสินค้าในตะกร้า</p>';
-            totalElem.innerText = '฿0';
+            document.getElementById('cart-total').innerText = '฿0';
             return;
         }
 
@@ -646,53 +601,79 @@
         list.innerHTML = cart.map((item, index) => {
             const itemTotal = item.price * item.qty;
             totalAmount += itemTotal;
-            return `
-                <div class="d-flex align-items-center mb-3 p-2 border-bottom">
-                    <img src="${item.img}" width="60" height="60" class="rounded me-3 border" style="object-fit: cover;">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-0 fw-bold">${item.name}</h6>
-                        <small class="text-muted">ไซส์: <strong>${item.size}</strong> | จำนวน: <strong>${item.qty}</strong> ตัว</small><br>
-                        <small class="text-danger">฿${item.price.toLocaleString()} / ชิ้น</small>
-                    </div>
-                    <div class="fw-bold me-3 text-end">฿${itemTotal.toLocaleString()}</div>
-                    <button class="btn btn-sm text-danger" onclick="removeFromCart(${index})"><i class="fa fa-trash"></i></button>
+            return `<div class="d-flex align-items-center mb-3 p-2 border-bottom">
+                <div class="flex-grow-1">
+                    <h6 class="mb-0 fw-bold">${item.name}</h6>
+                    <small>ไซส์: ${item.size} | จำนวน: ${item.qty}</small>
                 </div>
-            `;
+                <div class="fw-bold me-3">฿${itemTotal.toLocaleString()}</div>
+                <button class="btn btn-sm text-danger" onclick="removeFromCart(${index})"><i class="fa fa-trash"></i></button>
+            </div>`;
         }).join('');
-        totalElem.innerText = `฿${totalAmount.toLocaleString()}`;
+        
+        document.getElementById('cart-total').innerText = `฿${totalAmount.toLocaleString()}`;
     }
 
-    function removeFromCart(index) {
-        cart.splice(index, 1);
-        updateCartUI();
-    }
+    function removeFromCart(index) { cart.splice(index, 1); updateCartUI(); }
 
+    // --- ระบบชำระเงิน (Checkout & Payment Flow) ---
     function openCheckoutModal() {
         if (cart.length === 0) return alert("กรุณาเลือกสินค้าลงตะกร้าก่อนครับ");
         
-        // บังคับให้เป็นสมาชิกก่อนถึงจะสั่งซื้อได้
-        if (!loggedInUser) {
-            const cartModalEl = document.getElementById('cartModal');
-            if(cartModalEl.classList.contains('show')) bootstrap.Modal.getInstance(cartModalEl).hide();
-            
-            alert("กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนทำการสั่งซื้อครับ");
-            new bootstrap.Modal(document.getElementById('authModal')).show();
-            return;
+        // ดึงที่อยู่เก่ามาใส่
+        document.getElementById('ship-name').value = currentUser.name;
+        document.getElementById('ship-phone').value = currentUser.phone || '';
+        document.getElementById('ship-address').value = currentUser.address || '';
+
+        // ถ้ามีตะกร้าเปิดอยู่ให้ปิด
+        const cartModalEl = document.getElementById('cartModal');
+        if(cartModalEl.classList.contains('show')) bootstrap.Modal.getInstance(cartModalEl).hide();
+
+        calculateTotal();
+
+        // กรอกคูปองออโต้ถ้าเคยเก็บไว้
+        const savedCoupon = localStorage.getItem('saved_coupon');
+        if(savedCoupon) {
+            document.getElementById('coupon-code').value = savedCoupon;
+            applyCoupon();
         }
 
-        bootstrap.Modal.getInstance(document.getElementById('cartModal')).hide();
-
-        let totalAmount = 0;
-        document.getElementById('checkout-summary-list').innerHTML = cart.map(item => {
-            const itemTotal = item.price * item.qty;
-            totalAmount += itemTotal;
-            return `<div class="d-flex justify-content-between mb-2 pb-1 border-bottom border-light"><span>${item.name} (${item.size}) x ${item.qty}</span><span class="fw-bold">฿${itemTotal.toLocaleString()}</span></div>`;
-        }).join('');
-        
-        currentCheckoutTotal = totalAmount;
-        document.getElementById('checkout-total-price').innerText = `฿${totalAmount.toLocaleString()}`;
-
         setTimeout(() => new bootstrap.Modal(document.getElementById('checkoutModal')).show(), 400);
+    }
+
+    function saveAddressToProfile() {
+        currentUser.address = document.getElementById('ship-address').value;
+        localStorage.setItem('thanjai_session', JSON.stringify(currentUser));
+        alert('บันทึกที่อยู่เป็นค่าเริ่มต้นเรียบร้อย');
+    }
+
+    function calculateTotal() {
+        let subtotal = 0;
+        const summaryList = document.getElementById('checkout-summary-list');
+        summaryList.innerHTML = cart.map(item => {
+            const itemTotal = item.price * item.qty;
+            subtotal += itemTotal;
+            return `<div class="d-flex justify-content-between mb-2"><span>${item.name} (${item.size}) x${item.qty}</span><b>฿${itemTotal.toLocaleString()}</b></div>`;
+        }).join('');
+
+        document.getElementById('chk-subtotal').innerText = `฿${subtotal.toLocaleString()}`;
+        document.getElementById('chk-discount').innerText = `-฿${discountAmt.toLocaleString()}`;
+        
+        const shipping = 50;
+        const netTotal = (subtotal + shipping) - discountAmt;
+        document.getElementById('checkout-total-price').innerText = `฿${Math.max(0, netTotal).toLocaleString()}`;
+    }
+
+    function applyCoupon() {
+        const code = document.getElementById('coupon-code').value.toUpperCase();
+        if(code === 'NEWUSER50') {
+            discountAmt = 50;
+            document.getElementById('coupon-msg').innerText = "ใช้คูปองส่วนลด 50 บาทสำเร็จ!";
+            document.getElementById('coupon-msg').classList.remove('d-none');
+            calculateTotal();
+        } else {
+            alert('คูปองไม่ถูกต้อง');
+        }
     }
 
     function selectPaymentMethod(method) {
@@ -703,105 +684,66 @@
         if(method === 'COD') {
             document.getElementById('pay-cod').classList.add('active');
             document.getElementById('qr-code-section').classList.add('d-none');
+            document.getElementById('btn-confirm-order').classList.remove('d-none');
+            clearInterval(qrInterval);
         } else {
             document.getElementById('pay-qr').classList.add('active');
             document.getElementById('qr-code-section').classList.remove('d-none');
+            document.getElementById('btn-confirm-order').classList.add('d-none'); // ซ่อนปุ่มยืนยัน เพราะต้องจ่ายผ่าน QR
+            startQRTimer();
         }
     }
 
-    // จัดการการสั่งซื้อตามวิธีชำระเงิน
-    let qrTimerInterval;
-    let qrTimeLeft = 300; // 5 นาที = 300 วินาที
-
-    function processOrder() {
-        const name = document.getElementById('ship-name').value.trim();
-        const address = document.getElementById('ship-address').value.trim();
-
-        if (!name || !address) return alert("กรุณากรอกข้อมูลการจัดส่งให้ครบถ้วนครับ");
-
-        bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
-
-        if(selectedPayment === 'COD') {
-            // เปิดหน้าสถานะ รอแอดมินยืนยัน
-            document.getElementById('step-2').classList.remove('active');
-            document.getElementById('delivery-details').classList.add('d-none');
-            document.getElementById('order-success-msg').innerText = "สั่งซื้อสำเร็จ! รอการตรวจสอบ";
-            document.getElementById('btn-mock-admin').classList.remove('d-none');
-            
-            setTimeout(() => new bootstrap.Modal(document.getElementById('orderStatusModal')).show(), 400);
-            clearCart();
-        } else {
-            // ระบบ QR Code
-            document.getElementById('qr-pay-amount').innerText = `฿${currentCheckoutTotal.toLocaleString()}`;
-            setTimeout(() => {
-                new bootstrap.Modal(document.getElementById('qrTimerModal')).show();
-                startQRTimer();
-            }, 400);
-        }
-    }
-
-    // ฟังก์ชันจับเวลา QR Code
+    // ระบบจับเวลา QR (5 นาที)
     function startQRTimer() {
-        qrTimeLeft = 300; 
-        clearInterval(qrTimerInterval);
+        clearInterval(qrInterval);
+        let timeLeft = 5 * 60; 
+        const timerDisplay = document.getElementById('qr-timer');
         
-        const display = document.getElementById('qr-timer-display');
-        qrTimerInterval = setInterval(() => {
-            qrTimeLeft--;
-            const m = Math.floor(qrTimeLeft / 60).toString().padStart(2, '0');
-            const s = (qrTimeLeft % 60).toString().padStart(2, '0');
-            display.innerText = `${m}:${s}`;
-
-            // แจ้งเตือนเมื่อเหลือ 1 นาที
-            if (qrTimeLeft === 60) {
-                if(!confirm("เวลาใกล้หมดแล้ว คุณต้องการดำเนินการชำระเงินต่อหรือไม่? (หากกด Cancel ระบบจะยกเลิกออเดอร์)")) {
-                    cancelQRPayment();
+        qrInterval = setInterval(() => {
+            let m = Math.floor(timeLeft / 60);
+            let s = timeLeft % 60;
+            timerDisplay.innerText = `${m < 10 ? '0':''}${m}:${s < 10 ? '0':''}${s}`;
+            
+            if (timeLeft <= 0) {
+                clearInterval(qrInterval);
+                if(confirm("หมดเวลาการชำระเงิน ต้องการทำรายการต่อหรือไม่?")) {
+                    startQRTimer();
+                } else {
+                    bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
+                    selectPaymentMethod('COD'); // รีเซ็ต
                 }
             }
-
-            if (qrTimeLeft <= 0) {
-                clearInterval(qrTimerInterval);
-                alert("หมดเวลาทำรายการ ระบบได้ยกเลิกคำสั่งซื้ออัตโนมัติ");
-                bootstrap.Modal.getInstance(document.getElementById('qrTimerModal')).hide();
-            }
+            timeLeft -= 1;
         }, 1000);
     }
 
-    function cancelQRPayment() {
-        clearInterval(qrTimerInterval);
-        bootstrap.Modal.getInstance(document.getElementById('qrTimerModal')).hide();
-        alert("คุณได้ยกเลิกการชำระเงิน");
+    // จำลองเมื่อลูกค้าโอนเงินผ่าน QR สำเร็จ
+    function mockQRSuccess() {
+        clearInterval(qrInterval);
+        alert(`รับยอดเงินเรียบร้อยแล้ว!\n\nสถานะ: ยืนยันการสั่งซื้อ รอการจัดส่ง\nระยะเวลาจัดส่ง: 2-3 วันทำการ\nเตรียมรอรับสินค้าได้เลยครับ`);
+        finishOrder();
     }
 
-    // จำลองลูกค้าโอนเงินสำเร็จ
-    function simulateQRPaymentSuccess() {
-        clearInterval(qrTimerInterval);
-        bootstrap.Modal.getInstance(document.getElementById('qrTimerModal')).hide();
-        
-        // ข้ามไปสถานะรอจัดส่งเลย (สมมติว่าเงินเข้าแล้ว แอดมินรับทราบทันทีผ่านระบบ Auto)
-        document.getElementById('step-2').classList.add('active');
-        document.getElementById('delivery-details').classList.remove('d-none');
-        document.getElementById('delivery-price').innerText = "สถานะ: ชำระเงินแล้ว";
-        document.getElementById('order-success-msg').innerText = "ชำระเงินสำเร็จ! ขอบคุณครับ";
-        document.getElementById('btn-mock-admin').classList.add('d-none');
-        
-        setTimeout(() => new bootstrap.Modal(document.getElementById('orderStatusModal')).show(), 400);
-        clearCart();
+    // ยืนยันคำสั่งซื้อ (สำหรับ COD)
+    function processOrder() {
+        const name = document.getElementById('ship-name').value;
+        const address = document.getElementById('ship-address').value;
+        if (!name || !address) return alert("กรุณากรอกข้อมูลการจัดส่งให้ครบถ้วนครับ");
+
+        alert(`สั่งซื้อสำเร็จ (เก็บเงินปลายทาง)!\n\nสถานะ: รอยืนยันจากแอดมิน\nเมื่อแอดมินยืนยันแล้ว จะใช้เวลาจัดส่ง 2-3 วันทำการครับ`);
+        finishOrder();
     }
 
-    // จำลองแอดมินกดยืนยันออเดอร์ (สำหรับ COD)
-    function simulateAdminConfirm() {
-        document.getElementById('step-2').classList.add('active');
-        document.getElementById('delivery-details').classList.remove('d-none');
-        document.getElementById('delivery-price').innerText = `ยอดต้องชำระปลายทาง: ฿${currentCheckoutTotal.toLocaleString()}`;
-        document.getElementById('btn-mock-admin').classList.add('d-none'); // ซ่อนปุ่มจำลองทิ้งไป
-    }
-
-    function clearCart() {
+    function finishOrder() {
         cart = [];
+        discountAmt = 0;
+        localStorage.removeItem('saved_coupon');
         updateCartUI();
+        bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
         selectPaymentMethod('COD');
     }
+
 </script>
 </body>
 </html>
