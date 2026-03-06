@@ -3,120 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - ThanJai shop</title>
+    <title>ThanJai Shop - Store</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --admin-dark: #1a1a1a; --accent: #e63946; }
-        body { background: #f0f2f5; font-family: 'Sarabun', sans-serif; }
-        .sidebar { min-height: 100vh; background: var(--admin-dark); color: white; }
-        .sidebar a { color: #adb5bd; text-decoration: none; padding: 15px 20px; display: block; transition: 0.3s; }
-        .sidebar a:hover, .sidebar a.active { background: rgba(255,255,255,0.1); color: white; border-left: 4px solid var(--accent); }
-        .stat-card { border: none; border-radius: 15px; transition: 0.3s; }
-        .stat-card:hover { transform: translateY(-5px); }
-        .icon-box { width: 50px; height: 50px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        :root { --primary: #1a1a1a; --accent: #ffae00; }
+        body { font-family: 'Sarabun', sans-serif; background: #f8f9fa; }
+        .navbar { background: var(--primary) !important; }
+        .hero-banner { 
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1510566337590-2fc1f21d0faa?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover; background-position: center; height: 350px; display: flex; align-items: center; color: white;
+        }
+        .product-card { border: none; border-radius: 15px; transition: 0.3s; overflow: hidden; }
+        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
+        .btn-buy { background: var(--primary); color: white; border-radius: 8px; }
+        .btn-buy:hover { background: var(--accent); color: var(--primary); }
+        .member-badge { font-size: 0.7rem; background: var(--accent); color: var(--primary); padding: 2px 8px; border-radius: 10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-2 sidebar px-0 shadow">
-            <div class="p-4 text-center border-bottom border-secondary">
-                <h5 class="fw-bold mb-0 text-white">ThanJai shop</h5>
-            </div>
-            <div class="py-3">
-                <a href="e.php" class="active"><i class="fa fa-chart-line me-2"></i> แดชบอร์ดสรุปผล</a>
-                <a href="c.php"><i class="fa fa-box me-2"></i> จัดการสินค้า</a>
-                <a href="d.php"><i class="fa fa-users me-2"></i> จัดการลูกค้า</a>
-                <a href="b.php"><i class="fa fa-shopping-bag me-2"></i> จัดการออเดอร์</a>
-                <hr class="mx-3 opacity-25">
-                <a href="a.php" class="text-info"><i class="fa fa-external-link-alt me-2"></i> ไปหน้าขายสินค้า</a>
-                <a href="#" class="text-danger mt-5"><i class="fa fa-sign-out-alt me-2"></i> ออกจากระบบ</a>
-            </div>
-        </div>
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">ThanJai <span class="text-warning">Shop</span></a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item"><a class="nav-link active" href="#">หน้าหลัก</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">สินค้าทั้งหมด</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">โปรโมชั่น</a></li>
+            </ul>
+            <div class="d-flex align-items-center gap-3">
+                <div id="guest-zone">
+                    <a href="#" class="btn btn-outline-light btn-sm">เข้าสู่ระบบ</a>
+                    <a href="#" class="btn btn-warning btn-sm">สมัครสมาชิก</a>
+                </div>
 
-        <div class="col-md-10 p-4 p-md-5">
-            <h3 class="fw-bold mb-4 text-dark">ภาพรวมระบบ (Overview)</h3>
-            
-            <div class="row g-4 mb-5">
-                <div class="col-md-4">
-                    <div class="card stat-card shadow-sm p-4">
-                        <div class="d-flex align-items-center">
-                            <div class="icon-box bg-primary text-white me-3"><i class="fa fa-wallet"></i></div>
-                            <div>
-                                <h6 class="text-muted mb-0">ยอดขายรวม</h6>
-                                <h2 class="fw-bold mb-0">฿45,290</h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card stat-card shadow-sm p-4">
-                        <div class="d-flex align-items-center">
-                            <div class="icon-box bg-success text-white me-3"><i class="fa fa-shopping-cart"></i></div>
-                            <div>
-                                <h6 class="text-muted mb-0">ออเดอร์ใหม่</h6>
-                                <h2 class="fw-bold mb-0">12 รายการ</h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card stat-card shadow-sm p-4">
-                        <div class="d-flex align-items-center">
-                            <div class="icon-box bg-warning text-dark me-3"><i class="fa fa-user-friends"></i></div>
-                            <div>
-                                <h6 class="text-muted mb-0">ลูกค้าทั้งหมด</h6>
-                                <h2 class="fw-bold mb-0">158 คน</h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-md-8">
-                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-                        <h5 class="fw-bold mb-4">ออเดอร์ล่าสุด</h5>
-                        <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                                <tr><th>วันที่</th><th>ชื่อลูกค้า</th><th>ยอดเงิน</th><th>สถานะ</th></tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>14 ก.พ. 67</td>
-                                    <td>คุณวีรเทพ</td>
-                                    <td class="fw-bold">1,290.-</td>
-                                    <td><span class="badge bg-warning text-dark">รอดำเนินการ</span></td>
-                                </tr>
-                                <tr>
-                                    <td>13 ก.พ. 67</td>
-                                    <td>คุณธีรศิลป์</td>
-                                    <td class="fw-bold">2,580.-</td>
-                                    <td><span class="badge bg-success">ส่งแล้ว</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                        <a href="b.php" class="btn btn-link text-decoration-none">ดูทั้งหมด -></a>
+                <div id="user-zone" class="d-none">
+                    <div class="dropdown text-white">
+                        <span class="me-2 d-none d-md-inline">ยินดีต้อนรับ, <strong>คุณธีรศิลป์</strong> <span class="member-badge">Gold Member</span></span>
+                        <a href="#" class="link-light dropdown-toggle" data-bs-toggle="dropdown">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" width="35" class="rounded-circle border">
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><a class="dropdown-item" href="#"><i class="fa fa-user me-2"></i>โปรไฟล์ของฉัน</a></li>
+                            <li><a class="dropdown-item" href="b.php"><i class="fa fa-shopping-bag me-2"></i>ออเดอร์ของฉัน</a></li>
+                            <li><a class="dropdown-item" href="#"><i class="fa fa-heart me-2"></i>รายการโปรด</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="#"><i class="fa fa-sign-out-alt me-2"></i>ออกจากระบบ</a></li>
+                        </ul>
                     </div>
                 </div>
                 
-                <div class="col-md-4">
-                    <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
-                        <h5 class="fw-bold mb-3">ทางลัดการจัดการ</h5>
-                        <div class="d-grid gap-2">
-                            <a href="c.php" class="btn btn-outline-dark"><i class="fa fa-plus-circle me-1"></i> เพิ่มสินค้าใหม่</a>
-                            <a href="d.php" class="btn btn-outline-dark"><i class="fa fa-search me-1"></i> ค้นหาข้อมูลลูกค้า</a>
-                            <a href="a.php" target="_blank" class="btn btn-primary"><i class="fa fa-eye me-1"></i> ดูหน้าร้านจริง</a>
-                        </div>
+                <a href="#" class="text-white position-relative">
+                    <i class="fa fa-shopping-cart fs-5"></i>
+                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">2</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<header class="hero-banner text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">NEW SEASON 2026</h1>
+        <p class="lead">คอลเลคชั่นใหม่ล่าสุดจากสโมสรดังทั่วโลก พร้อมส่งแล้ววันนี้!</p>
+        <button class="btn btn-warning btn-lg px-5 fw-bold">เลือกช้อปเลย</button>
+    </div>
+</header>
+
+<main class="container my-5">
+    <div class="d-flex justify-content-center gap-2 mb-5 overflow-auto pb-2">
+        <button class="btn btn-dark px-4 rounded-pill">ทั้งหมด</button>
+        <button class="btn btn-outline-dark px-4 rounded-pill">ไทยลีก</button>
+        <button class="btn btn-outline-dark px-4 rounded-pill">พรีเมียร์ลีก</button>
+        <button class="btn btn-outline-dark px-4 rounded-pill">เสื้อซ้อม</button>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-6 col-md-3">
+            <div class="card product-card h-100 shadow-sm">
+                <img src="https://via.placeholder.com/300x400" class="card-img-top" alt="Product">
+                <div class="card-body">
+                    <p class="text-muted small mb-1">ไทยลีก</p>
+                    <h6 class="card-title fw-bold">Buriram Home 2026</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-danger fw-bold fs-5">฿790</span>
+                        <button class="btn btn-buy btn-sm px-3"><i class="fa fa-cart-plus"></i></button>
                     </div>
+                </div>
+            </div>
+        </div>
+        </div>
+</main>
+
+<footer class="bg-dark text-white py-5 mt-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <h5 class="fw-bold">ThanJai Shop</h5>
+                <p class="text-muted">ร้านขายอุปกรณ์กีฬาและเสื้อบอลอันดับ 1 มั่นใจ ได้ของไว ถึงมือแน่นอน</p>
+            </div>
+            <div class="col-md-4">
+                <h5>ติดต่อเรา</h5>
+                <p class="text-muted mb-1"><i class="fa fa-phone me-2"></i> 081-XXX-XXXX</p>
+                <p class="text-muted"><i class="fab fa-line me-2"></i> @thanjai_shop</p>
+            </div>
+            <div class="col-md-4">
+                <h5>ติดตามข่าวสาร</h5>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="อีเมลของคุณ">
+                    <button class="btn btn-warning">สมัคร</button>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // จำลองสถานะล็อกอิน (เมื่อทำจริง ให้ใช้ตัวแปรจาก PHP เช็ค Session)
+    let isLoggedIn = true; 
+
+    if (isLoggedIn) {
+        document.getElementById('guest-zone').classList.add('d-none');
+        document.getElementById('user-zone').classList.remove('d-none');
+    }
+</script>
 </body>
 </html>
