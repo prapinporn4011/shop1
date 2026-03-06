@@ -1,39 +1,51 @@
 <?php
-// DATABASE CONNECTION
+
 $host = "localhost";
 $user = "root";
 $pass = "";
 $db   = "shop1";
 
 $conn = new mysqli($host,$user,$pass,$db);
+
 if($conn->connect_error){
-    die("เชื่อมต่อฐานข้อมูลไม่ได้");
+    die("เชื่อมต่อฐานข้อมูลไม่ได้ : ".$conn->connect_error);
 }
 
+/* dashboard */
+
+$total = $conn->query("SELECT COUNT(*) as total FROM orders")->fetch_assoc()['total'];
+$pending = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='รอชำระเงิน'")->fetch_assoc()['total'];
+$shipping = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='รอจัดส่ง'")->fetch_assoc()['total'];
+$success = $conn->query("SELECT COUNT(*) as total FROM orders WHERE status='จัดส่งแล้ว'")->fetch_assoc()['total'];
+
 $orders = $conn->query("SELECT * FROM orders ORDER BY id DESC");
+
 ?>
 
 <!DOCTYPE html>
 <html lang="th">
 <head>
+
 <meta charset="UTF-8">
-<title>ระบบหลังบ้าน - จัดการออเดอร์</title>
+<title>ระบบหลังบ้านร้านค้า</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Prompt&display=swap" rel="stylesheet">
 
 <style>
 
 body{
-font-family: "Prompt",sans-serif;
-background:#0d1b2a;
-color:white;
+font-family:Prompt;
 margin:0;
+background:#0f172a;
+color:white;
 }
 
 /* sidebar */
 
 .sidebar{
-width:230px;
+width:240px;
 height:100vh;
-background:#1b263b;
+background:#020617;
 position:fixed;
 padding:20px;
 }
@@ -41,25 +53,27 @@ padding:20px;
 .sidebar h2{
 text-align:center;
 margin-bottom:40px;
+color:#38bdf8;
 }
 
 .sidebar a{
 display:block;
+padding:12px;
+margin:10px 0;
 color:white;
 text-decoration:none;
-padding:12px;
-margin:8px 0;
 border-radius:8px;
+transition:0.3s;
 }
 
 .sidebar a:hover{
-background:#415a77;
+background:#1e293b;
 }
 
 /* main */
 
 .main{
-margin-left:250px;
+margin-left:260px;
 padding:30px;
 }
 
@@ -69,18 +83,26 @@ padding:30px;
 display:grid;
 grid-template-columns:repeat(4,1fr);
 gap:20px;
-margin-bottom:30px;
+margin-bottom:40px;
 }
 
 .card{
-background:#1b263b;
-padding:20px;
+padding:25px;
 border-radius:12px;
+background:linear-gradient(145deg,#1e293b,#020617);
+box-shadow:0 0 10px rgba(0,0,0,0.4);
 text-align:center;
 }
 
 .card h3{
-margin:10px 0;
+margin:0;
+font-size:18px;
+}
+
+.card p{
+font-size:28px;
+margin-top:10px;
+color:#38bdf8;
 }
 
 /* table */
@@ -95,9 +117,9 @@ overflow:hidden;
 }
 
 th{
-background:#1b263b;
+background:#0f172a;
 color:white;
-padding:12px;
+padding:14px;
 }
 
 td{
@@ -105,76 +127,79 @@ padding:12px;
 border-bottom:1px solid #ddd;
 }
 
+tr:hover{
+background:#f1f5f9;
+}
+
+/* buttons */
+
 button{
-padding:6px 12px;
+padding:7px 14px;
 border:none;
 border-radius:6px;
 cursor:pointer;
 }
 
 .detail{
-background:#0077b6;
+background:#0284c7;
 color:white;
 }
 
 .print{
-background:#38b000;
+background:#16a34a;
 color:white;
 }
 
 .cancel{
-background:#d00000;
+background:#dc2626;
 color:white;
 }
 
 </style>
 
 </head>
-<body>
 
-<!-- SIDEBAR -->
+<body>
 
 <div class="sidebar">
 
-<h2>ADMIN</h2>
+<h2>⚡ ADMIN PANEL</h2>
 
 <a href="#">📊 แดชบอร์ด</a>
 <a href="#">📦 จัดการออเดอร์</a>
-<a href="#">🛍 รายการสินค้า</a>
+<a href="#">🛍 สินค้า</a>
 <a href="#">👤 ลูกค้า</a>
-<a href="#">💬 ข้อความลูกค้า</a>
-<a href="#">📈 รายงานยอดขาย</a>
-<a href="#">⚙️ ตั้งค่าระบบ</a>
+<a href="#">💬 แชทลูกค้า</a>
+<a href="#">📈 รายงาน</a>
+<a href="#">⚙ ตั้งค่า</a>
 
 </div>
 
 
-<!-- MAIN -->
-
 <div class="main">
 
-<h1>แดชบอร์ดสรุปออเดอร์</h1>
+<h1>แดชบอร์ดร้านค้า</h1>
 
 <div class="dashboard">
 
 <div class="card">
 <h3>ออเดอร์ทั้งหมด</h3>
-<p>120</p>
+<p><?php echo $total ?></p>
 </div>
 
 <div class="card">
 <h3>รอชำระเงิน</h3>
-<p>15</p>
+<p><?php echo $pending ?></p>
 </div>
 
 <div class="card">
 <h3>รอจัดส่ง</h3>
-<p>20</p>
+<p><?php echo $shipping ?></p>
 </div>
 
 <div class="card">
 <h3>จัดส่งแล้ว</h3>
-<p>85</p>
+<p><?php echo $success ?></p>
 </div>
 
 </div>
@@ -188,15 +213,13 @@ color:white;
 <th>เลขออเดอร์</th>
 <th>ลูกค้า</th>
 <th>สินค้า</th>
-<th>ยอดเงิน</th>
+<th>ราคา</th>
 <th>สถานะ</th>
-<th>ที่อยู่จัดส่ง</th>
+<th>ที่อยู่</th>
 <th>จัดการ</th>
 </tr>
 
-<?php
-while($row = $orders->fetch_assoc()){
-?>
+<?php while($row = $orders->fetch_assoc()){ ?>
 
 <tr>
 
@@ -216,7 +239,7 @@ while($row = $orders->fetch_assoc()){
 
 <button class="detail">รายละเอียด</button>
 
-<button class="print" onclick="window.print()">ปริ้นใบปะหน้า</button>
+<button class="print" onclick="window.print()">ปริ้น</button>
 
 <button class="cancel">ยกเลิก</button>
 
