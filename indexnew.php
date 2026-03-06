@@ -192,15 +192,16 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // ข้อมูลสินค้า ดึงมาจากไฟล์เดิมโดยใช้ชื่อรูปภาพจริง
+    // แก้ไข img เป็น 1.jpg, 2.jpg, ... ถึง 8.jpg ตามลำดับไฟล์จริงของคุณ
     const originalProducts = [
-        { id: 2, name: "Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด ผ้าเกรดพรีเมียม" },
-        { id: 4, name: "Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพอันดับ 1 ของเมืองไทย" },
-        { id: 5, name: "Thailand Edition", price: 590, type: "ซ้อม", img: "5.jpg", desc: "เสื้อเชียร์ทีมชาติไทย สวมใส่สบาย ระบายอากาศดี" },
-        { id: 6, name: "Port FC Away Kit", price: 750, type: "เยือน", img: "6.jpg", desc: "สิงห์เจ้าท่า สีเยือนเรียบหรู พร้อมดีไซน์ทันสมัย" },
-        { id: 7, name: "Training BGPU", price: 490, type: "ซ้อม", img: "7.jpg", desc: "เสื้อซ้อมคุณภาพสูงจากสโมสรบีจี ปทุม" },
-        { id: 8, name: "Muangthong Utd Home", price: 790, type: "เหย้า", img: "8.jpg", desc: "กิเลนผยอง คลาสสิกสีแดงดำ ดีไซน์ทรงคุณค่า" },
-        { id: 9, name: "Chonburi FC Away", price: 650, type: "เยือน", img: "9.jpg", desc: "ฉลามชล ดีไซน์สปอร์ตทันสมัย สีเยือนโดดเด่น" },
-        { id: 10, name: "Special Training", price: 390, type: "ซ้อม", img: "10.jpg", desc: "เสื้อซ้อมรวมสโมสร ลิมิเต็ด อิดิชั่น" }
+        { id: 2, name: "Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "1.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด ผ้าเกรดพรีเมียม" },
+        { id: 4, name: "Buriram United Home", price: 690, type: "เหย้า", img: "2.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพอันดับ 1 ของเมืองไทย" },
+        { id: 5, name: "Thailand Edition", price: 590, type: "ซ้อม", img: "3.jpg", desc: "เสื้อเชียร์ทีมชาติไทย สวมใส่สบาย ระบายอากาศดี" },
+        { id: 6, name: "Port FC Away Kit", price: 750, type: "เยือน", img: "4.jpg", desc: "สิงห์เจ้าท่า สีเยือนเรียบหรู พร้อมดีไซน์ทันสมัย" },
+        { id: 7, name: "Training BGPU", price: 490, type: "ซ้อม", img: "5.jpg", desc: "เสื้อซ้อมคุณภาพสูงจากสโมสรบีจี ปทุม" },
+        { id: 8, name: "Muangthong Utd Home", price: 790, type: "เหย้า", img: "6.jpg", desc: "กิเลนผยอง คลาสสิกสีแดงดำ ดีไซน์ทรงคุณค่า" },
+        { id: 9, name: "Chonburi FC Away", price: 650, type: "เยือน", img: "7.jpg", desc: "ฉลามชล ดีไซน์สปอร์ตทันสมัย สีเยือนโดดเด่น" },
+        { id: 10, name: "Special Training", price: 390, type: "ซ้อม", img: "8.jpg", desc: "เสื้อซ้อมรวมสโมสร ลิมิเต็ด อิดิชั่น" }
     ];
 
     let cart = [];
@@ -216,7 +217,7 @@
         }
     }
 
-    // ดึงรูปภาพตามตัวแปร p.img (เช่น "2.jpg") โดยตรงเลย
+    // ดึงรูปภาพตามตัวแปร p.img (เช่น "1.jpg") โดยตรงเลย
     function renderProducts(items) {
         const container = document.getElementById('store-display');
         container.innerHTML = items.map(p => `
