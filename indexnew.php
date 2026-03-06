@@ -191,7 +191,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ข้อมูลสินค้า ดึงมาจากไฟล์ index.html
+    // ข้อมูลสินค้า ดึงมาจากไฟล์เดิมโดยใช้ชื่อรูปภาพจริง
     const originalProducts = [
         { id: 2, name: "Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด ผ้าเกรดพรีเมียม" },
         { id: 4, name: "Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพอันดับ 1 ของเมืองไทย" },
@@ -205,27 +205,7 @@
 
     let cart = [];
     let isLoggedIn = true; // จำลองสถานะ
-    let currentAction = 'cart'; // ใช้เช็คว่ากดมาจากปุ่ม สั่งซื้อ หรือ ตะกร้า
-
-    // =========================================================
-    // ++ เพิ่มโค้ดส่วนนี้เพื่อจำลองรูปภาพสินค้าจริงให้แสดงผลได้ทันที ++
-    // (แทนที่การเรียกไฟล์รูปในเครื่อง ด้วยรูปจากอินเทอร์เน็ตชั่วคราว)
-    // =========================================================
-    const mockOnlineImages = {
-        2: "https://images.unsplash.com/photo-1589487391730-58f20eb2c308?w=500&h=600&fit=crop", 
-        4: "https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=500&h=600&fit=crop",
-        5: "https://images.unsplash.com/photo-1599305090598-fe179d501227?w=500&h=600&fit=crop",
-        6: "https://images.unsplash.com/photo-1614631446501-abcf76949eca?w=500&h=600&fit=crop",
-        7: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=500&h=600&fit=crop",
-        8: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=500&h=600&fit=crop",
-        9: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=500&h=600&fit=crop",
-        10: "https://images.unsplash.com/photo-1558222218-b7b54eede3f3?w=500&h=600&fit=crop"
-    };
-    originalProducts.forEach(p => {
-        // อัปเดต img ให้เป็นออนไลน์ ถ้าไม่มีจะแสดงกล่องข้อความแทน
-        p.img = mockOnlineImages[p.id] || `https://placehold.co/300x400/1a1a1a/ffae00?text=${encodeURIComponent(p.name)}`;
-    });
-    // =========================================================
+    let currentAction = 'cart';
 
     function initStore() {
         renderProducts(originalProducts);
@@ -236,7 +216,7 @@
         }
     }
 
-    // ฟังก์ชันแสดงสินค้า (อัปเดตเพิ่ม 2 ปุ่ม)
+    // ดึงรูปภาพตามตัวแปร p.img (เช่น "2.jpg") โดยตรงเลย
     function renderProducts(items) {
         const container = document.getElementById('store-display');
         container.innerHTML = items.map(p => `
@@ -286,7 +266,7 @@
         document.getElementById('detail-price').innerText = '฿' + p.price.toLocaleString();
         document.getElementById('detail-desc').innerText = p.desc;
         document.getElementById('detail-type').innerText = p.type;
-        document.getElementById('detail-img').src = p.img;
+        document.getElementById('detail-img').src = p.img; // ดึงไฟล์ภาพมาแสดงในป็อปอัปด้วย
         document.getElementById('detail-qty').value = 1;
         document.getElementById('detail-size').selectedIndex = 1; 
 
