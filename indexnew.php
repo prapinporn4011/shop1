@@ -191,8 +191,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ข้อมูลสินค้า ดึงมาจากไฟล์เดิมโดยใช้ชื่อรูปภาพจริง
-    // แก้ไข img เป็น 1.jpg, 2.jpg, ... ถึง 8.jpg ตามลำดับไฟล์จริงของคุณ
+    // ข้อมูลสินค้า ดึงมาจากไฟล์เดิมโดยใช้ชื่อรูปภาพจริงที่ถูกต้อง
     const originalProducts = [
         { id: 2, name: "Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด ผ้าเกรดพรีเมียม" },
         { id: 4, name: "Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพอันดับ 1 ของเมืองไทย" },
@@ -217,7 +216,7 @@
         }
     }
 
-    // ดึงรูปภาพตามตัวแปร p.img (เช่น "1.jpg") โดยตรงเลย
+    // ดึงรูปภาพตามตัวแปร p.img (เช่น "2.jpg") โดยตรงเลย
     function renderProducts(items) {
         const container = document.getElementById('store-display');
         container.innerHTML = items.map(p => `
