@@ -24,6 +24,11 @@
         /* สไตล์เพิ่มเติมสำหรับระบบตะกร้า */
         .cart-badge { font-size: 0.6rem; padding: 2px 5px; }
         #cart-items-list { max-height: 400px; overflow-y: auto; }
+
+        /* สไตล์เพิ่มเติมสำหรับระบบชำระเงิน */
+        .payment-box { border: 2px solid #ddd; border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.2s; text-align: center; }
+        .payment-box:hover { border-color: var(--accent); background: #fffdf5; }
+        .payment-box.active { border-color: var(--accent); background: #fff8e1; font-weight: bold; }
     </style>
 </head>
 <body onload="initStore()">
@@ -39,6 +44,7 @@
                 <li class="nav-item"><a class="nav-link active" href="#" onclick="filterProducts('ทั้งหมด')">หน้าหลัก</a></li>
                 <li class="nav-item"><a class="nav-link" href="#product-list">สินค้าทั้งหมด</a></li>
                 <li class="nav-item"><a class="nav-link" href="#">โปรโมชั่น</a></li>
+                <li class="nav-item"><a class="nav-link text-warning fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#contactModal"><i class="fa fa-phone-alt me-1"></i>ติดต่อเรา</a></li>
             </ul>
             
             <div class="d-flex align-items-center gap-3">
@@ -57,10 +63,10 @@
                             <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" width="35" class="rounded-circle border">
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li><a class="dropdown-item" href="#"><i class="fa fa-user me-2"></i>โปรไฟล์ของฉัน</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal"><i class="fa fa-user me-2"></i>โปรไฟล์ของฉัน</a></li>
                             <li><a class="dropdown-item" href="b.php"><i class="fa fa-shopping-bag me-2"></i>ออเดอร์ของฉัน</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="#" onclick="location.reload()"><i class="fa fa-sign-out-alt me-2"></i>ออกจากระบบ</a></li>
+                            <li><a class="dropdown-item text-danger" href="#" onclick="logoutUser()"><i class="fa fa-sign-out-alt me-2"></i>ออกจากระบบ</a></li>
                         </ul>
                     </div>
                 </div>
@@ -91,8 +97,41 @@
     </div>
 
     <div class="row g-4" id="store-display">
-        </div>
+    </div>
 </main>
+
+<div class="modal fade" id="contactModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title fw-bold"><i class="fa fa-headset me-2"></i>ช่องทางการติดต่อ</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <h5 class="fw-bold mb-3">ThanJai Shop ยินดีให้บริการครับ!</h5>
+                <p class="mb-2"><i class="fa fa-phone-alt text-success fs-5 me-2"></i> <strong>โทร:</strong> 081-XXX-XXXX</p>
+                <p class="mb-2"><i class="fab fa-line text-success fs-5 me-2"></i> <strong>Line ID:</strong> @thanjai_shop</p>
+                <p class="mb-0"><i class="fab fa-facebook text-primary fs-5 me-2"></i> <strong>Facebook:</strong> ThanJai Shop Official</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="profileModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content text-center py-4">
+            <div class="modal-body">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" width="100" class="rounded-circle border border-warning shadow-sm mb-3">
+                <h4 class="fw-bold mb-1">คุณธีรศิลป์ แดงดา</h4>
+                <p class="text-muted small mb-2">อีเมล: teerasil@example.com</p>
+                <span class="badge bg-warning text-dark px-3 py-2 rounded-pill shadow-sm">Gold Member (สะสม 1,250 แต้ม)</span>
+                <hr class="my-4">
+                <button class="btn btn-outline-dark btn-sm w-100 mb-2" onclick="alert('ฟังก์ชันแก้ไขโปรไฟล์กำลังพัฒนา...')">แก้ไขข้อมูลส่วนตัว</button>
+                <button class="btn btn-danger btn-sm w-100" onclick="logoutUser()">ออกจากระบบ</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="productDetailModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -150,8 +189,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div id="cart-items-list">
-                    </div>
+                <div id="cart-items-list"></div>
                 <hr>
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="fw-bold">ราคารวมทั้งสิ้น:</h5>
@@ -160,7 +198,74 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ช้อปต่อ</button>
-                <button type="button" class="btn btn-warning fw-bold" onclick="alert('กำลังไปหน้าชำระเงิน...')">ยืนยันรายการสั่งซื้อ</button>
+                <button type="button" class="btn btn-warning fw-bold" onclick="openCheckoutModal()">ยืนยันรายการสั่งซื้อ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="checkoutModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title fw-bold"><i class="fa fa-check-circle me-2"></i>ยืนยันคำสั่งซื้อและชำระเงิน</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <h6 class="fw-bold border-bottom pb-2">ข้อมูลการจัดส่ง</h6>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">ชื่อ-นามสกุล</label>
+                            <input type="text" id="ship-name" class="form-control" placeholder="ระบุชื่อผู้รับ">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">เบอร์ติดต่อ</label>
+                            <input type="text" id="ship-phone" class="form-control" placeholder="08X-XXX-XXXX">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small fw-bold">ที่อยู่จัดส่ง</label>
+                            <textarea id="ship-address" class="form-control" rows="3" placeholder="บ้านเลขที่, ถนน, ตำบล, อำเภอ, จังหวัด, รหัสไปรษณีย์"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 bg-light p-3 rounded">
+                        <h6 class="fw-bold border-bottom pb-2">สรุปรายการสินค้า</h6>
+                        <div id="checkout-summary-list" style="max-height: 150px; overflow-y: auto; font-size: 0.9rem;" class="mb-3">
+                            </div>
+                        <div class="d-flex justify-content-between fw-bold mb-3">
+                            <span>ยอดสุทธิที่ต้องชำระ:</span>
+                            <span class="text-danger fs-5" id="checkout-total-price">฿0</span>
+                        </div>
+
+                        <h6 class="fw-bold border-bottom pb-2">เลือกวิธีชำระเงิน</h6>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <div class="payment-box active" id="pay-cod" onclick="selectPaymentMethod('COD')">
+                                    <i class="fa fa-truck fa-2x mb-2 text-dark"></i>
+                                    <div class="small">เก็บเงินปลายทาง</div>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="payment-box" id="pay-qr" onclick="selectPaymentMethod('QR')">
+                                    <i class="fa fa-qrcode fa-2x mb-2 text-primary"></i>
+                                    <div class="small">QR PromptPay</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="qr-code-section" class="text-center mt-3 d-none">
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=081xxxxxxx" alt="QR Code" class="img-thumbnail">
+                            <p class="small text-muted mt-2">สแกนเพื่อชำระเงิน แล้วกดปุ่มยืนยันด้านล่าง</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-target="#cartModal" data-bs-toggle="modal">กลับไปแก้ไขตะกร้า</button>
+                <button type="button" class="btn btn-success fw-bold px-4" onclick="processOrder()">
+                    <i class="fa fa-check"></i> สั่งซื้อเลย
+                </button>
             </div>
         </div>
     </div>
@@ -191,7 +296,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ข้อมูลสินค้า ดึงไฟล์รูปภาพเสื้อกีฬาของคุณ (2.jpg - 10.jpg) จากโฟลเดอร์โดยตรง
+    // ข้อมูลสินค้า ดึงไฟล์รูปภาพเสื้อกีฬาของคุณ (2.jpg - 10.jpg) จากโฟลเดอร์โดยตรง (คงไว้เหมือนเดิมเป๊ะ)
     const originalProducts = [
         { id: 2, name: "Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด ผ้าเกรดพรีเมียม" },
         { id: 4, name: "Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพอันดับ 1 ของเมืองไทย" },
@@ -206,6 +311,7 @@
     let cart = [];
     let isLoggedIn = true; // จำลองสถานะ
     let currentAction = 'cart';
+    let selectedPayment = 'COD'; // ค่าเริ่มต้นชำระเงินปลายทาง
 
     function initStore() {
         renderProducts(originalProducts);
@@ -213,6 +319,22 @@
         if (isLoggedIn) {
             document.getElementById('guest-zone').classList.add('d-none');
             document.getElementById('user-zone').classList.remove('d-none');
+        }
+    }
+
+    // ฟังก์ชันออกจากระบบ
+    function logoutUser() {
+        if(confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) {
+            // ซ่อนเมนูผู้ใช้ แสดงปุ่มเข้าสู่ระบบแทน (หรือจะใช้ location.reload() ก็ได้)
+            isLoggedIn = false;
+            document.getElementById('user-zone').classList.add('d-none');
+            document.getElementById('guest-zone').classList.remove('d-none');
+            
+            // ปิด Modal โปรไฟล์ถ้าเปิดอยู่
+            const profileModalEl = document.getElementById('profileModal');
+            if(profileModalEl.classList.contains('show')){
+                bootstrap.Modal.getInstance(profileModalEl).hide();
+            }
         }
     }
 
@@ -351,6 +473,83 @@
     function removeFromCart(index) {
         cart.splice(index, 1);
         updateCartUI();
+    }
+
+    // ฟังก์ชันเปิดหน้าชำระเงิน / Checkout
+    function openCheckoutModal() {
+        if (cart.length === 0) {
+            alert("กรุณาเลือกสินค้าลงตะกร้าก่อนครับ");
+            return;
+        }
+
+        // ปิดตะกร้าเดิมก่อน
+        const cartModalEl = document.getElementById('cartModal');
+        bootstrap.Modal.getInstance(cartModalEl).hide();
+
+        // นำข้อมูลตะกร้าไปใส่ในรายการสรุปยอด
+        const summaryList = document.getElementById('checkout-summary-list');
+        let totalAmount = 0;
+        
+        summaryList.innerHTML = cart.map(item => {
+            const itemTotal = item.price * item.qty;
+            totalAmount += itemTotal;
+            return `
+                <div class="d-flex justify-content-between mb-2 pb-1 border-bottom border-light">
+                    <span>${item.name} (${item.size}) x ${item.qty}</span>
+                    <span class="fw-bold">฿${itemTotal.toLocaleString()}</span>
+                </div>
+            `;
+        }).join('');
+
+        document.getElementById('checkout-total-price').innerText = `฿${totalAmount.toLocaleString()}`;
+
+        // เปิด Modal ชำระเงิน
+        setTimeout(() => {
+            const checkoutModal = new bootstrap.Modal(document.getElementById('checkoutModal'));
+            checkoutModal.show();
+        }, 400);
+    }
+
+    // ฟังก์ชันเปลี่ยนวิธีชำระเงิน
+    function selectPaymentMethod(method) {
+        selectedPayment = method;
+        document.getElementById('pay-cod').classList.remove('active');
+        document.getElementById('pay-qr').classList.remove('active');
+        
+        if(method === 'COD') {
+            document.getElementById('pay-cod').classList.add('active');
+            document.getElementById('qr-code-section').classList.add('d-none');
+        } else {
+            document.getElementById('pay-qr').classList.add('active');
+            document.getElementById('qr-code-section').classList.remove('d-none');
+        }
+    }
+
+    // ฟังก์ชันกดยืนยันการสั่งซื้อขั้นสุดท้าย
+    function processOrder() {
+        const name = document.getElementById('ship-name').value.trim();
+        const phone = document.getElementById('ship-phone').value.trim();
+        const address = document.getElementById('ship-address').value.trim();
+
+        if (!name || !phone || !address) {
+            alert("กรุณากรอกข้อมูลการจัดส่งให้ครบถ้วนครับ");
+            return;
+        }
+
+        // หากครบถ้วน ให้จำลองว่าสั่งซื้อสำเร็จ
+        alert(`สั่งซื้อสำเร็จ! ขอบคุณที่อุดหนุน ThanJai Shop ครับ\n\nจัดส่งถึง: ${name}\nวิธีชำระเงิน: ${selectedPayment === 'COD' ? 'เก็บเงินปลายทาง' : 'QR PromptPay'}`);
+        
+        // ล้างตะกร้าและเคลียร์ฟอร์ม
+        cart = [];
+        updateCartUI();
+        document.getElementById('ship-name').value = '';
+        document.getElementById('ship-phone').value = '';
+        document.getElementById('ship-address').value = '';
+        selectPaymentMethod('COD'); // กลับไปตั้งค่าเริ่มต้น
+        
+        // ปิด Modal
+        const checkoutModalEl = document.getElementById('checkoutModal');
+        bootstrap.Modal.getInstance(checkoutModalEl).hide();
     }
 </script>
 </body>
