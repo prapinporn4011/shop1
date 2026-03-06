@@ -104,7 +104,7 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-5 text-center mb-3 mb-md-0">
-                        <img id="detail-img" src="" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;" onerror="this.onerror=null; this.src=getFallbackImage(document.getElementById('detail-id').value)">
+                        <img id="detail-img" src="" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;">
                     </div>
                     <div class="col-md-7">
                         <span id="detail-type" class="badge bg-secondary mb-2"></span>
@@ -191,7 +191,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // ข้อมูลสินค้าของคุณ (ไม่โดนแก้ ใช้งานรูป 2.jpg ของคุณเหมือนเดิม)
+    // ข้อมูลสินค้า ดึงไฟล์รูปภาพเสื้อกีฬาของคุณ (2.jpg - 10.jpg) จากโฟลเดอร์โดยตรง
     const originalProducts = [
         { id: 2, name: "Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด ผ้าเกรดพรีเมียม" },
         { id: 4, name: "Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพอันดับ 1 ของเมืองไทย" },
@@ -202,20 +202,6 @@
         { id: 9, name: "Chonburi FC Away", price: 650, type: "เยือน", img: "9.jpg", desc: "ฉลามชล ดีไซน์สปอร์ตทันสมัย สีเยือนโดดเด่น" },
         { id: 10, name: "Special Training", price: 390, type: "ซ้อม", img: "10.jpg", desc: "เสื้อซ้อมรวมสโมสร ลิมิเต็ด อิดิชั่น" }
     ];
-
-    // ++ ฟังก์ชันใหม่: ดึงภาพสำรองจากเน็ตกรณีหาไฟล์ของคุณไม่เจอ ++
-    const fallbackImages = {
-        2: "https://images.unsplash.com/photo-1589487391730-58f20eb2c308?w=500&h=600&fit=crop", 
-        4: "https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=500&h=600&fit=crop",
-        5: "https://images.unsplash.com/photo-1599305090598-fe179d501227?w=500&h=600&fit=crop",
-        6: "https://images.unsplash.com/photo-1614631446501-abcf76949eca?w=500&h=600&fit=crop",
-        7: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=500&h=600&fit=crop",
-        8: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=500&h=600&fit=crop",
-        9: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=500&h=600&fit=crop",
-        10: "https://images.unsplash.com/photo-1558222218-b7b54eede3f3?w=500&h=600&fit=crop"
-    };
-    function getFallbackImage(id) { return fallbackImages[id] || 'https://placehold.co/300x400/1a1a1a/ffae00?text=No+Image'; }
-    // ========================================================
 
     let cart = [];
     let isLoggedIn = true; // จำลองสถานะ
@@ -235,7 +221,7 @@
         container.innerHTML = items.map(p => `
             <div class="col-6 col-md-3 mb-4">
                 <div class="card product-card shadow-sm border-0">
-                    <img src="${p.img}" class="card-img-top" alt="${p.name}" onerror="this.onerror=null; this.src=getFallbackImage(${p.id})">
+                    <img src="${p.img}" class="card-img-top" alt="${p.name}">
                     <div class="card-body">
                         <span class="badge bg-secondary mb-2" style="font-size: 10px;">${p.type}</span>
                         <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 14px;">${p.name}</h6>
@@ -343,7 +329,7 @@
             totalAmount += itemTotal;
             return `
                 <div class="d-flex align-items-center mb-3 p-2 border-bottom">
-                    <img src="${item.img}" width="60" height="60" class="rounded me-3 border" style="object-fit: cover;" onerror="this.onerror=null; this.src=getFallbackImage(${item.id})">
+                    <img src="${item.img}" width="60" height="60" class="rounded me-3 border" style="object-fit: cover;">
                     <div class="flex-grow-1">
                         <h6 class="mb-0 fw-bold">${item.name}</h6>
                         <small class="text-muted">ไซส์: <strong>${item.size}</strong> | จำนวน: <strong>${item.qty}</strong> ตัว</small><br>

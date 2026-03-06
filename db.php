@@ -1,21 +1,20 @@
 <?php
-// ตั้งค่าตัวแปรสำหรับการเชื่อมต่อ
-$servername = "localhost"; // ชื่อเซิร์ฟเวอร์ (ปกติใช้ localhost)
-$username   = "root";      // ชื่อผู้ใช้ฐานข้อมูล (XAMPP ปกติใช้ root)
-$password   = "";          // รหัสผ่าน (XAMPP ปกติจะเป็นค่าว่าง)
-$dbname     = "shop1";   // ชื่อฐานข้อมูลที่เราเพิ่งสร้าง
+$host = 'localhost'; // หรือ 127.0.0.1
+$dbname = 'shop1';   // ชื่อฐานข้อมูลของคุณ (อ้างอิงจากภาพที่คุณส่งมา)
+$user = 'root';      // Username เริ่มต้นของ XAMPP คือ root
+$pass = '';          // Password เริ่มต้นของ XAMPP คือค่าว่าง (ไม่ต้องพิมพ์อะไร)
 
-// คำสั่งเชื่อมต่อ (Create connection)
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// ตรวจสอบการเชื่อมต่อ (Check connection)
-if ($conn->connect_error) {
-    // ถ้าเชื่อมต่อไม่ได้ ให้แจ้งเตือนและหยุดทำงาน
-    die("การเชื่อมต่อล้มเหลว: " . $conn->connect_error);
+try {
+    // สร้างการเชื่อมต่อด้วย PDO
+    $conn = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8", $user, $pass);
+    
+    // ตั้งค่าให้แสดง Error หากมีปัญหาเกี่ยวกับฐานข้อมูล
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    // หากเชื่อมต่อสำเร็จ ระบบจะทำงานเงียบๆ เพื่อไม่ให้ข้อความไปรบกวนหน้าเว็บหลัก
+    
+} catch(PDOException $e) {
+    // หากเชื่อมต่อไม่สำเร็จ จะแสดงข้อความ Error
+    echo "การเชื่อมต่อฐานข้อมูลล้มเหลว: " . $e->getMessage();
 }
-
-// ตั้งค่าภาษาไทยให้ถูกต้อง (ป้องกันภาษาต่างดาว)
-$conn->set_charset("utf8");
-
-// ถ้าหน้านี้ไม่มี Error อะไรขึ้นเลย แสดงว่าเชื่อมต่อสำเร็จ!
 ?>
