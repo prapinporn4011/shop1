@@ -1,72 +1,71 @@
 <?php
+// DATABASE CONNECTION
+$host = "localhost";
+$user = "root";
+$pass = "";
+$db   = "shop_db";
 
-$conn = new mysqli("localhost","root","","shop_system");
+$conn = new mysqli($host,$user,$pass,$db);
+if($conn->connect_error){
+    die("เชื่อมต่อฐานข้อมูลไม่ได้");
+}
 
-$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
-
+$orders = $conn->query("SELECT * FROM orders ORDER BY id DESC");
 ?>
 
 <!DOCTYPE html>
 <html lang="th">
 <head>
 <meta charset="UTF-8">
-<title>ระบบหลังบ้านร้านค้า</title>
-
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;600&display=swap" rel="stylesheet">
+<title>ระบบหลังบ้าน - จัดการออเดอร์</title>
 
 <style>
 
-*{
-box-sizing:border-box;
-font-family:'Noto Sans Thai',sans-serif;
-}
-
 body{
-margin:0;
-background:#0f1b2e;
+font-family: "Prompt",sans-serif;
+background:#0d1b2a;
 color:white;
+margin:0;
 }
 
-/* SIDEBAR */
+/* sidebar */
 
 .sidebar{
-width:240px;
+width:230px;
 height:100vh;
-background:#081225;
+background:#1b263b;
 position:fixed;
-}
-
-.logo{
 padding:20px;
+}
+
+.sidebar h2{
 text-align:center;
-font-size:22px;
-font-weight:600;
-color:#4fd1c5;
-border-bottom:1px solid #1e2b45;
+margin-bottom:40px;
 }
 
-.menu a{
+.sidebar a{
 display:block;
-padding:15px 20px;
-color:#cbd5e1;
-text-decoration:none;
-}
-
-.menu a:hover{
-background:#1e2b45;
 color:white;
+text-decoration:none;
+padding:12px;
+margin:8px 0;
+border-radius:8px;
 }
 
-/* MAIN */
+.sidebar a:hover{
+background:#415a77;
+}
+
+/* main */
 
 .main{
-margin-left:240px;
+margin-left:250px;
 padding:30px;
 }
 
-/* DASHBOARD CARD */
+/* dashboard */
 
-.cards{
+.dashboard{
 display:grid;
 grid-template-columns:repeat(4,1fr);
 gap:20px;
@@ -74,70 +73,37 @@ margin-bottom:30px;
 }
 
 .card{
-background:#16263f;
+background:#1b263b;
 padding:20px;
 border-radius:12px;
+text-align:center;
 }
 
 .card h3{
-margin:0;
-font-size:16px;
-color:#94a3b8;
+margin:10px 0;
 }
 
-.card h2{
-margin-top:10px;
-font-size:28px;
-color:#4fd1c5;
-}
-
-/* TABLE */
+/* table */
 
 table{
 width:100%;
 border-collapse:collapse;
-background:#16263f;
+background:white;
+color:black;
 border-radius:10px;
 overflow:hidden;
 }
 
 th{
-background:#0b1628;
-text-align:left;
+background:#1b263b;
+color:white;
 padding:12px;
 }
 
 td{
 padding:12px;
-border-bottom:1px solid #233556;
+border-bottom:1px solid #ddd;
 }
-
-tr:hover{
-background:#1e2b45;
-}
-
-/* STATUS */
-
-.status{
-padding:5px 10px;
-border-radius:6px;
-font-size:12px;
-}
-
-.wait{
-background:#facc15;
-color:black;
-}
-
-.ship{
-background:#22c55e;
-}
-
-.cancel{
-background:#ef4444;
-}
-
-/* BUTTON */
 
 button{
 padding:6px 12px;
@@ -146,137 +112,113 @@ border-radius:6px;
 cursor:pointer;
 }
 
-.btn{
-background:#4fd1c5;
-}
-
-.print{
-background:#38bdf8;
+.detail{
+background:#0077b6;
 color:white;
 }
 
-h1{
-margin-bottom:20px;
+.print{
+background:#38b000;
+color:white;
+}
+
+.cancel{
+background:#d00000;
+color:white;
 }
 
 </style>
-</head>
 
+</head>
 <body>
 
 <!-- SIDEBAR -->
 
 <div class="sidebar">
 
-<div class="logo">
-ระบบหลังบ้าน
-</div>
+<h2>ADMIN</h2>
 
-<div class="menu">
-
-<a href="admin.php">📊 แดชบอร์ด</a>
-<a href="admin.php?page=orders">📦 จัดการออเดอร์</a>
-<a href="admin.php?page=products">🛍 จัดการสินค้า</a>
-<a href="admin.php?page=customers">👥 ลูกค้า</a>
-<a href="admin.php?page=report">📈 รายงานยอดขาย</a>
+<a href="#">📊 แดชบอร์ด</a>
+<a href="#">📦 จัดการออเดอร์</a>
+<a href="#">🛍 รายการสินค้า</a>
+<a href="#">👤 ลูกค้า</a>
+<a href="#">💬 ข้อความลูกค้า</a>
+<a href="#">📈 รายงานยอดขาย</a>
+<a href="#">⚙️ ตั้งค่าระบบ</a>
 
 </div>
 
-</div>
 
 <!-- MAIN -->
 
 <div class="main">
 
-<?php
+<h1>แดชบอร์ดสรุปออเดอร์</h1>
 
-/* DASHBOARD */
-
-if($page=="dashboard"){
-
-$total=$conn->query("SELECT COUNT(*) as c FROM orders")->fetch_assoc();
-$pending=$conn->query("SELECT COUNT(*) as c FROM orders WHERE status='wait'")->fetch_assoc();
-$ship=$conn->query("SELECT COUNT(*) as c FROM orders WHERE status='ship'")->fetch_assoc();
-$cancel=$conn->query("SELECT COUNT(*) as c FROM orders WHERE status='cancel'")->fetch_assoc();
-
-?>
-
-<h1>📊 แดชบอร์ด</h1>
-
-<div class="cards">
+<div class="dashboard">
 
 <div class="card">
 <h3>ออเดอร์ทั้งหมด</h3>
-<h2><?php echo $total['c']; ?></h2>
+<p>120</p>
 </div>
 
 <div class="card">
 <h3>รอชำระเงิน</h3>
-<h2><?php echo $pending['c']; ?></h2>
+<p>15</p>
 </div>
 
 <div class="card">
 <h3>รอจัดส่ง</h3>
-<h2><?php echo $ship['c']; ?></h2>
+<p>20</p>
 </div>
 
 <div class="card">
-<h3>ออเดอร์ยกเลิก</h3>
-<h2><?php echo $cancel['c']; ?></h2>
+<h3>จัดส่งแล้ว</h3>
+<p>85</p>
 </div>
 
 </div>
 
-<?php
-}
 
-/* ORDERS */
-
-if($page=="orders"){
-
-$q=$conn->query("SELECT * FROM orders");
-
-?>
-
-<h1>📦 รายการออเดอร์</h1>
+<h2>รายการออเดอร์สินค้า</h2>
 
 <table>
 
 <tr>
 <th>เลขออเดอร์</th>
 <th>ลูกค้า</th>
-<th>ยอดรวม</th>
+<th>สินค้า</th>
+<th>ยอดเงิน</th>
 <th>สถานะ</th>
+<th>ที่อยู่จัดส่ง</th>
 <th>จัดการ</th>
 </tr>
 
-<?php while($row=$q->fetch_assoc()){
-
-$c=$conn->query("SELECT * FROM customers WHERE id=".$row['customer_id'])->fetch_assoc();
-
+<?php
+while($row = $orders->fetch_assoc()){
 ?>
 
 <tr>
 
 <td>#<?php echo $row['id']; ?></td>
 
-<td><?php echo $c['name']; ?></td>
+<td><?php echo $row['customer_name']; ?></td>
 
-<td><?php echo $row['total']; ?> บาท</td>
+<td><?php echo $row['product_name']; ?></td>
+
+<td><?php echo $row['price']; ?> บาท</td>
+
+<td><?php echo $row['status']; ?></td>
+
+<td><?php echo $row['address']; ?></td>
 
 <td>
-<span class="status <?php echo $row['status']; ?>">
-<?php echo $row['status']; ?>
-</span>
-</td>
 
-<td>
+<button class="detail">รายละเอียด</button>
 
-<a href="admin.php?page=detail&id=<?php echo $row['id']; ?>">
-<button class="btn">ดูรายละเอียด</button>
-</a>
+<button class="print" onclick="window.print()">ปริ้นใบปะหน้า</button>
 
-<button class="print" onclick="window.print()">ปริ้น</button>
+<button class="cancel">ยกเลิก</button>
 
 </td>
 
@@ -285,128 +227,6 @@ $c=$conn->query("SELECT * FROM customers WHERE id=".$row['customer_id'])->fetch_
 <?php } ?>
 
 </table>
-
-<?php
-}
-
-/* ORDER DETAIL */
-
-if($page=="detail"){
-
-$id=$_GET['id'];
-
-$order=$conn->query("SELECT * FROM orders WHERE id=$id")->fetch_assoc();
-$c=$conn->query("SELECT * FROM customers WHERE id=".$order['customer_id'])->fetch_assoc();
-
-?>
-
-<h1>📄 รายละเอียดออเดอร์</h1>
-
-<p><b>เลขออเดอร์ :</b> <?php echo $order['id']; ?></p>
-
-<h3>ข้อมูลลูกค้า</h3>
-
-<p>
-ชื่อ : <?php echo $c['name']; ?><br>
-เบอร์ : <?php echo $c['phone']; ?><br>
-ที่อยู่ : <?php echo $c['address']; ?>
-</p>
-
-<p><b>ยอดรวม :</b> <?php echo $order['total']; ?> บาท</p>
-
-<button class="print" onclick="window.print()">🖨 ปริ้นใบปะหน้า</button>
-
-<?php
-}
-
-/* PRODUCTS */
-
-if($page=="products"){
-
-$q=$conn->query("SELECT * FROM products");
-
-?>
-
-<h1>🛍 รายการสินค้า</h1>
-
-<table>
-
-<tr>
-<th>ID</th>
-<th>ชื่อสินค้า</th>
-<th>ราคา</th>
-<th>สต๊อก</th>
-</tr>
-
-<?php while($p=$q->fetch_assoc()){ ?>
-
-<tr>
-
-<td><?php echo $p['id']; ?></td>
-<td><?php echo $p['name']; ?></td>
-<td><?php echo $p['price']; ?> บาท</td>
-<td><?php echo $p['stock']; ?></td>
-
-</tr>
-
-<?php } ?>
-
-</table>
-
-<?php
-}
-
-/* CUSTOMERS */
-
-if($page=="customers"){
-
-$q=$conn->query("SELECT * FROM customers");
-
-?>
-
-<h1>👥 ลูกค้า</h1>
-
-<table>
-
-<tr>
-<th>ชื่อลูกค้า</th>
-<th>เบอร์โทร</th>
-<th>ที่อยู่</th>
-</tr>
-
-<?php while($c=$q->fetch_assoc()){ ?>
-
-<tr>
-
-<td><?php echo $c['name']; ?></td>
-<td><?php echo $c['phone']; ?></td>
-<td><?php echo $c['address']; ?></td>
-
-</tr>
-
-<?php } ?>
-
-</table>
-
-<?php
-}
-
-/* REPORT */
-
-if($page=="report"){
-
-$r=$conn->query("SELECT SUM(total) as revenue FROM orders")->fetch_assoc();
-
-?>
-
-<h1>📈 รายงานยอดขาย</h1>
-
-<h2>ยอดขายรวม : <?php echo $r['revenue']; ?> บาท</h2>
-
-<?php
-}
-
-?>
 
 </div>
 
