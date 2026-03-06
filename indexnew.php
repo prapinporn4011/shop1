@@ -207,6 +207,26 @@
     let isLoggedIn = true; // จำลองสถานะ
     let currentAction = 'cart'; // ใช้เช็คว่ากดมาจากปุ่ม สั่งซื้อ หรือ ตะกร้า
 
+    // =========================================================
+    // ++ เพิ่มโค้ดส่วนนี้เพื่อจำลองรูปภาพสินค้าจริงให้แสดงผลได้ทันที ++
+    // (แทนที่การเรียกไฟล์รูปในเครื่อง ด้วยรูปจากอินเทอร์เน็ตชั่วคราว)
+    // =========================================================
+    const mockOnlineImages = {
+        2: "https://images.unsplash.com/photo-1589487391730-58f20eb2c308?w=500&h=600&fit=crop", 
+        4: "https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=500&h=600&fit=crop",
+        5: "https://images.unsplash.com/photo-1599305090598-fe179d501227?w=500&h=600&fit=crop",
+        6: "https://images.unsplash.com/photo-1614631446501-abcf76949eca?w=500&h=600&fit=crop",
+        7: "https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=500&h=600&fit=crop",
+        8: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=500&h=600&fit=crop",
+        9: "https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=500&h=600&fit=crop",
+        10: "https://images.unsplash.com/photo-1558222218-b7b54eede3f3?w=500&h=600&fit=crop"
+    };
+    originalProducts.forEach(p => {
+        // อัปเดต img ให้เป็นออนไลน์ ถ้าไม่มีจะแสดงกล่องข้อความแทน
+        p.img = mockOnlineImages[p.id] || `https://placehold.co/300x400/1a1a1a/ffae00?text=${encodeURIComponent(p.name)}`;
+    });
+    // =========================================================
+
     function initStore() {
         renderProducts(originalProducts);
         
@@ -222,7 +242,7 @@
         container.innerHTML = items.map(p => `
             <div class="col-6 col-md-3 mb-4">
                 <div class="card product-card shadow-sm border-0">
-                    <img src="${p.img}" class="card-img-top" alt="${p.name}" onerror="this.src='https://via.placeholder.com/300x400?text=${p.name}'">
+                    <img src="${p.img}" class="card-img-top" alt="${p.name}" onerror="this.src='https://placehold.co/300x400/1a1a1a/ffae00?text=No+Image'">
                     <div class="card-body">
                         <span class="badge bg-secondary mb-2" style="font-size: 10px;">${p.type}</span>
                         <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 14px;">${p.name}</h6>
@@ -257,12 +277,10 @@
         renderProducts(filtered);
     }
 
-    // ++ เพิ่มใหม่: เปิดหน้าต่างรายละเอียดสินค้า ++
     function openProductDetail(id, action) {
         currentAction = action;
         const p = originalProducts.find(x => x.id === id);
         
-        // ใส่ข้อมูลลงใน Modal
         document.getElementById('detail-id').value = p.id;
         document.getElementById('detail-name').innerText = p.name;
         document.getElementById('detail-price').innerText = '฿' + p.price.toLocaleString();
@@ -270,9 +288,8 @@
         document.getElementById('detail-type').innerText = p.type;
         document.getElementById('detail-img').src = p.img;
         document.getElementById('detail-qty').value = 1;
-        document.getElementById('detail-size').selectedIndex = 1; // Default Size M
+        document.getElementById('detail-size').selectedIndex = 1; 
 
-        // ปรับแต่งปุ่มยืนยันตาม Action
         const btnConfirm = document.getElementById('btn-confirm-action');
         if(action === 'buy') {
             btnConfirm.innerHTML = '<i class="fa fa-bolt"></i> สั่งซื้อทันที';
@@ -282,46 +299,39 @@
             btnConfirm.className = 'btn btn-warning fw-bold px-4';
         }
 
-        // แสดง Modal
         const modal = new bootstrap.Modal(document.getElementById('productDetailModal'));
         modal.show();
     }
 
-    // ++ เพิ่มใหม่: ยืนยันการเลือกสินค้า (ไซส์/จำนวน) ++
     function confirmProductSelection() {
         const id = parseInt(document.getElementById('detail-id').value);
         const size = document.getElementById('detail-size').value;
         const qty = parseInt(document.getElementById('detail-qty').value);
         const product = originalProducts.find(p => p.id === id);
 
-        // เช็คว่ามีสินค้านี้ (และไซส์นี้) ในตะกร้าแล้วหรือยัง
         const existingItemIndex = cart.findIndex(item => item.id === id && item.size === size);
         
         if (existingItemIndex > -1) {
-            cart[existingItemIndex].qty += qty; // ถ้ามีแล้วให้เพิ่มจำนวน
+            cart[existingItemIndex].qty += qty; 
         } else {
-            cart.push({ ...product, size: size, qty: qty }); // ถ้ายังไม่มีให้เพิ่มเป็นรายการใหม่
+            cart.push({ ...product, size: size, qty: qty }); 
         }
 
         updateCartUI();
 
-        // ปิดหน้าต่างรายละเอียด
         const detailModalEl = document.getElementById('productDetailModal');
         const detailModal = bootstrap.Modal.getInstance(detailModalEl);
         detailModal.hide();
 
-        // ถ้ากด "ซื้อเลย" ให้เด้งเปิดตะกร้าทันที
         if(currentAction === 'buy') {
             setTimeout(() => {
                 const cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
                 cartModal.show();
-            }, 400); // รอให้ Modal เดิมปิดสนิทก่อน
+            }, 400); 
         }
     }
 
-    // อัปเดต UI ตะกร้า (แก้ไขให้คำนวณจาก Quantity และแสดง Size)
     function updateCartUI() {
-        // นับจำนวนชิ้นรวม
         const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
         document.getElementById('cart-count').innerText = totalItems;
         
@@ -340,7 +350,7 @@
             totalAmount += itemTotal;
             return `
                 <div class="d-flex align-items-center mb-3 p-2 border-bottom">
-                    <img src="${item.img}" width="60" height="60" class="rounded me-3 border" style="object-fit: cover;" onerror="this.src='https://via.placeholder.com/60'">
+                    <img src="${item.img}" width="60" height="60" class="rounded me-3 border" style="object-fit: cover;" onerror="this.src='https://placehold.co/60x60/1a1a1a/ffae00'">
                     <div class="flex-grow-1">
                         <h6 class="mb-0 fw-bold">${item.name}</h6>
                         <small class="text-muted">ไซส์: <strong>${item.size}</strong> | จำนวน: <strong>${item.qty}</strong> ตัว</small><br>
