@@ -94,6 +94,54 @@
         </div>
 </main>
 
+<div class="modal fade" id="productDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-light">
+                <h5 class="modal-title fw-bold" id="detail-title">รายละเอียดสินค้า</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-5 text-center mb-3 mb-md-0">
+                        <img id="detail-img" src="" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;">
+                    </div>
+                    <div class="col-md-7">
+                        <span id="detail-type" class="badge bg-secondary mb-2"></span>
+                        <h4 class="fw-bold" id="detail-name">ชื่อสินค้า</h4>
+                        <h3 class="text-danger fw-bold mb-3" id="detail-price">฿0</h3>
+                        <p class="text-muted" id="detail-desc">รายละเอียดสินค้า...</p>
+                        <hr>
+                        <div class="row g-3 align-items-end">
+                            <div class="col-6">
+                                <label class="form-label fw-bold">เลือกไซส์ (Size):</label>
+                                <select id="detail-size" class="form-select border-dark">
+                                    <option value="S">S (อก 36")</option>
+                                    <option value="M" selected>M (อก 38")</option>
+                                    <option value="L">L (อก 40")</option>
+                                    <option value="XL">XL (อก 42")</option>
+                                    <option value="2XL">2XL (อก 44")</option>
+                                </select>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label fw-bold">จำนวน (Qty):</label>
+                                <input type="number" id="detail-qty" class="form-control border-dark" value="1" min="1">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <input type="hidden" id="detail-id">
+                <button type="button" class="btn btn-outline-secondary px-4" data-bs-dismiss="modal">ยกเลิก</button>
+                <button type="button" id="btn-confirm-action" class="btn btn-warning fw-bold px-4" onclick="confirmProductSelection()">
+                    ยืนยัน
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="modal fade" id="cartModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -157,6 +205,7 @@
 
     let cart = [];
     let isLoggedIn = true; // จำลองสถานะ
+    let currentAction = 'cart'; // ใช้เช็คว่ากดมาจากปุ่ม สั่งซื้อ หรือ ตะกร้า
 
     function initStore() {
         renderProducts(originalProducts);
@@ -167,7 +216,7 @@
         }
     }
 
-    // ฟังก์ชันแสดงสินค้า
+    // ฟังก์ชันแสดงสินค้า (อัปเดตเพิ่ม 2 ปุ่ม)
     function renderProducts(items) {
         const container = document.getElementById('store-display');
         container.innerHTML = items.map(p => `
@@ -177,11 +226,17 @@
                     <div class="card-body">
                         <span class="badge bg-secondary mb-2" style="font-size: 10px;">${p.type}</span>
                         <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 14px;">${p.name}</h6>
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <span class="text-danger fw-bold fs-5">฿${p.price.toLocaleString()}</span>
-                            <button class="btn btn-buy btn-sm px-3" onclick="addToCart(${p.id})">
-                                <i class="fa fa-cart-plus"></i>
-                            </button>
+                        
+                        <div class="mt-3">
+                            <span class="text-danger fw-bold fs-5 d-block mb-2">฿${p.price.toLocaleString()}</span>
+                            <div class="d-flex gap-1">
+                                <button class="btn btn-outline-dark btn-sm flex-fill" onclick="openProductDetail(${p.id}, 'cart')" title="เพิ่มลงตะกร้า">
+                                    <i class="fa fa-cart-plus"></i>
+                                </button>
+                                <button class="btn btn-buy btn-sm flex-fill fw-bold" onclick="openProductDetail(${p.id}, 'buy')">
+                                    <i class="fa fa-bolt text-warning"></i> ซื้อเลย
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -189,14 +244,12 @@
         `).join('');
     }
 
-    // ระบบค้นหา
     function searchProducts() {
         const term = document.getElementById('search-input').value.toLowerCase();
         const filtered = originalProducts.filter(p => p.name.toLowerCase().includes(term));
         renderProducts(filtered);
     }
 
-    // ระบบกรองหมวดหมู่
     function filterProducts(type) {
         const filtered = type === 'ทั้งหมด' 
             ? originalProducts 
@@ -204,22 +257,74 @@
         renderProducts(filtered);
     }
 
-    // เพิ่มสินค้าลงตะกร้า
-    function addToCart(id) {
-        const product = originalProducts.find(p => p.id === id);
-        cart.push(product);
-        updateCartUI();
+    // ++ เพิ่มใหม่: เปิดหน้าต่างรายละเอียดสินค้า ++
+    function openProductDetail(id, action) {
+        currentAction = action;
+        const p = originalProducts.find(x => x.id === id);
         
-        // เอฟเฟกต์แจ้งเตือนเล็กน้อย
-        const btn = event.currentTarget;
-        const originalIcon = btn.innerHTML;
-        btn.innerHTML = '<i class="fa fa-check text-warning"></i>';
-        setTimeout(() => btn.innerHTML = originalIcon, 1000);
+        // ใส่ข้อมูลลงใน Modal
+        document.getElementById('detail-id').value = p.id;
+        document.getElementById('detail-name').innerText = p.name;
+        document.getElementById('detail-price').innerText = '฿' + p.price.toLocaleString();
+        document.getElementById('detail-desc').innerText = p.desc;
+        document.getElementById('detail-type').innerText = p.type;
+        document.getElementById('detail-img').src = p.img;
+        document.getElementById('detail-qty').value = 1;
+        document.getElementById('detail-size').selectedIndex = 1; // Default Size M
+
+        // ปรับแต่งปุ่มยืนยันตาม Action
+        const btnConfirm = document.getElementById('btn-confirm-action');
+        if(action === 'buy') {
+            btnConfirm.innerHTML = '<i class="fa fa-bolt"></i> สั่งซื้อทันที';
+            btnConfirm.className = 'btn btn-success fw-bold px-4';
+        } else {
+            btnConfirm.innerHTML = '<i class="fa fa-cart-plus"></i> เพิ่มลงตะกร้า';
+            btnConfirm.className = 'btn btn-warning fw-bold px-4';
+        }
+
+        // แสดง Modal
+        const modal = new bootstrap.Modal(document.getElementById('productDetailModal'));
+        modal.show();
     }
 
-    // อัปเดต UI ตะกร้า
+    // ++ เพิ่มใหม่: ยืนยันการเลือกสินค้า (ไซส์/จำนวน) ++
+    function confirmProductSelection() {
+        const id = parseInt(document.getElementById('detail-id').value);
+        const size = document.getElementById('detail-size').value;
+        const qty = parseInt(document.getElementById('detail-qty').value);
+        const product = originalProducts.find(p => p.id === id);
+
+        // เช็คว่ามีสินค้านี้ (และไซส์นี้) ในตะกร้าแล้วหรือยัง
+        const existingItemIndex = cart.findIndex(item => item.id === id && item.size === size);
+        
+        if (existingItemIndex > -1) {
+            cart[existingItemIndex].qty += qty; // ถ้ามีแล้วให้เพิ่มจำนวน
+        } else {
+            cart.push({ ...product, size: size, qty: qty }); // ถ้ายังไม่มีให้เพิ่มเป็นรายการใหม่
+        }
+
+        updateCartUI();
+
+        // ปิดหน้าต่างรายละเอียด
+        const detailModalEl = document.getElementById('productDetailModal');
+        const detailModal = bootstrap.Modal.getInstance(detailModalEl);
+        detailModal.hide();
+
+        // ถ้ากด "ซื้อเลย" ให้เด้งเปิดตะกร้าทันที
+        if(currentAction === 'buy') {
+            setTimeout(() => {
+                const cartModal = new bootstrap.Modal(document.getElementById('cartModal'));
+                cartModal.show();
+            }, 400); // รอให้ Modal เดิมปิดสนิทก่อน
+        }
+    }
+
+    // อัปเดต UI ตะกร้า (แก้ไขให้คำนวณจาก Quantity และแสดง Size)
     function updateCartUI() {
-        document.getElementById('cart-count').innerText = cart.length;
+        // นับจำนวนชิ้นรวม
+        const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+        document.getElementById('cart-count').innerText = totalItems;
+        
         const list = document.getElementById('cart-items-list');
         const totalElem = document.getElementById('cart-total');
         
@@ -229,15 +334,20 @@
             return;
         }
 
-        let total = 0;
+        let totalAmount = 0;
         list.innerHTML = cart.map((item, index) => {
-            total += item.price;
+            const itemTotal = item.price * item.qty;
+            totalAmount += itemTotal;
             return `
                 <div class="d-flex align-items-center mb-3 p-2 border-bottom">
-                    <img src="${item.img}" width="60" height="60" class="rounded me-3" style="object-fit: cover;">
+                    <img src="${item.img}" width="60" height="60" class="rounded me-3 border" style="object-fit: cover;" onerror="this.src='https://via.placeholder.com/60'">
                     <div class="flex-grow-1">
                         <h6 class="mb-0 fw-bold">${item.name}</h6>
-                        <small class="text-danger">฿${item.price.toLocaleString()}</small>
+                        <small class="text-muted">ไซส์: <strong>${item.size}</strong> | จำนวน: <strong>${item.qty}</strong> ตัว</small><br>
+                        <small class="text-danger">฿${item.price.toLocaleString()} / ชิ้น</small>
+                    </div>
+                    <div class="fw-bold me-3 text-end">
+                        ฿${itemTotal.toLocaleString()}
                     </div>
                     <button class="btn btn-sm text-danger" onclick="removeFromCart(${index})">
                         <i class="fa fa-trash"></i>
@@ -246,7 +356,7 @@
             `;
         }).join('');
         
-        totalElem.innerText = `฿${total.toLocaleString()}`;
+        totalElem.innerText = `฿${totalAmount.toLocaleString()}`;
     }
 
     function removeFromCart(index) {
