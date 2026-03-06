@@ -54,7 +54,7 @@ if (!isset($_SESSION['is_logged_in'])) {
 }
 
 // --- 2. PHP LOGIC (ระบบหลังบ้านหลัก) ---
-$conn = new mysqli("localhost", "root", "", "thanjai_shop");
+require_once 'db.php';
 if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); }
 
 // Logic: อัปเดตสถานะ & เลขพัสดุ
