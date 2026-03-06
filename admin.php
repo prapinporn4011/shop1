@@ -1,132 +1,351 @@
-<?php include 'db.php'; ?>
+<?php
+
+$conn = new mysqli("localhost","root","","shop_system");
+
+$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+
+?>
+
 <!DOCTYPE html>
-<html lang="th">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <title>Admin - ระบบจัดการสต็อกสมบูรณ์แบบ</title>
-</head>
-<body class="bg-light">
+<meta charset="UTF-8">
+<title>Sport Admin</title>
 
-<nav class="navbar navbar-dark bg-dark mb-4 shadow">
-    <div class="container">
-        <span class="navbar-brand mb-0 h1"><i class="fa fa-gears"></i> ระบบหลังบ้าน Admin</span>
-        <a href="shop.php" class="btn btn-outline-light btn-sm"><i class="fa fa-eye"></i> ดูหน้าร้าน</a>
-    </div>
-</nav>
+<style>
 
-<div class="container">
-    <div class="row">
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-                <h5 class="fw-bold mb-3 text-primary"><i class="fa fa-plus-circle"></i> เพิ่มสินค้าใหม่</h5>
-                <form action="process.php?action=add" method="POST">
-                    <div class="mb-3">
-                        <label class="form-label">ชื่อสินค้า</label>
-                        <input type="text" name="p_name" class="form-control" placeholder="เช่น เสื้อทีมชาติ" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">ราคา (บาท)</label>
-                        <input type="number" name="p_price" class="form-control" placeholder="0" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">จำนวนสต็อก</label>
-                        <input type="number" name="p_qty" class="form-control" placeholder="0" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100 shadow-sm">บันทึกข้อมูล</button>
-                </form>
-            </div>
-        </div>
-
-        <div class="col-md-8">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                <table class="table table-hover align-middle mb-0 text-center">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ชื่อสินค้า</th>
-                            <th>ราคา</th>
-                            <th>สต็อก</th>
-                            <th>จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $query = "SELECT * FROM products ORDER BY id DESC";
-                        $result = mysqli_query($conn, $query);
-                        while($row = mysqli_fetch_assoc($result)) {
-                        ?>
-                        <tr>
-                            <td class="text-start fw-bold"><?php echo $row['p_name']; ?></td>
-                            <td><?php echo number_format($row['p_price']); ?> ฿</td>
-                            <td>
-                                <?php if($row['p_qty'] > 0): ?>
-                                    <span class="badge bg-success">คงเหลือ <?php echo $row['p_qty']; ?></span>
-                                <?php else: ?>
-                                    <span class="badge bg-danger">สินค้าหมด</span>
-                                <?php endif; ?>
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-warning text-white" 
-                                        onclick="openEditModal(<?php echo $row['id']; ?>, '<?php echo $row['p_name']; ?>', <?php echo $row['p_price']; ?>, <?php echo $row['p_qty']; ?>)">
-                                    <i class="fa fa-edit"></i>
-                                </button>
-                                <a href="process.php?action=delete&id=<?php echo $row['id']; ?>" 
-                                   class="btn btn-sm btn-danger" 
-                                   onclick="return confirm('คุณแน่ใจหรือไม่ที่จะลบสินค้านี้?')">
-                                    <i class="fa fa-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content border-0 shadow rounded-4">
-            <div class="modal-header bg-warning text-white">
-                <h5 class="modal-title"><i class="fa fa-edit"></i> แก้ไขข้อมูลสินค้า</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form action="process.php?action=update" method="POST">
-                <div class="modal-body p-4">
-                    <input type="hidden" name="id" id="edit-id">
-                    <div class="mb-3">
-                        <label class="form-label">ชื่อสินค้า</label>
-                        <input type="text" name="p_name" id="edit-name" class="form-control" required>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">ราคา</label>
-                        <input type="number" name="p_price" id="edit-price" class="form-control" required>
-                    </div>
-                    <div class="mb-2">
-                        <label class="form-label">สต็อก</label>
-                        <input type="number" name="p_qty" id="edit-qty" class="form-control" required>
-                    </div>
-                </div>
-                <div class="modal-footer border-0 p-4 pt-0">
-                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="submit" class="btn btn-warning text-white px-4">ยืนยันการแก้ไข</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-function openEditModal(id, name, price, qty) {
-    document.getElementById('edit-id').value = id;
-    document.getElementById('edit-name').value = name;
-    document.getElementById('edit-price').value = price;
-    document.getElementById('edit-qty').value = qty;
-    new bootstrap.Modal(document.getElementById('editModal')).show();
+body{
+margin:0;
+font-family:Arial;
+background:#0a192f;
+color:white;
 }
-</script>
+
+.sidebar{
+width:230px;
+height:100vh;
+background:#020c1b;
+position:fixed;
+}
+
+.logo{
+text-align:center;
+padding:20px;
+font-size:22px;
+font-weight:bold;
+color:#64ffda;
+}
+
+.menu a{
+display:block;
+padding:15px 20px;
+color:white;
+text-decoration:none;
+}
+
+.menu a:hover{
+background:#112240;
+}
+
+.main{
+margin-left:230px;
+padding:30px;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:20px;
+margin-bottom:30px;
+}
+
+.card{
+background:#112240;
+padding:20px;
+border-radius:10px;
+}
+
+.card h2{
+margin:0;
+color:#64ffda;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:#112240;
+border-radius:10px;
+}
+
+th,td{
+padding:12px;
+}
+
+th{
+background:#020c1b;
+}
+
+.status{
+padding:4px 8px;
+border-radius:5px;
+font-size:12px;
+}
+
+.wait{background:orange;}
+.ship{background:green;}
+.cancel{background:red;}
+
+button{
+padding:6px 10px;
+border:none;
+background:#64ffda;
+border-radius:5px;
+cursor:pointer;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="logo">SPORT ADMIN</div>
+
+<div class="menu">
+
+<a href="admin.php">Dashboard</a>
+<a href="admin.php?page=orders">Orders</a>
+<a href="admin.php?page=products">Products</a>
+<a href="admin.php?page=customers">Customers</a>
+<a href="admin.php?page=report">Report</a>
+
+</div>
+
+</div>
+
+<div class="main">
+
+<?php
+
+if($page == "dashboard"){
+
+$order = $conn->query("SELECT COUNT(*) as total FROM orders")->fetch_assoc();
+?>
+
+<h1>Dashboard</h1>
+
+<div class="cards">
+
+<div class="card">
+<p>Total Orders</p>
+<h2><?php echo $order['total']; ?></h2>
+</div>
+
+<div class="card">
+<p>Pending</p>
+<h2>
+<?php
+$r=$conn->query("SELECT COUNT(*) as c FROM orders WHERE status='waiting'")->fetch_assoc();
+echo $r['c'];
+?>
+</h2>
+</div>
+
+<div class="card">
+<p>Shipping</p>
+<h2>
+<?php
+$r=$conn->query("SELECT COUNT(*) as c FROM orders WHERE status='shipping'")->fetch_assoc();
+echo $r['c'];
+?>
+</h2>
+</div>
+
+<div class="card">
+<p>Cancel</p>
+<h2>
+<?php
+$r=$conn->query("SELECT COUNT(*) as c FROM orders WHERE status='cancel'")->fetch_assoc();
+echo $r['c'];
+?>
+</h2>
+</div>
+
+</div>
+
+<?php
+}
+
+if($page == "orders"){
+?>
+
+<h1>Orders</h1>
+
+<table>
+
+<tr>
+<th>ID</th>
+<th>Customer</th>
+<th>Total</th>
+<th>Status</th>
+<th>Action</th>
+</tr>
+
+<?php
+
+$q = $conn->query("SELECT * FROM orders");
+
+while($row=$q->fetch_assoc()){
+
+$cust = $conn->query("SELECT * FROM customers WHERE id=".$row['customer_id'])->fetch_assoc();
+
+?>
+
+<tr>
+
+<td>#<?php echo $row['id']; ?></td>
+
+<td><?php echo $cust['name']; ?></td>
+
+<td><?php echo $row['total']; ?></td>
+
+<td>
+<span class="status <?php echo $row['status']; ?>">
+<?php echo $row['status']; ?>
+</span>
+</td>
+
+<td>
+
+<a href="admin.php?page=detail&id=<?php echo $row['id']; ?>">
+<button>Detail</button>
+</a>
+
+<button onclick="window.print()">Print</button>
+
+</td>
+
+</tr>
+
+<?php } ?>
+
+</table>
+
+<?php
+}
+
+if($page=="detail"){
+
+$id=$_GET['id'];
+
+$order=$conn->query("SELECT * FROM orders WHERE id=$id")->fetch_assoc();
+
+$cust=$conn->query("SELECT * FROM customers WHERE id=".$order['customer_id'])->fetch_assoc();
+
+?>
+
+<h1>Order Detail</h1>
+
+<p>Order ID : <?php echo $order['id']; ?></p>
+
+<h3>Customer</h3>
+
+<p>
+Name : <?php echo $cust['name']; ?><br>
+Phone : <?php echo $cust['phone']; ?><br>
+Address : <?php echo $cust['address']; ?>
+</p>
+
+<p>Total : <?php echo $order['total']; ?></p>
+
+<button onclick="window.print()">Print Label</button>
+
+<?php
+}
+
+if($page=="products"){
+
+$q=$conn->query("SELECT * FROM products");
+
+?>
+
+<h1>Products</h1>
+
+<table>
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Price</th>
+<th>Stock</th>
+</tr>
+
+<?php while($p=$q->fetch_assoc()){ ?>
+
+<tr>
+
+<td><?php echo $p['id']; ?></td>
+<td><?php echo $p['name']; ?></td>
+<td><?php echo $p['price']; ?></td>
+<td><?php echo $p['stock']; ?></td>
+
+</tr>
+
+<?php } ?>
+
+</table>
+
+<?php
+}
+
+if($page=="customers"){
+
+$q=$conn->query("SELECT * FROM customers");
+
+?>
+
+<h1>Customers</h1>
+
+<table>
+
+<tr>
+<th>Name</th>
+<th>Phone</th>
+<th>Address</th>
+</tr>
+
+<?php while($c=$q->fetch_assoc()){ ?>
+
+<tr>
+
+<td><?php echo $c['name']; ?></td>
+<td><?php echo $c['phone']; ?></td>
+<td><?php echo $c['address']; ?></td>
+
+</tr>
+
+<?php } ?>
+
+</table>
+
+<?php
+}
+
+if($page=="report"){
+
+$r=$conn->query("SELECT SUM(total) as revenue FROM orders")->fetch_assoc();
+
+?>
+
+<h1>Report</h1>
+
+<p>Total Revenue : <?php echo $r['revenue']; ?> บาท</p>
+
+<?php } ?>
+
+</div>
+
 </body>
 </html>
