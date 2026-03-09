@@ -176,16 +176,8 @@
 
     <script>
         // --- 1. ข้อมูลเดิม (ห้ามหาย) ---
-        const originalProducts = [
-            { id: 2, name: "Uthai Thani Home 2024", price: 790, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด ผ้าเกรดพรีเมียม" },
-            { id: 4, name: "Buriram United Home", price: 690, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า คุณภาพอันดับ 1 ของเมืองไทย" },
-            { id: 5, name: "Thailand Edition", price: 590, type: "ซ้อม", img: "5.jpg", desc: "เสื้อเชียร์ทีมชาติไทย สวมใส่สบาย ระบายอากาศดี" },
-            { id: 6, name: "Port FC Away Kit", price: 750, type: "เยือน", img: "6.jpg", desc: "สิงห์เจ้าท่า สีเยือนเรียบหรู พร้อมดีไซน์ทันสมัย" },
-            { id: 7, name: "Training BGPU", price: 490, type: "ซ้อม", img: "7.jpg", desc: "เสื้อซ้อมคุณภาพสูงจากสโมสรบีจี ปทุม" },
-            { id: 8, name: "Muangthong Utd Home", price: 790, type: "เหย้า", img: "8.jpg", desc: "กิเลนผยอง คลาสสิกสีแดงดำ ดีไซน์ทรงคุณค่า" },
-            { id: 9, name: "Chonburi FC Away", price: 650, type: "เยือน", img: "9.jpg", desc: "ฉลามชล ดีไซน์สปอร์ตทันสมัย สีเยือนโดดเด่น" },
-            { id: 10, name: "Special Training", price: 390, type: "ซ้อม", img: "10.jpg", desc: "เสื้อซ้อมรวมสโมสร ลิมิเต็ด อิดิชั่น" }
-        ];
+        // ดึงข้อมูลจากฐานข้อมูล (PHP) มาแปลงเป็นตัวแปร Javascript 
+    const originalProducts = <?php echo json_encode($productsFromDB, JSON_UNESCAPED_UNICODE); ?>;
 
         let currentUser = JSON.parse(localStorage.getItem('user_data')) || null;
         let orders = JSON.parse(localStorage.getItem('all_orders')) || [];

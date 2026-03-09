@@ -1,3 +1,21 @@
+<?php
+// ดึงไฟล์เชื่อมต่อฐานข้อมูลเข้ามา (ต้องมีไฟล์ db.php อยู่ในโฟลเดอร์เดียวกัน)
+require_once 'db.php';
+
+// ดึงข้อมูลสินค้า พร้อมกับชื่อประเภทสินค้า (JOIN ตาราง)
+$sql = "SELECT p.id, p.name, p.price, p.description as `desc`, p.image as img, c.name as type 
+        FROM products p 
+        LEFT JOIN categories c ON p.category_id = c.id";
+$stmt = $pdo->query($sql);
+$productsFromDB = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// แปลงข้อมูลให้อยู่ในรูปแบบตัวเลขที่ถูกต้อง
+foreach ($productsFromDB as $key => $product) {
+    $productsFromDB[$key]['price'] = (float)$product['price'];
+    $productsFromDB[$key]['id'] = (int)$product['id'];
+}
+?>
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -343,18 +361,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // --------------------------------------------------------
-    // ข้อมูลสินค้าแบบเต็ม
+    // ดึงข้อมูลสินค้าจากฐานข้อมูล (PHP)
     // --------------------------------------------------------
-    const products = [
-        { id: 1, name: "Uthai Thani Home 2024", price: 790, isSale: false, type: "เหย้า", img: "2.jpg", desc: "เสื้อแข่งทีมอุทัยธานี เอฟซี ฤดูกาลล่าสุด" },
-        { id: 2, name: "Buriram United Home", price: 690, oldPrice: 890, isSale: true, type: "เหย้า", img: "4.jpg", desc: "เสื้อสายฟ้า ปราสาทสายฟ้า ทรงเข้ารูป ใส่กระชับ" },
-        { id: 3, name: "Thailand Edition", price: 590, isSale: false, type: "ซ้อม", img: "5.jpg", desc: "เสื้อเชียร์ทีมชาติไทย สวมใส่สบาย" },
-        { id: 4, name: "Port FC Away Kit", price: 550, oldPrice: 750, isSale: true, type: "เยือน", img: "6.jpg", desc: "สิงห์เจ้าท่า สีเยือนเรียบหรู ดีไซน์คอปกคลาสสิก" },
-        { id: 5, name: "Training BGPU", price: 490, isSale: false, type: "ซ้อม", img: "7.jpg", desc: "เสื้อซ้อมคุณภาพสูงจากสโมสรบีจี ปทุม ยูไนเต็ด" },
-        { id: 6, name: "Muangthong Utd Home", price: 790, isSale: false, type: "เหย้า", img: "8.jpg", desc: "กิเลนผยอง คลาสสิกสีแดงดำ เนื้อผ้าทอพิเศษเบาสบาย" },
-        { id: 7, name: "Chonburi FC Away", price: 450, oldPrice: 650, isSale: true, type: "เยือน", img: "9.jpg", desc: "ฉลามชล ดีไซน์สปอร์ตทันสมัย สีขาวตัดฟ้า" },
-        { id: 8, name: "Special Training Limited", price: 390, isSale: false, type: "ซ้อม", img: "10.jpg", desc: "เสื้อซ้อมรุ่นลิมิเต็ด ผลิตจำนวนจำกัด" }
-    ];
+    const products = <?php echo json_encode($productsFromDB, JSON_UNESCAPED_UNICODE); ?>;
 
     // --------------------------------------------------------
     // ตัวแปรระบบ และฐานข้อมูลจำลอง (DB)
@@ -388,7 +397,7 @@
         }
     }
 
-    // ฟังก์ชันแจ้งเตือนแบบ Toast (สวยงามกว่า Alert)
+    // ฟังก์ชันแจ้งเตือนแบบ Toast
     function showToast(message, type = 'success') {
         const toastEl = document.getElementById('liveToast');
         const toastBody = document.getElementById('toast-body');
@@ -404,21 +413,20 @@
         toast.show();
     }
 
-    // ฟังก์ชันเซฟข้อมูลลงจำลอง Database
+    // ฟังก์ชันเซฟข้อมูลลงจำลอง Database (Local Storage)
     function saveDatabase() {
         if(currentUser) {
-            // อัปเดตข้อมูลของ currentUser ลงใน usersDB
             const index = usersDB.findIndex(u => u.username === currentUser.username);
             currentUser.cart = cart;
             if(index !== -1) usersDB[index] = currentUser;
-            else usersDB.push(currentUser); // เผื่อกรณีตกหล่น
+            else usersDB.push(currentUser); 
         }
         localStorage.setItem('thanjai_users_db', JSON.stringify(usersDB));
         if(currentUser) localStorage.setItem('thanjai_active_session', currentUser.username);
     }
 
     // --------------------------------------------------------
-    // ระบบสมาชิก (Authentication & Validation)
+    // ระบบสมาชิก (Authentication)
     // --------------------------------------------------------
     function openAuthModal(type) {
         toggleAuth(type);
@@ -437,41 +445,22 @@
         const phone = document.getElementById('reg-phone').value.trim();
         const pass = document.getElementById('reg-pass').value.trim();
 
-        // 1. เช็คว่ากรอกครบไหม
-        if(!user || !email || !phone || !pass) {
-            return showToast('<i class="fa fa-exclamation-circle"></i> กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
-        }
+        if(!user || !email || !phone || !pass) return showToast('<i class="fa fa-exclamation-circle"></i> กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast('<i class="fa fa-envelope"></i> รูปแบบอีเมลไม่ถูกต้อง', 'error');
+        if(!/^\d{10}$/.test(phone)) return showToast('<i class="fa fa-phone"></i> เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก', 'error');
 
-        // 2. ตรวจสอบรูปแบบอีเมล (Validation Regex)
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if(!emailRegex.test(email)) {
-            return showToast('<i class="fa fa-envelope"></i> รูปแบบอีเมลไม่ถูกต้อง (ต้องมี @ และ .)', 'error');
-        }
+        if(usersDB.some(u => u.username.toLowerCase() === user.toLowerCase())) return showToast('ชื่อผู้ใช้นี้ถูกใช้งานแล้ว', 'error');
+        if(usersDB.some(u => u.email.toLowerCase() === email.toLowerCase())) return showToast('อีเมลนี้ถูกสมัครสมาชิกไปแล้ว', 'error');
+        if(usersDB.some(u => u.phone === phone)) return showToast('เบอร์โทรศัพท์นี้ถูกลงทะเบียนไปแล้ว', 'error');
 
-        // 3. ตรวจสอบรูปแบบเบอร์โทร (ต้องเป็นตัวเลข 10 ตัว)
-        const phoneRegex = /^\d{10}$/;
-        if(!phoneRegex.test(phone)) {
-            return showToast('<i class="fa fa-phone"></i> เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลักเท่านั้น', 'error');
-        }
-
-        // 4. ตรวจสอบข้อมูลซ้ำในระบบ (Duplicate Check)
-        const isUserExist = usersDB.some(u => u.username.toLowerCase() === user.toLowerCase());
-        const isEmailExist = usersDB.some(u => u.email.toLowerCase() === email.toLowerCase());
-        const isPhoneExist = usersDB.some(u => u.phone === phone);
-
-        if(isUserExist) return showToast('ชื่อผู้ใช้นี้ถูกใช้งานแล้ว กรุณาตั้งชื่ออื่น', 'error');
-        if(isEmailExist) return showToast('อีเมลนี้ถูกสมัครสมาชิกไปแล้ว', 'error');
-        if(isPhoneExist) return showToast('เบอร์โทรศัพท์นี้ถูกลงทะเบียนไปแล้ว', 'error');
-
-        // ผ่านทุกด่าน -> สร้างบัญชีใหม่
         currentUser = {
             username: user, name: user, email: email, phone: phone, password: pass,
             profilePic: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user,
-            cart: [], orders: [], coupons: [] // เพิ่มระบบจำคูปอง
+            cart: [], orders: [], coupons: []
         };
         
-        usersDB.push(currentUser); // เพิ่มเข้าฐานข้อมูล
-        saveDatabase(); // บันทึก
+        usersDB.push(currentUser);
+        saveDatabase();
         
         bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
         updateNavUI();
@@ -484,18 +473,11 @@
 
         if(!user || !pass) return showToast('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน', 'warning');
 
-        // ค้นหาในระบบ
         const foundUser = usersDB.find(u => u.username.toLowerCase() === user.toLowerCase());
         
-        if(!foundUser) {
-            return showToast('❌ ไม่พบชื่อผู้ใช้นี้ในระบบ กรุณาสมัครสมาชิก', 'error');
-        }
+        if(!foundUser) return showToast('❌ ไม่พบชื่อผู้ใช้นี้ในระบบ', 'error');
+        if(foundUser.password !== pass) return showToast('❌ รหัสผ่านไม่ถูกต้อง', 'error');
 
-        if(foundUser.password !== pass) {
-            return showToast('❌ รหัสผ่านไม่ถูกต้อง', 'error');
-        }
-
-        // ล็อกอินสำเร็จ
         currentUser = foundUser;
         cart = currentUser.cart || [];
         saveDatabase();
@@ -523,11 +505,11 @@
             document.getElementById('nav-username').innerText = currentUser.username;
             document.getElementById('nav-profile-pic').src = currentUser.profilePic;
             
-            // อัปเดตข้อมูลในฟอร์มโปรไฟล์
             document.getElementById('setting-profile-pic').src = currentUser.profilePic;
             document.getElementById('set-name').value = currentUser.name || currentUser.username;
             document.getElementById('set-phone').value = currentUser.phone || '';
             document.getElementById('set-email').value = currentUser.email || '';
+            document.getElementById('set-password').value = '';
         } else {
             document.getElementById('guest-zone').classList.remove('d-none');
             document.getElementById('user-zone').classList.add('d-none');
@@ -535,27 +517,29 @@
     }
 
     // --------------------------------------------------------
-    // ระบบโปรไฟล์
+    // จัดการโปรไฟล์
     // --------------------------------------------------------
     function uploadProfilePic(event) {
-        const reader = new FileReader();
-        reader.onload = function() {
-            document.getElementById('setting-profile-pic').src = reader.result;
-        };
-        reader.readAsDataURL(event.target.files[0]);
+        const file = event.target.files[0];
+        if(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) { document.getElementById('setting-profile-pic').src = e.target.result; }
+            reader.readAsDataURL(file);
+        }
     }
 
     function saveProfile() {
-        if(!currentUser) return;
-        
-        const newPhone = document.getElementById('set-phone').value;
-        if(!/^\d{10}$/.test(newPhone)) return showToast('เบอร์โทรต้องเป็นตัวเลข 10 หลัก', 'error');
+        const newName = document.getElementById('set-name').value.trim();
+        const newPhone = document.getElementById('set-phone').value.trim();
+        const newPass = document.getElementById('set-password').value.trim();
+        const newPic = document.getElementById('setting-profile-pic').src;
 
-        currentUser.name = document.getElementById('set-name').value;
-        currentUser.phone = newPhone;
-        currentUser.profilePic = document.getElementById('setting-profile-pic').src;
+        if(!newName || !newPhone) return showToast('กรุณากรอกชื่อและเบอร์โทร', 'warning');
+        if(newPhone.length !== 10) return showToast('เบอร์โทรศัพท์ต้องมี 10 หลัก', 'warning');
         
-        const newPass = document.getElementById('set-password').value;
+        currentUser.name = newName;
+        currentUser.phone = newPhone;
+        currentUser.profilePic = newPic;
         if(newPass) currentUser.password = newPass;
 
         saveDatabase();
@@ -565,235 +549,224 @@
     }
 
     // --------------------------------------------------------
-    // ระบบคูปอง (Coupon System)
+    // แสดงผลสินค้า
     // --------------------------------------------------------
-    function collectCoupon(code) {
-        if(!currentUser) {
-            showToast('กรุณาเข้าสู่ระบบเพื่อเก็บคูปองครับ', 'warning');
-            return openAuthModal('login');
-        }
-
-        if(!currentUser.coupons) currentUser.coupons = []; // เผื่อบัญชีเก่าไม่มี array นี้
-        
-        if(currentUser.coupons.includes(code)) {
-            showToast('คุณเก็บคูปองนี้ไปแล้วครับ', 'warning');
-        } else {
-            currentUser.coupons.push(code);
-            saveDatabase();
-            showToast(`เก็บคูปอง <b>${code}</b> เข้ากระเป๋าแล้ว! นำไปใช้ตอนชำระเงินได้เลย`, 'success');
-        }
-    }
-
-    // --------------------------------------------------------
-    // ระบบแสดงสินค้า
-    // --------------------------------------------------------
-    function filterProducts(type) {
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.replace('btn-dark', 'btn-outline-dark'));
-        event.target.classList.replace('btn-outline-dark', 'btn-dark');
-
-        let filtered = products;
-        if (type === 'โปรโมชั่น') filtered = products.filter(p => p.isSale);
-        else if (type !== 'ทั้งหมด') filtered = products.filter(p => p.type === type);
-
-        renderProducts(filtered);
-    }
-
-    function searchProducts() {
-        const term = document.getElementById('search-input').value.toLowerCase();
-        renderProducts(products.filter(p => p.name.toLowerCase().includes(term)));
-    }
-
     function renderProducts(items) {
-        document.getElementById('store-display').innerHTML = items.map(p => `
+        const container = document.getElementById('store-display');
+        if(items.length === 0) {
+            container.innerHTML = `<div class="col-12 text-center text-muted my-5"><h5>ไม่พบสินค้าที่คุณค้นหา</h5></div>`;
+            return;
+        }
+
+        container.innerHTML = items.map(p => {
+            const saleBadge = p.isSale ? `<span class="sale-badge">SALE!</span>` : '';
+            const oldPriceStr = p.oldPrice ? `<small class="text-muted text-decoration-line-through">฿${p.oldPrice}</small>` : '';
+            return `
             <div class="col-6 col-md-3 mb-4">
-                <div class="card product-card shadow-sm border-0 h-100">
-                    ${p.isSale ? `<span class="sale-badge">SALE!</span>` : ''}
-                    <img src="${p.img}" class="card-img-top" alt="${p.name}" onerror="this.src='https://placehold.co/400x400?text=Image'">
+                <div class="card product-card shadow-sm border-0">
+                    ${saleBadge}
+                    <img src="${p.img}" class="card-img-top" alt="${p.name}">
                     <div class="card-body d-flex flex-column">
                         <span class="badge bg-secondary mb-2 align-self-start" style="font-size: 10px;">${p.type}</span>
                         <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 14px;">${p.name}</h6>
-                        <div class="mt-auto pt-2">
-                            <span class="text-danger fw-bold fs-5">฿${p.price.toLocaleString()}</span>
-                            ${p.oldPrice ? `<span class="text-muted text-decoration-line-through small ms-1">฿${p.oldPrice}</span>` : ''}
-                            
-                            <div class="d-flex gap-1 mt-2">
-                                <button class="btn btn-cart btn-sm flex-fill" onclick="quickAddToCart(${p.id}, false)" title="เพิ่มลงตะกร้า">
-                                    <i class="fa fa-cart-plus"></i>
-                                </button>
-                                <button class="btn btn-buy-now btn-sm flex-fill fw-bold" onclick="openProduct(${p.id})">
-                                    ซื้อ / ดูรายละเอียด
+                        <div class="mt-auto pt-3">
+                            <span class="text-danger fw-bold fs-5 d-inline-block mb-1">฿${p.price.toLocaleString()}</span>
+                            ${oldPriceStr}
+                            <div class="mt-2">
+                                <button class="btn btn-dark w-100 btn-sm fw-bold rounded-pill" onclick="openProductDetail(${p.id})">
+                                    <i class="fa fa-shopping-cart me-1"></i> เลือกสินค้า
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
-    function openProduct(id) {
+    function searchProducts() {
+        const term = document.getElementById('search-input').value.toLowerCase();
+        const filtered = products.filter(p => p.name.toLowerCase().includes(term));
+        renderProducts(filtered);
+    }
+
+    function filterProducts(type) {
+        if(event && event.currentTarget.classList.contains('filter-btn')) {
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active', 'btn-dark'));
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.add('btn-outline-dark'));
+            event.currentTarget.classList.remove('btn-outline-dark');
+            event.currentTarget.classList.add('btn-dark', 'active');
+        }
+
+        if (type === 'โปรโมชั่น') {
+            renderProducts(products.filter(p => p.isSale));
+        } else {
+            const filtered = type === 'ทั้งหมด' ? products : products.filter(p => p.type === type);
+            renderProducts(filtered);
+        }
+    }
+
+    // --------------------------------------------------------
+    // รายละเอียดสินค้า & ตะกร้า
+    // --------------------------------------------------------
+    function openProductDetail(id) {
         const p = products.find(x => x.id === id);
         document.getElementById('detail-id').value = p.id;
         document.getElementById('detail-name').innerText = p.name;
         document.getElementById('detail-price').innerText = '฿' + p.price.toLocaleString();
+        
+        const oldPriceEl = document.getElementById('detail-old-price');
+        const saleBadgeEl = document.getElementById('detail-sale-badge');
+        
+        if(p.oldPrice) {
+            oldPriceEl.innerText = '฿' + p.oldPrice.toLocaleString();
+            oldPriceEl.classList.remove('d-none');
+            saleBadgeEl.classList.remove('d-none');
+        } else {
+            oldPriceEl.classList.add('d-none');
+            saleBadgeEl.classList.add('d-none');
+        }
+
         document.getElementById('detail-desc').innerText = p.desc;
         document.getElementById('detail-type').innerText = p.type;
-        document.getElementById('detail-img').src = p.img;
+        document.getElementById('detail-img').src = p.img; 
         document.getElementById('detail-qty').value = 1;
-        document.getElementById('detail-size').selectedIndex = 1;
-
-        if(p.isSale) {
-            document.getElementById('detail-sale-badge').classList.remove('d-none');
-            document.getElementById('detail-old-price').classList.remove('d-none');
-            document.getElementById('detail-old-price').innerText = '฿' + p.oldPrice;
-        } else {
-            document.getElementById('detail-sale-badge').classList.add('d-none');
-            document.getElementById('detail-old-price').classList.add('d-none');
-        }
+        document.getElementById('detail-size').selectedIndex = 1; 
 
         new bootstrap.Modal(document.getElementById('productDetailModal')).show();
     }
 
-    // --------------------------------------------------------
-    // ระบบตะกร้า & ปุ่มสั่งซื้อ
-    // --------------------------------------------------------
-    
-    // ฟังก์ชันช่วยตอนกดปุ่มตะกร้าจากหน้าแรก
-    function quickAddToCart(id, isBuyNow) {
-        document.getElementById('detail-id').value = id;
-        document.getElementById('detail-size').value = 'M'; // Default size
-        document.getElementById('detail-qty').value = 1;
-        addToCart(isBuyNow);
-    }
-
-    // ฟังก์ชันหลัก: รองรับ 2 ปุ่ม (เพิ่มตะกร้าปกติ vs ซื้อทันที)
     function addToCart(isBuyNow) {
         if(!currentUser) {
-            const modalEl = document.getElementById('productDetailModal');
-            if(bootstrap.Modal.getInstance(modalEl)) bootstrap.Modal.getInstance(modalEl).hide();
-            
-            showToast("กรุณาเข้าสู่ระบบหรือสมัครสมาชิกก่อนครับ", 'warning');
+            bootstrap.Modal.getInstance(document.getElementById('productDetailModal')).hide();
             return openAuthModal('login');
         }
 
         const id = parseInt(document.getElementById('detail-id').value);
         const size = document.getElementById('detail-size').value;
         const qty = parseInt(document.getElementById('detail-qty').value);
-        const prod = products.find(p => p.id === id);
+        const product = products.find(p => p.id === id);
 
-        const existing = cart.find(item => item.id === id && item.size === size);
-        if(existing) existing.qty += qty;
-        else cart.push({ ...prod, size, qty });
+        const existingItemIndex = cart.findIndex(item => item.id === id && item.size === size);
+        if (existingItemIndex > -1) {
+            cart[existingItemIndex].qty += qty; 
+        } else {
+            cart.push({ ...product, size: size, qty: qty }); 
+        }
 
         saveDatabase();
         updateCartBadge();
-        
-        // ปิดหน้าต่างรายละเอียด
-        const modalEl = document.getElementById('productDetailModal');
-        if(bootstrap.Modal.getInstance(modalEl)) bootstrap.Modal.getInstance(modalEl).hide();
-        
-        if(isBuyNow) {
-            // ถ้ากด "ซื้อทันที" ให้เปิดหน้าตะกร้าเลย
-            setTimeout(() => openCart(), 300);
-        } else {
-            // ถ้ากด "เพิ่มลงตะกร้า" ให้แค่แจ้งเตือนแล้วช้อปต่อ
-            showToast(`<i class="fa fa-check-circle"></i> เพิ่ม <b>${prod.name}</b> ลงตะกร้าแล้ว!`, 'success');
-        }
-    }
+        bootstrap.Modal.getInstance(document.getElementById('productDetailModal')).hide();
+        showToast(`<i class="fa fa-check-circle"></i> เพิ่ม <strong>${product.name}</strong> ลงตะกร้าแล้ว`);
 
+        if(isBuyNow) setTimeout(openCart, 500);
+    }
+    
     function updateCartBadge() {
         document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
     }
 
+    // --------------------------------------------------------
+    // ระบบชำระเงิน & คูปอง
+    // --------------------------------------------------------
     function openCart() {
-        if(!currentUser) {
-            showToast("กรุณาเข้าสู่ระบบก่อนครับ", 'warning');
-            return openAuthModal('login');
-        }
-        if(cart.length === 0) return showToast("ยังไม่มีสินค้าในตะกร้าครับ เลือกช้อปได้เลย!", 'warning');
-
-        // โหลดข้อมูลที่อยู่ลงฟอร์ม
-        document.getElementById('ship-name').value = currentUser.name;
-        document.getElementById('ship-phone').value = currentUser.phone;
-        document.getElementById('ship-address').value = currentUser.address || '';
-        document.getElementById('coupon-input').value = '';
-        discount = 0;
-
-        // แสดงคูปองที่ผู้ใช้มี
-        const couponList = document.getElementById('my-coupons-list');
-        if(currentUser.coupons && currentUser.coupons.length > 0) {
-            couponList.innerHTML = `<span class="text-primary fw-bold"><i class="fa fa-ticket-alt"></i> คูปองของคุณ:</span> ` + 
-                currentUser.coupons.map(c => `<span class="badge bg-warning text-dark mx-1" style="cursor:pointer;" onclick="document.getElementById('coupon-input').value='${c}'">${c}</span>`).join('');
-        } else {
-            couponList.innerHTML = `<span class="text-muted small">คุณยังไม่มีคูปองส่วนลด</span>`;
-        }
-
+        if(!currentUser) return openAuthModal('login');
+        
+        document.getElementById('ship-name').value = currentUser.name || '';
+        document.getElementById('ship-phone').value = currentUser.phone || '';
+        
         renderCartItems();
+        updateSummary();
         new bootstrap.Modal(document.getElementById('checkoutModal')).show();
     }
 
     function renderCartItems() {
         const container = document.getElementById('cart-items-container');
-        let subtotal = 0;
-        
-        container.innerHTML = cart.map((item, index) => {
-            const itemTotal = item.price * item.qty;
-            subtotal += itemTotal;
-            return `
-                <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
-                    <img src="${item.img}" width="60" class="rounded shadow-sm me-3" onerror="this.src='https://placehold.co/60'">
-                    <div class="flex-grow-1">
-                        <h6 class="mb-0 fw-bold fs-6">${item.name}</h6>
-                        <small class="text-muted">ไซส์: <strong>${item.size}</strong> | ฿${item.price} x ${item.qty}</small>
-                    </div>
-                    <div class="text-end">
-                        <div class="fw-bold text-dark mb-1">฿${itemTotal.toLocaleString()}</div>
-                        <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="removeFromCart(${index})"><i class="fa fa-trash small"></i></button>
-                    </div>
+        if(cart.length === 0) {
+            container.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fa fa-shopping-basket fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">ตะกร้าของคุณว่างเปล่า</p>
                 </div>`;
-        }).join('');
-
-        updateSummary(subtotal);
+            return;
+        }
+        
+        container.innerHTML = cart.map((item, index) => `
+            <div class="d-flex align-items-center mb-3 p-3 border rounded bg-white shadow-sm">
+                <img src="${item.img}" width="80" height="80" class="rounded me-3 border" style="object-fit: cover;">
+                <div class="flex-grow-1">
+                    <h6 class="mb-1 fw-bold" style="font-size: 15px;">${item.name}</h6>
+                    <small class="text-muted d-block mb-1">ไซส์: <strong>${item.size}</strong></small>
+                    <span class="badge bg-light text-dark border">จำนวน: ${item.qty}</span>
+                </div>
+                <div class="text-end ms-2">
+                    <div class="fw-bold text-danger mb-2">฿${(item.price * item.qty).toLocaleString()}</div>
+                    <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="removeFromCart(${index})">
+                        <i class="fa fa-trash"></i> ลบ
+                    </button>
+                </div>
+            </div>
+        `).join('');
     }
 
     function removeFromCart(index) {
         cart.splice(index, 1);
         saveDatabase();
         updateCartBadge();
-        if(cart.length === 0) {
-            bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
-            showToast('ตะกร้าสินค้าว่างเปล่าแล้ว', 'warning');
-        } else {
-            renderCartItems();
+        renderCartItems();
+        updateSummary();
+    }
+
+    function collectCoupon(code) {
+        if(!currentUser) return openAuthModal('login');
+        if(!currentUser.coupons) currentUser.coupons = [];
+        
+        if(currentUser.coupons.includes(code)) return showToast('คุณเก็บคูปองนี้ไปแล้ว', 'warning');
+        
+        currentUser.coupons.push(code);
+        saveDatabase();
+        showToast(`🎉 เก็บโค้ด ${code} สำเร็จ! นำไปใช้ในหน้าชำระเงินได้เลย`, 'success');
+    }
+
+    function renderMyCoupons() {
+        const container = document.getElementById('my-coupons-list');
+        if(!currentUser || !currentUser.coupons || currentUser.coupons.length === 0) {
+            container.innerHTML = '';
+            return;
         }
+        container.innerHTML = '<strong>คูปองของคุณ (คลิกเพื่อใช้):</strong> ' + currentUser.coupons.map(c => 
+            `<span class="badge bg-warning text-dark me-1 shadow-sm p-2" style="cursor:pointer;" onclick="document.getElementById('coupon-input').value='${c}'; applyCoupon();"><i class="fa fa-ticket-alt"></i> ${c}</span>`
+        ).join('');
     }
 
     function applyCoupon() {
-        const code = document.getElementById('coupon-input').value.toUpperCase().trim();
-        
-        // เช็คว่าผู้ใช้เก็บคูปองนี้มาหรือยัง
-        if(!currentUser.coupons || !currentUser.coupons.includes(code)) {
-            discount = 0;
-            renderCartItems();
-            return showToast("คุณยังไม่ได้เก็บคูปองนี้ หรือรหัสไม่ถูกต้อง", 'error');
-        }
-
-        // ระบบเช็คเงื่อนไขคูปอง
+        const code = document.getElementById('coupon-input').value.trim().toUpperCase();
         if(code === 'NEWBIE50') {
+            if(!currentUser.coupons || !currentUser.coupons.includes(code)) {
+                return showToast('กรุณากดเก็บคูปองที่หน้าหลักก่อนใช้งาน', 'error');
+            }
             discount = 50;
-            showToast("ใช้งานคูปองส่วนลด 50 บาทสำเร็จ!", 'success');
+            showToast('✅ ใช้คูปองส่วนลด 50 บาทสำเร็จ!', 'success');
+            updateSummary();
+        } else if (code === '') {
+            showToast('กรุณากรอกรหัสคูปอง', 'warning');
         } else {
-            discount = 0;
-            showToast("คูปองไม่สามารถใช้งานได้", 'error');
+            showToast('รหัสคูปองไม่ถูกต้อง หรือหมดอายุแล้ว', 'error');
         }
-        renderCartItems(); 
     }
 
-    function updateSummary(subtotal) {
-        document.getElementById('summary-subtotal').innerText = `฿${subtotal.toLocaleString()}`;
-        document.getElementById('summary-discount').innerText = `-฿${discount}`;
-        const total = subtotal + 50 - discount; // ค่าส่ง 50
-        document.getElementById('summary-total').innerText = `฿${total.toLocaleString()}`;
+    function updateSummary() {
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+        const shipping = cart.length > 0 ? 50 : 0;
+        let total = subtotal + shipping - discount;
+        if(total < 0) total = 0;
+
+        document.getElementById('summary-subtotal').innerText = '฿' + subtotal.toLocaleString();
+        document.getElementById('summary-discount').innerText = '-฿' + discount.toLocaleString();
+        document.getElementById('summary-total').innerText = '฿' + total.toLocaleString();
+        
+        renderMyCoupons();
     }
 
     function selectPayment(method) {
@@ -802,191 +775,124 @@
         document.getElementById('pay-qr').classList.toggle('active', method === 'QR');
     }
 
-    // --------------------------------------------------------
-    // ระบบยืนยันคำสั่งซื้อ & QR Code
-    // --------------------------------------------------------
     function confirmOrder() {
-        const name = document.getElementById('ship-name').value.trim();
-        const phone = document.getElementById('ship-phone').value.trim();
+        if(cart.length === 0) return showToast('ไม่มีสินค้าในตะกร้า', 'warning');
         const address = document.getElementById('ship-address').value.trim();
-
-        if(!name || !phone || !address) return showToast("กรุณากรอกข้อมูลการจัดส่งให้ครบถ้วน", 'error');
-        if(!/^\d{10}$/.test(phone)) return showToast("เบอร์โทรศัพท์ต้องมี 10 หลัก", 'error');
-
-        // เซฟที่อยู่ไว้ใช้ครั้งหน้า
-        currentUser.address = address;
-        currentUser.phone = phone;
-        
-        // ถ้าใช้คูปองไปแล้ว ลบออกจากกระเป๋า (เพื่อให้ใช้ได้ครั้งเดียว)
-        const usedCoupon = document.getElementById('coupon-input').value.toUpperCase().trim();
-        if(discount > 0 && currentUser.coupons.includes(usedCoupon)) {
-            currentUser.coupons = currentUser.coupons.filter(c => c !== usedCoupon);
-        }
-
-        saveDatabase();
-        bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
+        if(!address) return showToast('กรุณากรอกที่อยู่จัดส่ง', 'error');
 
         if(paymentMethod === 'QR') {
-            setTimeout(() => {
-                new bootstrap.Modal(document.getElementById('qrModal')).show();
-                startQrTimer();
-            }, 400);
+            bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
+            new bootstrap.Modal(document.getElementById('qrModal')).show();
+            startQrTimer();
         } else {
-            finalizeOrder('รอยืนยันจากแอดมิน');
-            showToast("สั่งซื้อสำเร็จ! (เก็บเงินปลายทาง) รอแอดมินยืนยัน", 'success');
+            processOrderSuccess();
         }
     }
 
     function startQrTimer() {
-        let timeLeft = 300; // 5 นาที
+        let time = 300; 
+        const display = document.getElementById('qr-timer');
         clearInterval(qrTimerInterval);
-        document.getElementById('qr-timer').innerText = "05:00";
-        
         qrTimerInterval = setInterval(() => {
-            timeLeft--;
-            let m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
-            let s = (timeLeft % 60).toString().padStart(2, '0');
-            document.getElementById('qr-timer').innerText = `${m}:${s}`;
-            
-            if(timeLeft <= 0) {
-                clearInterval(qrTimerInterval);
-                if(confirm("หมดเวลาชำระเงิน คุณต้องการทำการชำระเงินต่อหรือไม่?")) {
-                    startQrTimer(); 
-                } else {
-                    qrPaymentCancel();
-                }
-            }
+            const m = Math.floor(time / 60).toString().padStart(2, '0');
+            const s = (time % 60).toString().padStart(2, '0');
+            display.innerText = `${m}:${s}`;
+            if(time <= 0) qrPaymentCancel();
+            time--;
         }, 1000);
     }
 
     function qrPaymentSuccess() {
         clearInterval(qrTimerInterval);
         bootstrap.Modal.getInstance(document.getElementById('qrModal')).hide();
-        finalizeOrder('รอการจัดส่ง');
-        showToast("ได้รับยอดโอนเรียบร้อย ระบบกำลังเตรียมจัดส่งสินค้า", 'success');
+        processOrderSuccess();
     }
 
     function qrPaymentCancel() {
         clearInterval(qrTimerInterval);
         bootstrap.Modal.getInstance(document.getElementById('qrModal')).hide();
-        showToast("ยกเลิกการชำระเงิน สินค้ายังอยู่ในตะกร้าของคุณ", 'warning');
+        showToast('หมดเวลา/ยกเลิก การชำระเงิน', 'error');
+        new bootstrap.Modal(document.getElementById('checkoutModal')).show();
     }
 
-    function finalizeOrder(status) {
-        const subtotal = cart.reduce((s, i) => s + (i.price * i.qty), 0);
+    function processOrderSuccess() {
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
         const total = subtotal + 50 - discount;
         
         const newOrder = {
-            orderId: 'THJ' + Math.floor(1000 + Math.random() * 9000),
-            date: new Date().toLocaleDateString('th-TH'),
+            orderId: 'ORD' + Date.now().toString().slice(-6),
+            date: new Date().toLocaleString('th-TH'),
             items: [...cart],
             total: total,
-            method: paymentMethod,
-            status: status,
-            isReviewed: false
+            status: paymentMethod === 'QR' ? 'ชำระเงินแล้ว' : 'รอเก็บเงินปลายทาง (COD)',
+            address: document.getElementById('ship-address').value.trim()
         };
 
         if(!currentUser.orders) currentUser.orders = [];
         currentUser.orders.unshift(newOrder); 
         
-        cart = []; // เคลียร์ตะกร้า
-        discount = 0;
+        cart = []; discount = 0;
+        
+        if(currentUser.coupons.includes('NEWBIE50')) {
+            currentUser.coupons = currentUser.coupons.filter(c => c !== 'NEWBIE50');
+        }
+        
         saveDatabase();
         updateCartBadge();
+        
+        const checkoutModalEl = document.getElementById('checkoutModal');
+        if(checkoutModalEl.classList.contains('show')) {
+            bootstrap.Modal.getInstance(checkoutModalEl).hide();
+        }
+        
+        showToast('🎉 สั่งซื้อสำเร็จ! ขอบคุณที่ใช้บริการ', 'success');
+        setTimeout(openOrderHistory, 1500); 
     }
 
     // --------------------------------------------------------
-    // ระบบประวัติการสั่งซื้อ
+    // ประวัติการสั่งซื้อ
     // --------------------------------------------------------
     function openOrderHistory() {
+        if(!currentUser) return;
         const container = document.getElementById('history-container');
+        
         if(!currentUser.orders || currentUser.orders.length === 0) {
-            container.innerHTML = '<div class="text-center text-muted my-5"><i class="fa fa-box-open fa-3x mb-3"></i><br>ยังไม่มีประวัติการสั่งซื้อครับ</div>';
+            container.innerHTML = `
+                <div class="text-center py-5">
+                    <i class="fa fa-box-open fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">คุณยังไม่มีประวัติการสั่งซื้อ</p>
+                    <button class="btn btn-warning mt-2" data-bs-dismiss="modal">ไปช้อปปิ้งเลย</button>
+                </div>`;
         } else {
-            container.innerHTML = currentUser.orders.map((o, idx) => `
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white border-bottom-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
-                        <span class="fw-bold text-muted small">Order #${o.orderId}</span>
-                        ${getStatusBadge(o.status)}
+            container.innerHTML = currentUser.orders.map(o => `
+                <div class="card mb-4 border-0 shadow-sm rounded-3">
+                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom">
+                        <div>
+                            <span class="fw-bold text-dark"><i class="fa fa-receipt text-primary me-2"></i>ออเดอร์: ${o.orderId}</span>
+                            <small class="text-muted d-block mt-1"><i class="fa fa-calendar-alt me-1"></i> ${o.date}</small>
+                        </div>
+                        <span class="badge ${o.status.includes('ชำระ') ? 'bg-success' : 'bg-warning text-dark'} px-3 py-2">${o.status}</span>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body bg-light">
                         ${o.items.map(item => `
-                            <div class="d-flex mb-2">
-                                <img src="${item.img}" width="50" height="50" class="rounded me-3 border" style="object-fit:cover" onerror="this.src='https://placehold.co/50'">
-                                <div>
-                                    <p class="mb-0 fw-bold small">${item.name} (${item.size})</p>
-                                    <small class="text-muted">x${item.qty} | ฿${item.price * item.qty}</small>
+                            <div class="d-flex justify-content-between align-items-center small mb-2 border-bottom pb-2">
+                                <div class="d-flex align-items-center">
+                                    <img src="${item.img}" width="40" class="rounded me-2">
+                                    <span>${item.name} <span class="text-muted">(Size: ${item.size})</span></span>
                                 </div>
+                                <span>x ${item.qty} = <strong>฿${(item.price * item.qty).toLocaleString()}</strong></span>
                             </div>
                         `).join('')}
-                        <hr class="my-2">
-                        <div class="d-flex justify-content-between align-items-end">
-                            <div>
-                                <small class="text-muted d-block">วันที่: ${o.date} | ${o.method === 'COD' ? 'เก็บเงินปลายทาง' : 'โอนเงิน (QR)'}</small>
-                                <strong class="text-danger">ยอดรวม: ฿${o.total.toLocaleString()}</strong>
-                            </div>
-                            <div class="text-end">
-                                ${o.status === 'รอยืนยันจากแอดมิน' ? `<button class="btn btn-sm btn-outline-warning mb-1" onclick="simAdminConfirm(${idx})"><i class="fa fa-check"></i> จำลองแอดมินยืนยัน</button>` : ''}
-                                ${o.status === 'รอการจัดส่ง' ? `<button class="btn btn-sm btn-outline-info mb-1" onclick="simDelivery(${idx})"><i class="fa fa-truck"></i> จำลองรับของ</button>` : ''}
-                                ${o.status === 'จัดส่งสำเร็จ' && !o.isReviewed ? `
-                                    <div class="mt-2 bg-light p-2 rounded text-start border" style="min-width: 200px;">
-                                        <small class="fw-bold d-block mb-1">ให้คะแนนสินค้า:</small>
-                                        <div class="star-rating mb-1" id="stars-${idx}">
-                                            <i class="fa fa-star active" onclick="setStar(${idx}, 1)"></i>
-                                            <i class="fa fa-star active" onclick="setStar(${idx}, 2)"></i>
-                                            <i class="fa fa-star active" onclick="setStar(${idx}, 3)"></i>
-                                            <i class="fa fa-star active" onclick="setStar(${idx}, 4)"></i>
-                                            <i class="fa fa-star active" onclick="setStar(${idx}, 5)"></i>
-                                        </div>
-                                        <textarea class="form-control form-control-sm mb-2" id="review-${idx}" placeholder="เขียนรีวิว..."></textarea>
-                                        <button class="btn btn-warning btn-sm w-100 fw-bold" onclick="submitReview(${idx})">ส่งรีวิว</button>
-                                    </div>
-                                ` : ''}
-                                ${o.isReviewed ? `<span class="badge bg-success"><i class="fa fa-check"></i> ขอบคุณสำหรับรีวิว!</span>` : ''}
-                            </div>
+                        <div class="d-flex justify-content-between align-items-end mt-3">
+                            <small class="text-muted" style="max-width: 60%;"><i class="fa fa-map-marker-alt"></i> จัดส่ง: ${o.address}</small>
+                            <div class="text-end fw-bold">ยอดสุทธิ: <span class="text-danger fs-5 ms-2">฿${o.total.toLocaleString()}</span></div>
                         </div>
                     </div>
                 </div>
             `).join('');
         }
-        new bootstrap.Modal(document.getElementById('historyModal')).show();
-    }
-
-    function getStatusBadge(status) {
-        if(status === 'รอยืนยันจากแอดมิน') return `<span class="badge bg-warning text-dark"><i class="fa fa-clock"></i> ${status}</span>`;
-        if(status === 'รอการจัดส่ง') return `<span class="badge bg-primary"><i class="fa fa-box"></i> ${status}</span>`;
-        if(status === 'จัดส่งสำเร็จ') return `<span class="badge bg-success"><i class="fa fa-check-circle"></i> ${status}</span>`;
-        return `<span class="badge bg-secondary">${status}</span>`;
-    }
-
-    function simAdminConfirm(idx) {
-        currentUser.orders[idx].status = 'รอการจัดส่ง';
-        saveDatabase();
-        openOrderHistory(); 
-    }
-    
-    function simDelivery(idx) {
-        currentUser.orders[idx].status = 'จัดส่งสำเร็จ';
-        saveDatabase();
-        openOrderHistory(); 
-    }
-
-    function setStar(idx, rating) {
-        const stars = document.querySelectorAll(`#stars-${idx} i`);
-        stars.forEach((star, i) => {
-            if(i < rating) star.classList.add('active');
-            else star.classList.remove('active');
-        });
-    }
-
-    function submitReview(idx) {
-        const text = document.getElementById(`review-${idx}`).value;
-        if(!text) return showToast('กรุณาเขียนรีวิวด้วยครับ', 'warning');
         
-        currentUser.orders[idx].isReviewed = true;
-        saveDatabase();
-        showToast('ขอบคุณสำหรับรีวิวครับ ได้รับ 5 แต้มสะสม!', 'success');
-        openOrderHistory();
+        new bootstrap.Modal(document.getElementById('historyModal')).show();
     }
 </script>
 </body>
