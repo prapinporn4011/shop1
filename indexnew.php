@@ -390,22 +390,121 @@ const products = dbProducts.map(p => ({
     // --------------------------------------------------------
     // ฟังก์ชันเริ่มต้น
     // --------------------------------------------------------
+    // --------------------------------------------------------
+    // ฟังก์ชันเริ่มต้น และโหลดข้อมูล Session
+    // --------------------------------------------------------
     function initStore() {
         renderProducts(products);
-        // โหลดข้อมูลฐานข้อมูลจำลองทั้งหมด
-        const storedDB = localStorage.getItem('thanjai_users_db');
-        if(storedDB) usersDB = JSON.parse(storedDB);
-
-        // เช็คว่ามีใครล็อกอินค้างไว้ไหม
-        const activeSession = localStorage.getItem('thanjai_active_session');
-        if (activeSession) {
-            const foundUser = usersDB.find(u => u.username === activeSession);
-            if(foundUser) {
-                currentUser = foundUser;
-                cart = currentUser.cart || [];
-                updateNavUI();
-                updateCartBadge();
+        
+        // ถามหลังบ้านว่าตอนนี้มีใครล็อกอินค้างอยู่ไหม
+        fetch('api_auth.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'check_session' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                setupUserSession(data.user);
             }
+        });
+    }
+
+    // ฟังก์ชันช่วยจัดการข้อมูลผู้ใช้ตอนล็อกอิน/สมัครสมาชิก
+    function setupUserSession(userData) {
+        currentUser = userData;
+        currentUser.profilePic = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
+        
+        // เพื่อความง่าย ตะกร้าและประวัติที่หน้าบ้านยังให้ผูกกับ LocalStorage ตาม Username ไว้ชั่วคราวได้ครับ
+        const localData = JSON.parse(localStorage.getItem('thanjai_data_' + currentUser.username)) || {};
+        cart = localData.cart || [];
+        currentUser.orders = localData.orders || [];
+        currentUser.coupons = localData.coupons || [];
+
+        updateNavUI();
+        updateCartBadge();
+    }
+
+    // แก้ไขฟังก์ชันเซฟตะกร้า (ผูกกับชื่อผู้ใช้ที่ล็อกอินจริง)
+    function saveDatabase() {
+        if(currentUser) {
+            const localData = {
+                cart: cart,
+                orders: currentUser.orders,
+                coupons: currentUser.coupons
+            };
+            localStorage.setItem('thanjai_data_' + currentUser.username, JSON.stringify(localData));
+        }
+    }
+
+    // --------------------------------------------------------
+    // ระบบสมาชิก (Authentication แบบต่อ Database)
+    // --------------------------------------------------------
+    function register() {
+        const user = document.getElementById('reg-user').value.trim();
+        const email = document.getElementById('reg-email').value.trim();
+        const phone = document.getElementById('reg-phone').value.trim();
+        const pass = document.getElementById('reg-pass').value.trim();
+
+        if(!user || !email || !phone || !pass) return showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+
+        fetch('api_auth.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'register', username: user, email: email, phone: phone, password: pass })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                setupUserSession(data.user);
+                bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
+                showToast('🎉 สมัครสมาชิกและเข้าสู่ระบบสำเร็จ!', 'success');
+            } else {
+                showToast('❌ ' + data.message, 'error');
+            }
+        });
+    }
+
+    function login() {
+        const user = document.getElementById('login-user').value.trim();
+        const pass = document.getElementById('login-pass').value.trim();
+
+        if(!user || !pass) return showToast('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน', 'warning');
+
+        fetch('api_auth.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'login', username: user, password: pass })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                setupUserSession(data.user);
+                bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
+                showToast(`ยินดีต้อนรับกลับมาครับคุณ ${currentUser.name}!`, 'success');
+            } else {
+                showToast('❌ ' + data.message, 'error');
+            }
+        });
+    }
+
+    function logoutUser() {
+        if(confirm("ต้องการออกจากระบบใช่หรือไม่?")) {
+            fetch('api_auth.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'logout' })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    currentUser = null;
+                    cart = [];
+                    updateNavUI();
+                    updateCartBadge();
+                    showToast('ออกจากระบบเรียบร้อยแล้ว', 'success');
+                }
+            });
         }
     }
 
