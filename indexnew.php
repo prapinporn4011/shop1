@@ -830,35 +830,64 @@ const products = dbProducts.map(p => ({
     function processOrderSuccess() {
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
         const total = subtotal + 50 - discount;
+        const addressStr = document.getElementById('ship-address').value.trim();
+        const statusStr = paymentMethod === 'QR' ? 'paid' : 'pending';
         
-        const newOrder = {
-            orderId: 'ORD' + Date.now().toString().slice(-6),
-            date: new Date().toLocaleString('th-TH'),
-            items: [...cart],
+        // เตรียมข้อมูลส่งไปให้ PHP Backend
+        const orderData = {
+            username: currentUser ? currentUser.username : null,
             total: total,
-            status: paymentMethod === 'QR' ? 'ชำระเงินแล้ว' : 'รอเก็บเงินปลายทาง (COD)',
-            address: document.getElementById('ship-address').value.trim()
+            status: statusStr,
+            address: addressStr,
+            items: cart
         };
 
-        if(!currentUser.orders) currentUser.orders = [];
-        currentUser.orders.unshift(newOrder); 
-        
-        cart = []; discount = 0;
-        
-        if(currentUser.coupons.includes('NEWBIE50')) {
-            currentUser.coupons = currentUser.coupons.filter(c => c !== 'NEWBIE50');
-        }
-        
-        saveDatabase();
-        updateCartBadge();
-        
-        const checkoutModalEl = document.getElementById('checkoutModal');
-        if(checkoutModalEl.classList.contains('show')) {
-            bootstrap.Modal.getInstance(checkoutModalEl).hide();
-        }
-        
-        showToast('🎉 สั่งซื้อสำเร็จ! ขอบคุณที่ใช้บริการ', 'success');
-        setTimeout(openOrderHistory, 1500); 
+        // ยิงข้อมูลไปให้หลังบ้าน
+        fetch('save_order.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(orderData)
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                // อัปเดตประวัติการสั่งซื้อในหน้าบ้าน
+                const newOrder = {
+                    orderId: 'ORD-' + String(data.order_id).padStart(5, '0'),
+                    date: new Date().toLocaleString('th-TH'),
+                    items: [...cart],
+                    total: total,
+                    status: paymentMethod === 'QR' ? 'ชำระเงินแล้ว' : 'รอเก็บเงินปลายทาง (COD)',
+                    address: addressStr
+                };
+
+                if(!currentUser.orders) currentUser.orders = [];
+                currentUser.orders.unshift(newOrder); 
+                
+                cart = []; discount = 0;
+                
+                if(currentUser.coupons && currentUser.coupons.includes('NEWBIE50')) {
+                    currentUser.coupons = currentUser.coupons.filter(c => c !== 'NEWBIE50');
+                }
+                
+                saveDatabase();
+                updateCartBadge();
+                
+                const checkoutModalEl = document.getElementById('checkoutModal');
+                if(checkoutModalEl.classList.contains('show')) {
+                    bootstrap.Modal.getInstance(checkoutModalEl).hide();
+                }
+                
+                showToast('🎉 สั่งซื้อสำเร็จ! ขอบคุณที่ใช้บริการ', 'success');
+                setTimeout(openOrderHistory, 1500); 
+            } else {
+                showToast('เกิดข้อผิดพลาดจากเซิร์ฟเวอร์: ' + data.message, 'error');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+        });
     }
 
     // --------------------------------------------------------
