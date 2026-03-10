@@ -181,9 +181,12 @@ foreach ($productsFromDB as $key => $product) {
                 <input type="file" id="profile-upload" class="d-none" accept="image/*" onchange="uploadProfilePic(event)">
                 
                 <div class="text-start mt-3">
+                    <label class="form-label small fw-bold text-primary">ชื่อผู้ใช้สำหรับล็อกอิน (Username)</label>
+                    <input type="text" id="set-username" class="form-control form-control-sm mb-2 bg-light" disabled>
+                    
                     <div class="row g-2 mb-2">
                         <div class="col-6">
-                            <label class="form-label small fw-bold">ชื่อแสดงผล / ชื่อจริง</label>
+                            <label class="form-label small fw-bold">ชื่อแสดงผล (Display Name)</label>
                             <input type="text" id="set-name" class="form-control form-control-sm">
                         </div>
                         <div class="col-6">
@@ -193,7 +196,7 @@ foreach ($productsFromDB as $key => $product) {
                     </div>
                     <label class="form-label small fw-bold">อีเมล</label>
                     <input type="email" id="set-email" class="form-control form-control-sm mb-2" disabled>
-                    <small class="text-muted d-block mb-2">ไม่สามารถเปลี่ยนอีเมลได้ หากต้องการเปลี่ยนกรุณาติดต่อแอดมิน</small>
+                    <small class="text-muted d-block mb-2">ไม่สามารถเปลี่ยนชื่อผู้ใช้และอีเมลได้</small>
                     
                     <label class="form-label small fw-bold">รหัสผ่านใหม่ (ปล่อยว่างหากไม่ต้องการเปลี่ยน)</label>
                     <input type="password" id="set-password" class="form-control form-control-sm mb-3">
@@ -538,8 +541,9 @@ foreach ($productsFromDB as $key => $product) {
 
     function updateNavUI() {
         if(currentUser) {
-            document.getElementById('guest-zone').classList.add('d-none');
-            document.getElementById('user-zone').classList.remove('d-none');
+            // เติมข้อมูลลงในฟอร์มตั้งค่า
+            document.getElementById('set-username').value = currentUser.username; // <--- เพิ่มบรรทัดนี้
+            document.getElementById('set-name').value = currentUser.name || currentUser.username;
             
             // ----------------------------------------------------
             // จุดสำคัญที่แก้ปัญหาชื่อไม่เปลี่ยน: 
