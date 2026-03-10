@@ -27,8 +27,7 @@ if ($data) {
         $orderId = $pdo->lastInsertId(); 
 
         // เอาคอมเมนต์ออก เพื่อให้บันทึกสินค้าลง Database
-        $stmtItem = $pdo->prepare("INSERT INTO order_items (order_id, product_id, size, quantity, price) VALUES (?, ?, ?, ?, ?)");
-        foreach($data['items'] as $item) {
+            $stmtItem = $pdo->prepare("INSERT INTO order_items (order_id, product_id, size, qty, price) VALUES (?, ?, ?, ?, ?)");           foreach($data['items'] as $item) {
             $stmtItem->execute([$orderId, $item['id'], $item['size'], $item['qty'], $item['price']]);
         }
 
