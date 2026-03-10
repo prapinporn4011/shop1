@@ -1,29 +1,69 @@
 <?php
 require_once 'db.php';
 
-// 1. ระบบสุ่มรูปภาพพื้นหลัง (Background Body)
+// =========================================================================
+// 1. ระบบสุ่มภาพพื้นหลังเว็บ (Body Background)
+// =========================================================================
 $bgImages = [
-    'https://images.unsplash.com/photo-1518605368461-1e1252220a77?q=80&w=1920&auto=format&fit=crop', 
-    'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1920&auto=format&fit=crop', 
+    'https://images.unsplash.com/photo-1518605368461-1e1252220a77?q=80&w=1920&auto=format&fit=crop',
+    'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1920&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?q=80&w=1920&auto=format&fit=crop',
     'https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=1920&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=1920&auto=format&fit=crop' 
+    'https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=1920&auto=format&fit=crop'
 ];
 $randomBg = $bgImages[array_rand($bgImages)];
 
-// 2. ระบบสุ่มรูปภาพสำหรับสไลด์โชว์แบนเนอร์ (สุ่มเลือกมา 3 รูปไม่ซ้ำกัน)
-$bannerImages = [
-    'https://images.unsplash.com/photo-1508344928928-7165b67de128?q=80&w=1920&auto=format&fit=crop', // สนามมุมกว้าง
-    'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1920&auto=format&fit=crop', // อุปกรณ์
-    'https://images.unsplash.com/photo-1553108715-26505600002f?q=80&w=1920&auto=format&fit=crop', // ฉลองชัยชนะ
-    'https://images.unsplash.com/photo-1431324155629-1a6d0a11f582?q=80&w=1920&auto=format&fit=crop', // นักเตะแอคชั่น
-    'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1920&auto=format&fit=crop', // สนามแข่งกลางคืน
-    'https://images.unsplash.com/photo-1518605368461-1e1252220a77?q=80&w=1920&auto=format&fit=crop'  // หญ้าเทียม
+// =========================================================================
+// 2. ระบบคลังสไลด์โชว์แบนเนอร์ระดับพรีเมียม (สุ่มมาโชว์ 3 อัน)
+// =========================================================================
+$slidePool = [
+    [
+        'img' => 'https://images.unsplash.com/photo-1518605368461-1e1252220a77?q=80&w=1920&auto=format&fit=crop',
+        'badge' => 'THANJAI EXCLUSIVE',
+        'title_1' => 'NEW SEASON', 'title_2' => '2026',
+        'desc' => 'คอลเลคชั่นใหม่ล่าสุดจากสโมสรดังทั่วโลก พร้อมส่งแล้ววันนี้! สัมผัสความพรีเมียมก่อนใคร',
+        'btn_icon' => 'fa-bolt', 'btn_text' => 'เลือกช้อปเลย', 'link' => '#product-list'
+    ],
+    [
+        'img' => 'https://images.unsplash.com/photo-1508344928928-7165b67de128?q=80&w=1920&auto=format&fit=crop',
+        'badge' => 'PLAYER ISSUE',
+        'title_1' => 'PREMIUM', 'title_2' => 'QUALITY',
+        'desc' => 'สัมผัสประสบการณ์ระดับโลก ด้วยเสื้อแข่งเกรดเพลเยอร์ที่ดีที่สุด เนื้อผ้าระบายอากาศขั้นสุด',
+        'btn_icon' => 'fa-fire', 'btn_text' => 'สินค้ามาใหม่', 'link' => '#product-list'
+    ],
+    [
+        'img' => 'https://images.unsplash.com/photo-1553108715-26505600002f?q=80&w=1920&auto=format&fit=crop',
+        'badge' => 'CHAMPION MINDSET',
+        'title_1' => 'VICTORY', 'title_2' => 'IS YOURS',
+        'desc' => 'สวมใส่ความมุ่งมั่น สวมใส่ความสำเร็จ ไปกับเรา ThanJai Shop',
+        'btn_icon' => 'fa-trophy', 'btn_text' => 'ดูสินค้าทั้งหมด', 'link' => '#product-list'
+    ],
+    [
+        'img' => 'https://images.unsplash.com/photo-1431324155629-1a6d0a11f582?q=80&w=1920&auto=format&fit=crop',
+        'badge' => 'PRO EQUIPMENT',
+        'title_1' => 'UNLEASH', 'title_2' => 'YOUR POWER',
+        'desc' => 'อุปกรณ์กีฬาฟุตบอลมาตรฐานสากล สำหรับนักเตะตัวจริงที่ต้องการความสมบูรณ์แบบ',
+        'btn_icon' => 'fa-futbol', 'btn_text' => 'ค้นหาไอเทมเด็ด', 'link' => '#product-list'
+    ],
+    [
+        'img' => 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1920&auto=format&fit=crop',
+        'badge' => 'STADIUM READY',
+        'title_1' => 'DOMINATE', 'title_2' => 'THE PITCH',
+        'desc' => 'พร้อมลุยทุกแมตช์การแข่งขัน ด้วยชุดแข่งที่ออกแบบมาเพื่อชัยชนะ',
+        'btn_icon' => 'fa-shield-halved', 'btn_text' => 'เตรียมความพร้อม', 'link' => '#product-list'
+    ],
+    [
+        'img' => 'https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=1920&auto=format&fit=crop',
+        'badge' => 'LIMITED EDITION',
+        'title_1' => 'ICONIC', 'title_2' => 'GEAR',
+        'desc' => 'รองเท้าและอุปกรณ์หายาก สเปคเดียวกับนักเตะระดับท็อปของยุโรป',
+        'btn_icon' => 'fa-star', 'btn_text' => 'ไอเทมหายาก', 'link' => '#product-list'
+    ]
 ];
-shuffle($bannerImages); // สับเปลี่ยนลำดับรูป
-$slide1 = $bannerImages[0];
-$slide2 = $bannerImages[1];
-$slide3 = $bannerImages[2];
+shuffle($slidePool); // สับไพ่ (สุ่มลำดับ Array)
+$activeSlides = array_slice($slidePool, 0, 3); // ดึงมาแสดงแค่ 3 สไลด์แรก
+
+// =========================================================================
 
 // ดึงข้อมูลสินค้า
 $sql = "SELECT p.id, p.name, p.price, p.is_sale, p.old_price, p.description as `desc`, p.image as img, c.name as type 
@@ -51,70 +91,76 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #111111; --accent: #ffb800; --bg-light: #f5f5f5; }
-        
         body { 
-            font-family: 'Sarabun', sans-serif; 
-            color: #333; 
+            font-family: 'Sarabun', sans-serif; color: #333; 
             background: linear-gradient(rgba(245, 245, 245, 0.85), rgba(245, 245, 245, 0.95)), url('<?= $randomBg ?>') no-repeat center center fixed;
             background-size: cover;
         }
-        
         h1, h2, h3, h4, h5, h6, .nav-link, .btn, .navbar-brand, .sport-font { font-family: 'Kanit', sans-serif; }
         
-        .navbar { background: var(--primary) !important; padding: 15px 0; border-bottom: 3px solid var(--accent); z-index: 1050;}
+        .navbar { background: var(--primary) !important; padding: 15px 0; border-bottom: 2px solid var(--accent); z-index: 1050;}
         .navbar-brand { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; color: #fff !important; }
         
-        /* -------------------------------------
-           สไตล์สไลด์โชว์แบนเนอร์แบบพรีเมียม
-        ----------------------------------------*/
-        #heroCarousel { height: 500px; background: var(--primary); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); border-bottom: 2px solid #333;}
-        .carousel-item { height: 500px; }
+        /* ========================================================
+           ✨ HERO CAROUSEL: SUPER PREMIUM SPORT STYLE ✨
+           ======================================================== */
+        #heroCarousel { height: 550px; background: var(--primary); overflow: hidden; border-bottom: 4px solid var(--accent); position: relative; }
+        .carousel-item { height: 550px; }
         
-        /* เอฟเฟกต์ซูมภาพพื้นหลัง (Ken Burns) */
+        /* เอฟเฟกต์ Ken Burns (ซูมเข้าช้าๆ) */
         .slide-bg { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background-size: cover; background-position: center; 
-            transform: scale(1.1); transition: transform 6s ease-out; 
+            background-size: cover; background-position: center 30%; 
+            transform: scale(1); transition: transform 8s linear; 
         }
-        .carousel-item.active .slide-bg { transform: scale(1); }
+        .carousel-item.active .slide-bg { transform: scale(1.1); } 
         
-        /* ไล่สีดำจากซ้ายไปขวาให้ตัวหนังสือเด่น */
+        /* เคลือบสีดำไล่ระดับจากซ้ายไปขวา (ทำให้ตัวหนังสือเด่น) */
         .slide-bg::after { 
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: linear-gradient(90deg, rgba(17,17,17,0.95) 0%, rgba(17,17,17,0.5) 50%, rgba(0,0,0,0.1) 100%); 
-        }
-        
-        /* จัดตำแหน่งตัวหนังสือ */
-        .carousel-caption { 
-            bottom: auto; top: 50%; transform: translateY(-50%); text-align: left; left: 10%; padding: 0; max-width: 700px; z-index: 10; 
-        }
-        
-        /* เอฟเฟกต์อนิเมชั่นตัวหนังสือ */
-        .carousel-caption h1 { 
-            font-size: 4rem; text-transform: uppercase; font-weight: 800; font-style: italic; letter-spacing: 2px; 
-            text-shadow: 3px 3px 15px rgba(0,0,0,0.8); opacity: 0; transform: translateY(30px);
-        }
-        .carousel-caption p { 
-            font-size: 1.2rem; color: #e2e8f0; text-shadow: 1px 1px 5px rgba(0,0,0,0.8); opacity: 0; transform: translateY(30px);
-        }
-        .carousel-caption .btn { opacity: 0; transform: translateY(30px); box-shadow: 0 4px 15px rgba(255, 184, 0, 0.3); }
-        
-        /* หน่วงเวลาการแสดงผลเมื่อ Slide Active */
-        .carousel-item.active .carousel-caption h1 { animation: fadeInUp 0.8s ease forwards 0.2s; }
-        .carousel-item.active .carousel-caption p { animation: fadeInUp 0.8s ease forwards 0.4s; }
-        .carousel-item.active .carousel-caption .btn { animation: fadeInUp 0.8s ease forwards 0.6s; }
-        
-        @keyframes fadeInUp {
-            to { opacity: 1; transform: translateY(0); }
+            background: linear-gradient(100deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.1) 100%); 
         }
 
-        .carousel-indicators [data-bs-target] { width: 30px; height: 5px; background-color: var(--accent); opacity: 0.3; border: none; transition: 0.3s; margin: 0 5px;}
-        .carousel-indicators .active { opacity: 1; width: 50px; }
+        /* ลายตะแกรงโปร่งแสง (Sport Mesh Texture) */
+        .slide-texture {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0IiBoZWlnaHQ9IjQiPjxyZWN0IHdpZHRoPSI0IiBoZWlnaHQ9IjQiIGZpbGw9Im5vbmUiLz48cGF0aCBkPSJNMCAwTDQgNFpNNCAwTDAgNFoiIHN0cm9rZT0icmdiYSgyNTUsMjU1LDI1NSwwLjAzKSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9zdmc+');
+            pointer-events: none; z-index: 1;
+        }
         
-        /* ------------------------------------- */
+        /* การจัดวางกล่องข้อความ */
+        .carousel-caption { bottom: auto; top: 50%; transform: translateY(-50%); text-align: left; left: 0; padding: 0; width: 100%; z-index: 10; }
+        .slide-content-wrapper { padding-left: 2.5rem; border-left: 6px solid var(--accent); max-width: 800px; }
+        
+        /* ตั้งค่าเริ่มต้นให้หายไปก่อน (รอเล่นอนิเมชั่น) */
+        .slide-content-wrapper h1, .slide-content-wrapper p, .slide-content-wrapper .badge, .slide-btn-group { opacity: 0; }
+        .slide-content-wrapper .badge { transform: translateY(-20px); }
+        .slide-content-wrapper h1, .slide-content-wrapper p { transform: translateX(-50px); text-shadow: 2px 4px 15px rgba(0,0,0,0.8); }
+        .slide-btn-group { transform: translateY(30px); }
+
+        /* อนิเมชั่นวิ่งเข้าเมื่อสไลด์ถูกแสดง (Staggered Animation) */
+        .carousel-item.active .slide-content-wrapper .badge { animation: fadeDown 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.2s; }
+        .carousel-item.active .slide-content-wrapper h1 { animation: slideRight 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.4s; font-size: 3.8rem; }
+        .carousel-item.active .slide-content-wrapper p { animation: slideRight 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.6s; font-size: 1.25rem; color: #cbd5e1; }
+        .carousel-item.active .slide-btn-group { animation: fadeInUp 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.8s; }
+
+        @keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeDown { to { opacity: 1; transform: translateY(0); } }
+
+        /* อินดิเคเตอร์สไตล์เท่ๆ ยืดหดได้ */
+        .carousel-indicators { bottom: 20px; justify-content: flex-start; left: 5%; margin-left: 0; padding-left: 2.5rem;}
+        .carousel-indicators [data-bs-target] { width: 35px; height: 5px; background-color: #fff; opacity: 0.3; border: none; transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1); margin-right: 8px; }
+        .carousel-indicators .active { opacity: 1; width: 75px; background-color: var(--accent); box-shadow: 0 0 10px rgba(255, 184, 0, 0.8); }
+
+        /* ปุ่มสไลด์ (โฮเวอร์แล้วยกตัว+เรืองแสง) */
+        .slide-btn { position: relative; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(255, 184, 0, 0.2); }
+        .slide-btn:hover { transform: translateY(-4px); background-color: #eab308; box-shadow: 0 10px 25px rgba(255, 184, 0, 0.5); }
+        
+        /* ======================================================== */
 
         .btn-warning { background-color: var(--accent); border: none; color: #000; font-weight: 700; border-radius: 0; text-transform: uppercase; transition: 0.2s;}
-        .btn-warning:hover { background-color: #e6a600; color: #000; transform: scale(1.05); }
+        .btn-warning:hover { background-color: #e6a600; color: #000; transform: scale(1.02); }
         .btn-dark { background-color: var(--primary); border: none; border-radius: 0; font-weight: 500;}
         
         .product-card { border: none; transition: 0.3s; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05);}
@@ -180,40 +226,46 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 </nav>
 
 <header id="hero-banner">
-    <div id="heroCarousel" class="carousel slide carousel-fade">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-pause="false" data-bs-interval="5000">
+        
         <div class="carousel-indicators">
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+            <?php foreach($activeSlides as $index => $slide): ?>
+                <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="<?= $index ?>" class="<?= $index === 0 ? 'active' : '' ?>"></button>
+            <?php endforeach; ?>
         </div>
+
         <div class="carousel-inner">
-            <div class="carousel-item active">
-                <div class="slide-bg" style="background-image: url('<?= $slide1 ?>');"></div>
-                <div class="carousel-caption d-flex flex-column justify-content-center h-100 pb-0">
-                    <h1 class="mb-2">NEW SEASON <span class="text-warning">2026</span></h1>
-                    <p class="mb-4">คอลเลคชั่นใหม่ล่าสุดจากสโมสรดังทั่วโลก พร้อมส่งแล้ววันนี้!</p>
-                    <div><a href="#product-list" class="btn btn-warning btn-lg px-5 py-2"><i class="fa fa-bolt me-2"></i> เลือกช้อปเลย</a></div>
+            <?php foreach($activeSlides as $index => $slide): ?>
+                <div class="carousel-item <?= $index === 0 ? 'active' : '' ?>">
+                    <div class="slide-bg" style="background-image: url('<?= $slide['img'] ?>');"></div>
+                    <div class="slide-texture"></div> <div class="carousel-caption d-flex flex-column justify-content-center h-100">
+                        <div class="container position-relative">
+                            <div class="slide-content-wrapper">
+                                <span class="badge bg-warning text-dark mb-3 px-3 py-2 fw-bold sport-font shadow-sm" style="letter-spacing: 2px;"><?= $slide['badge'] ?></span>
+                                <h1 class="mb-1 fw-bolder fst-italic text-white text-uppercase" style="letter-spacing: 1px;">
+                                    <?= $slide['title_1'] ?> <span class="text-warning"><?= $slide['title_2'] ?></span>
+                                </h1>
+                                <p class="mb-4 fw-light font-sarabun">
+                                    <?= $slide['desc'] ?>
+                                </p>
+                                <div class="slide-btn-group">
+                                    <a href="<?= $slide['link'] ?>" class="btn btn-warning slide-btn btn-lg px-5 py-3 fw-bold rounded-0 sport-font text-dark">
+                                        <i class="fa <?= $slide['btn_icon'] ?> me-2"></i> <?= $slide['btn_text'] ?>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="carousel-item">
-                <div class="slide-bg" style="background-image: url('<?= $slide2 ?>');"></div>
-                <div class="carousel-caption d-flex flex-column justify-content-center h-100 pb-0">
-                    <h1 class="mb-2">PREMIUM <span class="text-warning">QUALITY</span></h1>
-                    <p class="mb-4">สัมผัสประสบการณ์ระดับโลก ด้วยเสื้อแข่งเกรดเพลเยอร์ที่ดีที่สุด</p>
-                    <div><a href="#product-list" class="btn btn-warning btn-lg px-5 py-2"><i class="fa fa-fire me-2"></i> สินค้ามาใหม่</a></div>
-                </div>
-            </div>
-            <div class="carousel-item">
-                <div class="slide-bg" style="background-image: url('<?= $slide3 ?>');"></div>
-                <div class="carousel-caption d-flex flex-column justify-content-center h-100 pb-0">
-                    <h1 class="mb-2">VICTORY <span class="text-warning">IS YOURS</span></h1>
-                    <p class="mb-4">สวมใส่ความมุ่งมั่น สวมใส่ความสำเร็จ ไปกับเรา ThanJai Shop</p>
-                    <div><a href="#product-list" class="btn btn-warning btn-lg px-5 py-2"><i class="fa fa-shopping-cart me-2"></i> ดูสินค้าทั้งหมด</a></div>
-                </div>
-            </div>
+            <?php endforeach; ?>
         </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span></button>
-        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span></button>
+        
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev" style="width: 5%; z-index: 20;">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next" style="width: 5%; z-index: 20;">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </button>
     </div>
 </header>
 
@@ -257,10 +309,14 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // เริ่มทำงานสไลด์โชว์อัตโนมัติ 100%
+    // สั่งให้สไลด์วิ่งอัตโนมัติ 5 วิ
     document.addEventListener("DOMContentLoaded", function() {
         var myCarousel = document.querySelector('#heroCarousel');
-        var carousel = new bootstrap.Carousel(myCarousel, { interval: 4000, ride: 'carousel', pause: false });
+        var carousel = new bootstrap.Carousel(myCarousel, {
+            interval: 5000,
+            ride: 'carousel',
+            pause: 'hover'
+        });
     });
 
     const dbProducts = <?php echo json_encode($productsFromDB); ?>;
@@ -292,7 +348,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     function showToast(message, type = 'success') {
         const toastEl = document.getElementById('liveToast');
         toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-dark', 'bg-dark');
-        if(type === 'success') toastEl.classList.add('bg-dark'); // Theme change
+        if(type === 'success') toastEl.classList.add('bg-dark'); 
         else if(type === 'error') toastEl.classList.add('bg-danger');
         else if(type === 'warning') toastEl.classList.add('bg-warning', 'text-dark');
         document.getElementById('toast-msg').innerHTML = message;
@@ -300,7 +356,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     }
 
     function openAuthModal(type) { toggleAuth(type); new bootstrap.Modal(document.getElementById('authModal')).show(); }
-    function toggleAuth(type) { document.getElementById('login-section').classList.toggle('d-none', type !== 'login'); document.getElementById('register-section').classList.toggle('d-none', type !== 'register'); document.getElementById('authModalTitle').innerText = type === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'; }
+    function toggleAuth(type) { document.getElementById('login-section').classList.toggle('d-none', type !== 'login'); document.getElementById('register-section').classList.toggle('d-none', type !== 'register'); document.getElementById('authModalTitle').innerText = type === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิกใหม่'; }
 
     function register() {
         const user = document.getElementById('reg-user').value.trim(), email = document.getElementById('reg-email').value.trim(), phone = document.getElementById('reg-phone').value.trim(), pass = document.getElementById('reg-pass').value.trim();
