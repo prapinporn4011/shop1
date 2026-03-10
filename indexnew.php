@@ -409,13 +409,14 @@ foreach ($productsFromDB as $key => $product) {
     function setupUserSession(userData) {
         currentUser = userData;
         
-        // ถ้ามีรูปโปรไฟล์ในฐานข้อมูลให้ใช้รูปนั้น ถ้าไม่มีค่อยสุ่มรูปการ์ตูนให้
-        if (userData.profilePic) {
+        // ถ้ามีรูปโปรไฟล์ในฐานข้อมูล(Base64)ให้ใช้รูปนั้น ถ้าไม่มีค่อยสุ่มรูปการ์ตูนให้
+        if (userData.profilePic && userData.profilePic.startsWith('data:image')) {
             currentUser.profilePic = userData.profilePic;
         } else {
             currentUser.profilePic = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
         }
         
+        // ดึงข้อมูลตะกร้าที่ยังไม่ได้สั่งซื้อจาก LocalStorage ชั่วคราว
         const localData = JSON.parse(localStorage.getItem('thanjai_data_' + currentUser.username)) || {};
         cart = localData.cart || [];
         currentUser.orders = localData.orders || [];
@@ -511,7 +512,7 @@ foreach ($productsFromDB as $key => $product) {
             if(data.success) {
                 setupUserSession(data.user);
                 bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
-                showToast(`ยินดีต้อนรับกลับมาครับคุณ ${currentUser.name}!`, 'success');
+                showToast(`ยินดีต้อนรับกลับมาครับ!`, 'success');
             } else {
                 showToast('❌ ' + data.message, 'error');
             }
@@ -541,23 +542,18 @@ foreach ($productsFromDB as $key => $product) {
 
     function updateNavUI() {
         if(currentUser) {
-            // เติมข้อมูลลงในฟอร์มตั้งค่า
-            document.getElementById('set-username').value = currentUser.username; // <--- เพิ่มบรรทัดนี้
-            document.getElementById('set-name').value = currentUser.name || currentUser.username;
+            document.getElementById('guest-zone').classList.add('d-none');
+            document.getElementById('user-zone').classList.remove('d-none');
             
-            // ----------------------------------------------------
-            // จุดสำคัญที่แก้ปัญหาชื่อไม่เปลี่ยน: 
-            // ให้ดึง currentUser.name มาโชว์ก่อน ถ้าไม่มีถึงจะใช้ username
-            // ----------------------------------------------------
+            // ให้ดึง currentUser.name (ชื่อแสดงผล) มาโชว์ก่อน ถ้าไม่มีถึงจะใช้ username
             document.getElementById('nav-username').innerText = currentUser.name || currentUser.username;
             
-            // จัดการรูปโปรไฟล์ (ถ้าไม่มีรูปให้สุ่มรูปการ์ตูน)
-            const picUrl = currentUser.profilePic ? currentUser.profilePic : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
-            
-            document.getElementById('nav-profile-pic').src = picUrl;
-            document.getElementById('setting-profile-pic').src = picUrl;
+            // อัปเดตรูป
+            document.getElementById('nav-profile-pic').src = currentUser.profilePic;
+            document.getElementById('setting-profile-pic').src = currentUser.profilePic;
             
             // เติมข้อมูลลงในฟอร์มตั้งค่า
+            document.getElementById('set-username').value = currentUser.username; 
             document.getElementById('set-name').value = currentUser.name || currentUser.username;
             document.getElementById('set-phone').value = currentUser.phone || '';
             document.getElementById('set-email').value = currentUser.email || '';
@@ -567,6 +563,7 @@ foreach ($productsFromDB as $key => $product) {
             document.getElementById('user-zone').classList.add('d-none');
         }
     }
+
     // --------------------------------------------------------
     // จัดการโปรไฟล์ - ต่อ Database
     // --------------------------------------------------------
@@ -588,17 +585,16 @@ foreach ($productsFromDB as $key => $product) {
         if(!newName || !newPhone) return showToast('กรุณากรอกชื่อและเบอร์โทร', 'warning');
         if(newPhone.length !== 10) return showToast('เบอร์โทรศัพท์ต้องมี 10 หลัก', 'warning');
         
-        // เช็คว่ามีการเปลี่ยนรูปใหม่ไหม (เพื่อป้องกันการส่งข้อมูลรูปซ้ำๆ ให้เซิร์ฟเวอร์ทำงานหนัก)
+        // เช็คว่ามีการเปลี่ยนรูปใหม่ไหม ถ้าเป็น Base64 ให้ส่งไปด้วย
         let picDataToSend = '';
         if(newPic.startsWith('data:image')) {
             picDataToSend = newPic;
         }
 
-        // ส่งข้อมูลชื่อใหม่ไปอัปเดตที่หลังบ้าน (api_auth.php)
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin', // บังคับให้ส่งตั๋วล็อกอิน (Session) ไปด้วย
+            credentials: 'same-origin',
             body: JSON.stringify({ 
                 action: 'update_profile', 
                 fullname: newName, 
@@ -610,9 +606,6 @@ foreach ($productsFromDB as $key => $product) {
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                // ----------------------------------------------------
-                // เมื่อ Database อัปเดตสำเร็จ ให้เปลี่ยนชื่อในตัวแปรระบบด้วย
-                // ----------------------------------------------------
                 currentUser.name = newName;
                 currentUser.phone = newPhone;
                 
@@ -620,7 +613,6 @@ foreach ($productsFromDB as $key => $product) {
                     currentUser.profilePic = data.profile_pic;
                 }
                 
-                // สั่งให้อัปเดตหน้าจอใหม่ (ชื่อที่เมนูจะเปลี่ยนทันที)
                 updateNavUI();
                 bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide();
                 showToast('อัปเดตข้อมูลบัญชีเรียบร้อย', 'success');
@@ -633,6 +625,7 @@ foreach ($productsFromDB as $key => $product) {
             showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
         });
     }
+
     // --------------------------------------------------------
     // แสดงผลสินค้า
     // --------------------------------------------------------
