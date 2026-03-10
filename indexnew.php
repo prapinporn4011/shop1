@@ -956,48 +956,87 @@ foreach ($productsFromDB as $key => $product) {
     // --------------------------------------------------------
     // ประวัติการสั่งซื้อ
     // --------------------------------------------------------
+    f// --------------------------------------------------------
+    // ประวัติการสั่งซื้อ (ดึงจากฐานข้อมูลแบบ Real-time)
+    // --------------------------------------------------------
     function openOrderHistory() {
-        if(!currentUser) return;
-        const container = document.getElementById('history-container');
-        
-        if(!currentUser.orders || currentUser.orders.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-5">
-                    <i class="fa fa-box-open fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">คุณยังไม่มีประวัติการสั่งซื้อ</p>
-                    <button class="btn btn-warning mt-2" data-bs-dismiss="modal">ไปช้อปปิ้งเลย</button>
-                </div>`;
-        } else {
-            container.innerHTML = currentUser.orders.map(o => `
-                <div class="card mb-4 border-0 shadow-sm rounded-3">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom">
-                        <div>
-                            <span class="fw-bold text-dark"><i class="fa fa-receipt text-primary me-2"></i>ออเดอร์: ${o.orderId}</span>
-                            <small class="text-muted d-block mt-1"><i class="fa fa-calendar-alt me-1"></i> ${o.date}</small>
-                        </div>
-                        <span class="badge ${o.status.includes('ชำระ') ? 'bg-success' : 'bg-warning text-dark'} px-3 py-2">${o.status}</span>
-                    </div>
-                    <div class="card-body bg-light">
-                        ${o.items.map(item => `
-                            <div class="d-flex justify-content-between align-items-center small mb-2 border-bottom pb-2">
-                                <div class="d-flex align-items-center">
-                                    <img src="${item.img}" width="40" class="rounded me-2">
-                                    <span>${item.name} <span class="text-muted">(Size: ${item.size})</span></span>
-                                </div>
-                                <span>x ${item.qty} = <strong>฿${(item.price * item.qty).toLocaleString()}</strong></span>
-                            </div>
-                        `).join('')}
-                        <div class="d-flex justify-content-between align-items-end mt-3">
-                            <small class="text-muted" style="max-width: 60%;"><i class="fa fa-map-marker-alt"></i> จัดส่ง: ${o.address}</small>
-                            <div class="text-end fw-bold">ยอดสุทธิ: <span class="text-danger fs-5 ms-2">฿${o.total.toLocaleString()}</span></div>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+        if(!currentUser) {
+            showToast('กรุณาเข้าสู่ระบบก่อนดูประวัติ', 'warning');
+            return;
         }
-        
+
+        const container = document.getElementById('history-container');
+        // โชว์อนิเมชั่นโหลดข้อมูลระหว่างรอฐานข้อมูลตอบกลับ
+        container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">กำลังดึงข้อมูลออเดอร์ล่าสุด...</p></div>';
         new bootstrap.Modal(document.getElementById('historyModal')).show();
+
+        // ร้องขอข้อมูลออเดอร์ล่าสุดจากฐานข้อมูล
+        fetch('api_auth.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ action: 'get_my_orders' })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                const orders = data.orders;
+                if(orders.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-5">
+                            <i class="fa fa-box-open fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">คุณยังไม่มีประวัติการสั่งซื้อ</p>
+                            <button class="btn btn-warning mt-2" data-bs-dismiss="modal">ไปช้อปปิ้งเลย</button>
+                        </div>`;
+                } else {
+                    container.innerHTML = orders.map(o => {
+                        // แปลงสถานะจาก Database เป็นสีข้อความให้สวยงาม
+                        let badgeClass = 'bg-secondary';
+                        let statusText = o.status;
+                        
+                        if(o.status === 'pending') { badgeClass = 'bg-warning text-dark'; statusText = 'รอชำระเงิน / COD'; }
+                        else if(o.status === 'paid') { badgeClass = 'bg-success'; statusText = 'ชำระเงินแล้ว'; }
+                        else if(o.status === 'shipped') { badgeClass = 'bg-info text-dark'; statusText = 'จัดส่งแล้ว'; }
+                        else if(o.status === 'cancelled') { badgeClass = 'bg-danger'; statusText = 'ยกเลิกคำสั่งซื้อ'; }
+
+                        return `
+                        <div class="card mb-4 border-0 shadow-sm rounded-3">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom">
+                                <div>
+                                    <span class="fw-bold text-dark"><i class="fa fa-receipt text-primary me-2"></i>ออเดอร์: ${o.orderId}</span>
+                                    <small class="text-muted d-block mt-1"><i class="fa fa-calendar-alt me-1"></i> ${o.date}</small>
+                                </div>
+                                <span class="badge ${badgeClass} px-3 py-2">${statusText}</span>
+                            </div>
+                            <div class="card-body bg-light">
+                                ${o.items.map(item => `
+                                    <div class="d-flex justify-content-between align-items-center small mb-2 border-bottom pb-2">
+                                        <div class="d-flex align-items-center">
+                                            <img src="${item.img}" width="40" class="rounded me-2 border bg-white">
+                                            <span>${item.name} <span class="text-muted">(Size: ${item.size})</span></span>
+                                        </div>
+                                        <span>x ${item.qty} = <strong>฿${(item.price * item.qty).toLocaleString()}</strong></span>
+                                    </div>
+                                `).join('')}
+                                <div class="d-flex justify-content-between align-items-end mt-3">
+                                    <small class="text-muted" style="max-width: 60%;"><i class="fa fa-map-marker-alt"></i> จัดส่ง: ${o.address}</small>
+                                    <div class="text-end fw-bold">ยอดสุทธิ: <span class="text-danger fs-5 ms-2">฿${o.total.toLocaleString()}</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    `}).join('');
+                }
+            } else {
+                container.innerHTML = '<div class="alert alert-danger">เกิดข้อผิดพลาด: ' + data.message + '</div>';
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            container.innerHTML = '<div class="alert alert-danger">ไม่สามารถดึงข้อมูลได้ โปรดลองอีกครั้ง</div>';
+        });
     }
+        new bootstrap.Modal(document.getElementById('historyModal')).show();
+    
 </script>
 </body>
 </html>
