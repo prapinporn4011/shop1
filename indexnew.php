@@ -46,9 +46,9 @@ foreach ($productsFromDB as $key => $product) {
         .payment-box.active { border-color: var(--accent); background: #fff8e1; font-weight: bold; }
         .sale-badge { position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; padding: 5px 12px; border-radius: 5px; font-weight: bold; font-size: 12px; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .profile-img-preview { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent); cursor: pointer; }
-        .star-rating i { color: #ddd; cursor: pointer; }
+        .star-rating i { color: #ddd; cursor: pointer; transition: 0.2s; }
         .star-rating i.active { color: #ffc107; }
-        /* Toast Styles */
+        .star-rating i:hover { transform: scale(1.2); }
         .toast-container { z-index: 1060; }
         .toast { border-radius: 10px; font-weight: bold; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
     </style>
@@ -215,10 +215,10 @@ foreach ($productsFromDB as $key => $product) {
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="row">
+                <div class="row mb-3">
                     <div class="col-md-5 text-center mb-3 mb-md-0 position-relative">
                         <span id="detail-sale-badge" class="sale-badge d-none">ลดราคา!</span>
-                        <img id="detail-img" src="" class="img-fluid rounded shadow" style="max-height: 350px; object-fit: contain;">
+                        <img id="detail-img" src="" class="img-fluid rounded shadow" style="max-height: 350px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/350?text=No+Image'">
                     </div>
                     <div class="col-md-7">
                         <span id="detail-type" class="badge bg-secondary mb-2"></span>
@@ -234,7 +234,6 @@ foreach ($productsFromDB as $key => $product) {
                             <p class="mb-0 text-success"><i class="fa fa-clock me-2"></i> ระยะเวลาจัดส่ง: <strong>2-3 วันทำการ</strong></p>
                         </div>
 
-                        <hr>
                         <div class="row g-3 align-items-end mb-4">
                             <div class="col-8">
                                 <label class="form-label fw-bold small">เลือกไซส์ (Size):</label>
@@ -267,6 +266,11 @@ foreach ($productsFromDB as $key => $product) {
                         </div>
                     </div>
                 </div>
+                
+                <hr>
+                <h6 class="fw-bold"><i class="fa fa-comments text-warning me-2"></i>รีวิวจากลูกค้า</h6>
+                <div id="detail-reviews" class="bg-light p-3 rounded border" style="max-height: 250px; overflow-y: auto;">
+                    </div>
             </div>
         </div>
     </div>
@@ -361,6 +365,29 @@ foreach ($productsFromDB as $key => $product) {
     </div>
 </div>
 
+<div class="modal fade" id="reviewModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+            <div class="modal-header bg-warning">
+                <h5 class="modal-title fw-bold"><i class="fa fa-star text-dark"></i> ให้คะแนนและรีวิวสินค้า</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p class="small text-muted mb-2">ความพึงพอใจในสินค้าและการจัดส่ง</p>
+                <div class="star-rating fs-1 mb-3" id="review-stars">
+                    <i class="fa fa-star" onclick="setRating(1)"></i>
+                    <i class="fa fa-star" onclick="setRating(2)"></i>
+                    <i class="fa fa-star" onclick="setRating(3)"></i>
+                    <i class="fa fa-star" onclick="setRating(4)"></i>
+                    <i class="fa fa-star" onclick="setRating(5)"></i>
+                </div>
+                <textarea id="review-comment" class="form-control mb-3" rows="3" placeholder="เขียนความรู้สึกประทับใจของคุณที่นี่..."></textarea>
+                <button class="btn btn-dark w-100 fw-bold" onclick="submitReview()">ส่งรีวิว</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // --------------------------------------------------------
@@ -374,7 +401,7 @@ foreach ($productsFromDB as $key => $product) {
         oldPrice: parseFloat(p.price) + 200, 
         isSale: false, 
         type: p.type || "ทั่วไป",
-        img: p.img ? p.img : 'default.jpg',
+        img: p.img ? (p.img.startsWith('http') || p.img.startsWith('data:') ? p.img : 'uploads/' + p.img) : 'default.jpg',
         desc: p.desc
     }));
 
@@ -384,13 +411,17 @@ foreach ($productsFromDB as $key => $product) {
     let paymentMethod = 'COD';
     let qrTimerInterval;
 
+    // ตัวแปรสำหรับระบบรีวิว
+    let currentReviewProduct = null;
+    let currentReviewOrder = null;
+    let selectedRating = 0;
+
     // --------------------------------------------------------
     // ฟังก์ชันเริ่มต้น (โหลดหน้าเว็บ)
     // --------------------------------------------------------
     function initStore() {
         renderProducts(products);
         
-        // เช็ค Session จากฝั่งเซิร์ฟเวอร์
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -409,14 +440,12 @@ foreach ($productsFromDB as $key => $product) {
     function setupUserSession(userData) {
         currentUser = userData;
         
-        // ถ้ามีรูปโปรไฟล์ในฐานข้อมูล(Base64)ให้ใช้รูปนั้น ถ้าไม่มีค่อยสุ่มรูปการ์ตูนให้
         if (userData.profilePic && userData.profilePic.startsWith('data:image')) {
             currentUser.profilePic = userData.profilePic;
         } else {
             currentUser.profilePic = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
         }
         
-        // ดึงข้อมูลตะกร้าที่ยังไม่ได้สั่งซื้อจาก LocalStorage ชั่วคราว
         const localData = JSON.parse(localStorage.getItem('thanjai_data_' + currentUser.username)) || {};
         cart = localData.cart || [];
         currentUser.orders = localData.orders || [];
@@ -426,7 +455,6 @@ foreach ($productsFromDB as $key => $product) {
         updateCartBadge();
     }
 
-    // เซฟตะกร้าลง LocalStorage (อิงตามชื่อผู้ใช้)
     function saveDatabase() {
         if(currentUser) {
             const localData = {
@@ -440,7 +468,6 @@ foreach ($productsFromDB as $key => $product) {
 
     function showToast(message, type = 'success') {
         const toastEl = document.getElementById('liveToast');
-        const toastBody = document.getElementById('toast-body');
         
         toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-dark');
         
@@ -454,7 +481,7 @@ foreach ($productsFromDB as $key => $product) {
     }
 
     // --------------------------------------------------------
-    // ระบบสมาชิก (Login & Register) - ต่อ Database
+    // ระบบสมาชิก (Login & Register)
     // --------------------------------------------------------
     function openAuthModal(type) {
         toggleAuth(type);
@@ -545,14 +572,11 @@ foreach ($productsFromDB as $key => $product) {
             document.getElementById('guest-zone').classList.add('d-none');
             document.getElementById('user-zone').classList.remove('d-none');
             
-            // ให้ดึง currentUser.name (ชื่อแสดงผล) มาโชว์ก่อน ถ้าไม่มีถึงจะใช้ username
             document.getElementById('nav-username').innerText = currentUser.name || currentUser.username;
             
-            // อัปเดตรูป
             document.getElementById('nav-profile-pic').src = currentUser.profilePic;
             document.getElementById('setting-profile-pic').src = currentUser.profilePic;
             
-            // เติมข้อมูลลงในฟอร์มตั้งค่า
             document.getElementById('set-username').value = currentUser.username; 
             document.getElementById('set-name').value = currentUser.name || currentUser.username;
             document.getElementById('set-phone').value = currentUser.phone || '';
@@ -565,7 +589,7 @@ foreach ($productsFromDB as $key => $product) {
     }
 
     // --------------------------------------------------------
-    // จัดการโปรไฟล์ - ต่อ Database
+    // จัดการโปรไฟล์
     // --------------------------------------------------------
     function uploadProfilePic(event) {
         const file = event.target.files[0];
@@ -585,7 +609,6 @@ foreach ($productsFromDB as $key => $product) {
         if(!newName || !newPhone) return showToast('กรุณากรอกชื่อและเบอร์โทร', 'warning');
         if(newPhone.length !== 10) return showToast('เบอร์โทรศัพท์ต้องมี 10 หลัก', 'warning');
         
-        // เช็คว่ามีการเปลี่ยนรูปใหม่ไหม ถ้าเป็น Base64 ให้ส่งไปด้วย
         let picDataToSend = '';
         if(newPic.startsWith('data:image')) {
             picDataToSend = newPic;
@@ -643,7 +666,7 @@ foreach ($productsFromDB as $key => $product) {
             <div class="col-6 col-md-3 mb-4">
                 <div class="card product-card shadow-sm border-0">
                     ${saleBadge}
-                    <img src="${p.img}" class="card-img-top" alt="${p.name}">
+                    <img src="${p.img}" onerror="this.src='https://via.placeholder.com/250?text=No+Image'" class="card-img-top" alt="${p.name}">
                     <div class="card-body d-flex flex-column">
                         <span class="badge bg-secondary mb-2 align-self-start" style="font-size: 10px;">${p.type}</span>
                         <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 14px;">${p.name}</h6>
@@ -686,7 +709,7 @@ foreach ($productsFromDB as $key => $product) {
     }
 
     // --------------------------------------------------------
-    // รายละเอียดสินค้า & ตะกร้า
+    // รายละเอียดสินค้า & ตะกร้า & โหลดรีวิว
     // --------------------------------------------------------
     function openProductDetail(id) {
         const p = products.find(x => x.id === id);
@@ -711,6 +734,41 @@ foreach ($productsFromDB as $key => $product) {
         document.getElementById('detail-img').src = p.img; 
         document.getElementById('detail-qty').value = 1;
         document.getElementById('detail-size').selectedIndex = 1; 
+
+        // ดึงข้อมูลรีวิวของสินค้านี้จาก Database
+        const reviewContainer = document.getElementById('detail-reviews');
+        reviewContainer.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-warning spinner-border-sm"></div></div>';
+        
+        fetch('api_auth.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'get_reviews', product_id: id })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success && data.reviews.length > 0) {
+                reviewContainer.innerHTML = data.reviews.map(r => {
+                    let stars = '';
+                    for(let i=0; i<5; i++) {
+                        stars += `<i class="fa fa-star ${i < r.rating ? 'text-warning' : 'text-muted'}"></i>`;
+                    }
+                    let pic = r.profile_pic ? r.profile_pic : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + r.username;
+                    return `
+                    <div class="d-flex mb-3 border-bottom pb-2">
+                        <img src="${pic}" width="40" height="40" class="rounded-circle border me-3 bg-white" style="object-fit:cover;">
+                        <div>
+                            <div class="fw-bold small">${r.fullname || r.username}</div>
+                            <div class="small mb-1">${stars}</div>
+                            <p class="small mb-0 text-dark">${r.comment}</p>
+                            <small class="text-muted" style="font-size: 10px;">รีวิวเมื่อ: ${r.created_at}</small>
+                        </div>
+                    </div>
+                    `;
+                }).join('');
+            } else {
+                reviewContainer.innerHTML = '<p class="text-muted small text-center mb-0 my-3">ยังไม่มีรีวิวสำหรับสินค้านี้ เป็นคนแรกที่รีวิวสิ!</p>';
+            }
+        });
 
         new bootstrap.Modal(document.getElementById('productDetailModal')).show();
     }
@@ -746,7 +804,7 @@ foreach ($productsFromDB as $key => $product) {
     }
 
     // --------------------------------------------------------
-    // ระบบชำระเงิน & คูปอง & สั่งซื้อ - ต่อ Database
+    // ระบบชำระเงิน & คูปอง & สั่งซื้อ
     // --------------------------------------------------------
     function openCart() {
         if(!currentUser) return openAuthModal('login');
@@ -772,7 +830,7 @@ foreach ($productsFromDB as $key => $product) {
         
         container.innerHTML = cart.map((item, index) => `
             <div class="d-flex align-items-center mb-3 p-3 border rounded bg-white shadow-sm">
-                <img src="${item.img}" width="80" height="80" class="rounded me-3 border" style="object-fit: cover;">
+                <img src="${item.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="80" height="80" class="rounded me-3 border bg-white" style="object-fit: cover;">
                 <div class="flex-grow-1">
                     <h6 class="mb-1 fw-bold" style="font-size: 15px;">${item.name}</h6>
                     <small class="text-muted d-block mb-1">ไซส์: <strong>${item.size}</strong></small>
@@ -915,20 +973,7 @@ foreach ($productsFromDB as $key => $product) {
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                const newOrder = {
-                    orderId: 'ORD-' + String(data.order_id).padStart(5, '0'),
-                    date: new Date().toLocaleString('th-TH'),
-                    items: [...cart],
-                    total: total,
-                    status: paymentMethod === 'QR' ? 'ชำระเงินแล้ว' : 'รอเก็บเงินปลายทาง (COD)',
-                    address: addressStr
-                };
-
-                if(!currentUser.orders) currentUser.orders = [];
-                currentUser.orders.unshift(newOrder); 
-                
                 cart = []; discount = 0;
-                
                 if(currentUser.coupons && currentUser.coupons.includes('NEWBIE50')) {
                     currentUser.coupons = currentUser.coupons.filter(c => c !== 'NEWBIE50');
                 }
@@ -954,13 +999,59 @@ foreach ($productsFromDB as $key => $product) {
     }
 
     // --------------------------------------------------------
+    // ระบบรีวิวสินค้า
+    // --------------------------------------------------------
+    function setRating(stars) {
+        selectedRating = stars;
+        const starElements = document.getElementById('review-stars').children;
+        for(let i=0; i<5; i++) {
+            if(i < stars) starElements[i].classList.add('text-warning', 'active');
+            else starElements[i].classList.remove('text-warning', 'active');
+        }
+    }
+
+    function openReviewModal(prodId, orderId) {
+        currentReviewProduct = prodId;
+        currentReviewOrder = orderId;
+        setRating(0);
+        document.getElementById('review-comment').value = '';
+        
+        // ปิดหน้าต่างประวัติ แล้วเปิดหน้าต่างรีวิว
+        bootstrap.Modal.getInstance(document.getElementById('historyModal')).hide();
+        new bootstrap.Modal(document.getElementById('reviewModal')).show();
+    }
+
+    function submitReview() {
+        if(selectedRating === 0) return showToast('กรุณาเลือกดาวให้คะแนน', 'warning');
+        const comment = document.getElementById('review-comment').value.trim();
+
+        fetch('api_auth.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ 
+                action: 'add_review', 
+                product_id: currentReviewProduct, 
+                order_id: currentReviewOrder, 
+                rating: selectedRating, 
+                comment: comment 
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
+                showToast('ขอบคุณสำหรับรีวิวครับ!', 'success');
+                // เปิดหน้าประวัติกลับมาให้ดู
+                setTimeout(openOrderHistory, 500);
+            } else {
+                showToast('❌ ' + data.message, 'error');
+            }
+        });
+    }
+
+    // --------------------------------------------------------
     // ประวัติการสั่งซื้อ
-    // --------------------------------------------------------
-    f// --------------------------------------------------------
-    // ประวัติการสั่งซื้อ (ดึงจากฐานข้อมูลแบบ Real-time)
-    // --------------------------------------------------------
-    // --------------------------------------------------------
-    // ประวัติการสั่งซื้อ (ดึงจากฐานข้อมูลแบบ Real-time)
     // --------------------------------------------------------
     function openOrderHistory() {
         if(!currentUser) {
@@ -970,7 +1061,11 @@ foreach ($productsFromDB as $key => $product) {
 
         const container = document.getElementById('history-container');
         container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">กำลังดึงข้อมูลออเดอร์ล่าสุด...</p></div>';
-        new bootstrap.Modal(document.getElementById('historyModal')).show();
+        
+        const historyModalEl = document.getElementById('historyModal');
+        if(!historyModalEl.classList.contains('show')) {
+            new bootstrap.Modal(historyModalEl).show();
+        }
 
         fetch('api_auth.php', {
             method: 'POST',
@@ -1009,15 +1104,27 @@ foreach ($productsFromDB as $key => $product) {
                                 <span class="badge ${badgeClass} px-3 py-2">${statusText}</span>
                             </div>
                             <div class="card-body bg-light">
-                                ${o.items.map(item => `
+                                ${o.items.map(item => {
+                                    // ถ้าสถานะจัดส่งแล้ว (shipped) ให้โชว์ปุ่มรีวิว
+                                    let reviewBtn = '';
+                                    if(o.status === 'shipped') {
+                                        reviewBtn = `<button class="btn btn-sm btn-outline-warning mt-1 px-3 py-0" onclick="openReviewModal(${item.product_id}, ${o.rawOrderId})"><i class="fa fa-star"></i> ให้คะแนนและรีวิว</button>`;
+                                    }
+
+                                    return `
                                     <div class="d-flex justify-content-between align-items-center small mb-2 border-bottom pb-2">
                                         <div class="d-flex align-items-center">
-                                            <img src="${item.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="40" height="40" style="object-fit:cover;" class="rounded me-2 border bg-white">
-                                            <span>${item.name} <span class="text-muted">(Size: ${item.size})</span></span>
+                                            <img src="${item.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="50" height="50" style="object-fit:cover;" class="rounded me-3 border bg-white">
+                                            <div>
+                                                <span class="fw-bold">${item.name} <span class="text-muted fw-normal">(Size: ${item.size})</span></span>
+                                                <br>
+                                                ${reviewBtn}
+                                            </div>
                                         </div>
                                         <span>x ${item.qty} = <strong>฿${(item.price * item.qty).toLocaleString()}</strong></span>
                                     </div>
-                                `).join('')}
+                                    `;
+                                }).join('')}
                                 <div class="d-flex justify-content-between align-items-end mt-3">
                                     <small class="text-muted" style="max-width: 60%;"><i class="fa fa-map-marker-alt"></i> จัดส่ง: ${o.address}</small>
                                     <div class="text-end fw-bold">ยอดสุทธิ: <span class="text-danger fs-5 ms-2">฿${o.total.toLocaleString()}</span></div>
@@ -1035,8 +1142,6 @@ foreach ($productsFromDB as $key => $product) {
             container.innerHTML = '<div class="alert alert-danger">ไม่สามารถดึงข้อมูลได้ โปรดลองอีกครั้ง</div>';
         });
     }
-        new bootstrap.Modal(document.getElementById('historyModal')).show();
-    
 </script>
 </body>
 </html>

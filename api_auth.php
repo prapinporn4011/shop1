@@ -91,7 +91,7 @@ try {
         echo json_encode(['success' => false]);
     }
 
-    // ---------------- 5. อัปเดตโปรไฟล์ (เซฟรูปลง Database โดยตรง) ----------------
+    // ---------------- 5. อัปเดตโปรไฟล์ ----------------
     elseif ($action === 'update_profile') {
         if (!isset($_SESSION['user_id'])) {
             echo json_encode(['success' => false, 'message' => 'กรุณาเข้าสู่ระบบก่อนทำรายการ']);
@@ -109,17 +109,13 @@ try {
             exit;
         }
 
-        // เตรียมคำสั่ง SQL
         $query = "UPDATE users SET fullname = ?, phone = ?";
         $params = [$fullname, $phone];
 
-        // ถ้ามีการเปลี่ยนรหัสผ่าน
         if (!empty($new_password)) {
             $query .= ", password = ?";
             $params[] = password_hash($new_password, PASSWORD_DEFAULT);
         }
-        
-        // ถ้ามีการอัปโหลดรูปภาพมาใหม่ (ต้องเป็น base64)
         if (!empty($profile_pic_data) && strpos($profile_pic_data, 'data:image') === 0) {
             $query .= ", profile_pic = ?";
             $params[] = $profile_pic_data;
@@ -131,10 +127,10 @@ try {
         $stmt = $pdo->prepare($query);
         $stmt->execute($params);
 
-        // ส่งรูปภาพกลับไปให้หน้าบ้านอัปเดตแบบเรียลไทม์
         echo json_encode(['success' => true, 'profile_pic' => $profile_pic_data]);
     }
-// ---------------- 6. ดึงประวัติการสั่งซื้อของฉัน ----------------
+
+    // ---------------- 6. ดึงประวัติการสั่งซื้อ (ดึงแบบเรียลไทม์) ----------------
     elseif ($action === 'get_my_orders') {
         if (!isset($_SESSION['user_id'])) {
             echo json_encode(['success' => false, 'message' => 'กรุณาเข้าสู่ระบบ']);
@@ -142,15 +138,12 @@ try {
         }
 
         $user_id = $_SESSION['user_id'];
-
-        // ดึงข้อมูลออเดอร์ของ user นี้
         $stmt = $pdo->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
         $stmt->execute([$user_id]);
         $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $result = [];
         foreach ($orders as $o) {
-            // ดึงรายการสินค้าในแต่ละออเดอร์
             $stmtItems = $pdo->prepare("
                 SELECT oi.*, p.name, p.image 
                 FROM order_items oi 
@@ -160,11 +153,11 @@ try {
             $stmtItems->execute([$o['id']]);
             $items = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
 
-            // จัดรูปแบบข้อมูลเตรียมส่งกลับไปให้หน้าเว็บ
             $result[] = [
+                'rawOrderId' => $o['id'],
                 'orderId' => 'ORD-' . str_pad($o['id'], 5, '0', STR_PAD_LEFT),
                 'date' => date('d/m/Y H:i:s', strtotime($o['created_at'])),
-                'status' => $o['status'], // ส่งสถานะจริงจาก DB กลับไป
+                'status' => $o['status'],
                 'total' => (float)$o['total_price'],
                 'address' => $o['shipping_address'],
                 'items' => array_map(function($i) {
@@ -173,6 +166,7 @@ try {
                         $imgUrl = 'uploads/' . $imgUrl;
                     }
                     return [
+                        'product_id' => $i['product_id'],
                         'name' => $i['name'] ?: 'สินค้าหมายเลข ' . $i['product_id'],
                         'img' => $imgUrl,
                         'size' => $i['size'],
@@ -186,6 +180,53 @@ try {
         echo json_encode(['success' => true, 'orders' => $result]);
     }
     
+    // ---------------- 7. บันทึกรีวิวสินค้า ----------------
+    elseif ($action === 'add_review') {
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'กรุณาเข้าสู่ระบบ']);
+            exit;
+        }
+        
+        // เช็คว่าเคยรีวิวออเดอร์สินค้านี้ไปหรือยัง
+        $stmtCheck = $pdo->prepare("SELECT id FROM reviews WHERE order_id = ? AND product_id = ?");
+        $stmtCheck->execute([$data['order_id'], $data['product_id']]);
+        if ($stmtCheck->fetch()) {
+            echo json_encode(['success' => false, 'message' => 'คุณได้รีวิวสินค้านี้ในออเดอร์นี้ไปแล้วครับ']);
+            exit;
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO reviews (product_id, user_id, order_id, rating, comment) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([
+            $data['product_id'], 
+            $_SESSION['user_id'], 
+            $data['order_id'], 
+            $data['rating'], 
+            $data['comment']
+        ]);
+        echo json_encode(['success' => true]);
+    }
+    
+    // ---------------- 8. ดึงรีวิวของสินค้ามาโชว์ ----------------
+    elseif ($action === 'get_reviews') {
+        // ดึงรีวิวเชื่อมกับผู้ใช้เพื่อเอาชื่อและรูปโปรไฟล์มาโชว์
+        $stmt = $pdo->prepare("
+            SELECT r.*, u.fullname, u.username, u.profile_pic 
+            FROM reviews r 
+            LEFT JOIN users u ON r.user_id = u.id 
+            WHERE r.product_id = ? 
+            ORDER BY r.created_at DESC
+        ");
+        $stmt->execute([$data['product_id']]);
+        $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // จัด Format วันที่ให้สวยงามก่อนส่งกลับ
+        foreach($reviews as $k => $v) {
+            $reviews[$k]['created_at'] = date('d/m/Y H:i', strtotime($v['created_at']));
+        }
+
+        echo json_encode(['success' => true, 'reviews' => $reviews]);
+    }
+
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
