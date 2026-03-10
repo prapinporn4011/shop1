@@ -1,6 +1,16 @@
 <?php
 require_once 'db.php';
 
+// ระบบสุ่มรูปภาพพื้นหลัง (Background) ธีมฟุตบอลพรีเมียม
+$bgImages = [
+    'https://images.unsplash.com/photo-1518605368461-1e1252220a77?q=80&w=1920&auto=format&fit=crop', // สนามหญ้า
+    'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1920&auto=format&fit=crop', // ลูกฟุตบอล
+    'https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?q=80&w=1920&auto=format&fit=crop', // แสงไฟสนาม
+    'https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=1920&auto=format&fit=crop', // อัฒจันทร์
+    'https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=1920&auto=format&fit=crop'  // รองเท้าสตั๊ด
+];
+$randomBg = $bgImages[array_rand($bgImages)];
+
 // ดึงข้อมูลสินค้า พร้อมกับข้อมูลลดราคา
 $sql = "SELECT p.id, p.name, p.price, p.is_sale, p.old_price, p.description as `desc`, p.image as img, c.name as type 
         FROM products p 
@@ -28,7 +38,15 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #111111; --accent: #ffb800; --bg-light: #f5f5f5; }
-        body { font-family: 'Sarabun', sans-serif; background: #ffffff; color: #333; }
+        
+        /* เพิ่มพื้นหลังแบบสุ่มให้กับหน้าเว็บ พร้อมฟิลเตอร์สีขาวโปร่งแสง */
+        body { 
+            font-family: 'Sarabun', sans-serif; 
+            color: #333; 
+            background: linear-gradient(rgba(245, 245, 245, 0.85), rgba(245, 245, 245, 0.95)), url('<?= $randomBg ?>') no-repeat center center fixed;
+            background-size: cover;
+        }
+        
         h1, h2, h3, h4, h5, h6, .nav-link, .btn, .navbar-brand, .sport-font { font-family: 'Kanit', sans-serif; }
         
         .navbar { background: var(--primary) !important; padding: 15px 0; border-bottom: 2px solid var(--accent); z-index: 1050;}
@@ -49,7 +67,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         .btn-warning:hover { background-color: #e6a600; color: #000; transform: scale(1.02); }
         .btn-dark { background-color: var(--primary); border: none; border-radius: 0; font-weight: 500;}
         
-        .product-card { border: none; transition: 0.3s; background: #fff; }
+        .product-card { border: none; transition: 0.3s; background: #fff; box-shadow: 0 4px 15px rgba(0,0,0,0.05);}
         .product-card:hover .product-img-wrap img { transform: scale(1.05); }
         .product-img-wrap { background-color: var(--bg-light); aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
         .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.5s ease; }
@@ -150,13 +168,17 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev"><span class="carousel-control-prev-icon" aria-hidden="true"></span></button>
-        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next"><span class="carousel-control-next-icon" aria-hidden="true"></span></button>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </button>
     </div>
 </header>
 
 <div class="container mt-4" id="promo-banner">
-    <div class="alert shadow border-0 text-center sport-font text-white position-relative overflow-hidden p-4" style="background: linear-gradient(to right, rgba(17, 17, 17, 0.95), rgba(17, 17, 17, 0.7)), url('https://images.unsplash.com/photo-1518605368461-1e1252220a77?q=80&w=1200&auto=format&fit=crop'); background-size: cover; background-position: center;">
+    <div class="alert shadow-sm border-0 text-center sport-font text-white position-relative overflow-hidden p-4" style="background: linear-gradient(to right, rgba(17, 17, 17, 0.95), rgba(17, 17, 17, 0.7)), url('https://images.unsplash.com/photo-1518605368461-1e1252220a77?q=80&w=1200&auto=format&fit=crop'); background-size: cover; background-position: center;">
         <h3 class="fw-bold mb-2 text-warning"><i class="fa fa-truck-fast me-2"></i> โค้ดส่งฟรี! สำหรับสมาชิกใหม่</h3>
         <p class="mb-3 fs-5">รับสิทธิ์จัดส่งฟรีทั่วประเทศ (โค้ด: <span class="bg-warning text-dark px-3 py-1 ms-1 fw-bold rounded-1">FREESHIP</span>)</p>
         <button class="btn btn-warning fw-bold px-5 py-2 rounded-0 shadow-sm" onclick="collectCoupon('FREESHIP')">เก็บและใช้งานคูปอง</button>
@@ -173,136 +195,17 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     <div class="row g-4" id="store-display"></div>
 </main>
 
-<div class="modal fade" id="authModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content shadow-lg">
-            <div class="modal-header border-0 text-white position-relative" style="background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(17,17,17,1)), url('https://images.unsplash.com/photo-1600250395178-40fe752e5189?q=80&w=400&auto=format&fit=crop'); background-size: cover; height: 130px; align-items: flex-end;">
-                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
-                <h4 class="modal-title fw-bold sport-font w-100 text-center text-warning pb-2" id="authModalTitle">เข้าสู่ระบบ</h4>
-            </div>
-            <div class="modal-body sport-font px-4 pb-4 bg-white">
-                <div id="login-section">
-                    <input type="text" id="login-user" class="form-control rounded-0 mb-3" placeholder="ชื่อผู้ใช้ (Username)">
-                    <input type="password" id="login-pass" class="form-control rounded-0 mb-4" placeholder="รหัสผ่าน">
-                    <button class="btn btn-warning w-100 fw-bold py-2 mb-3 rounded-0" onclick="login()">เข้าสู่ระบบ</button>
-                    <p class="text-center small mt-2 mb-0">ผู้ใช้ใหม่ใช่ไหม? <a href="#" onclick="toggleAuth('register')" class="text-primary fw-bold text-decoration-none">สมัครสมาชิก</a></p>
-                </div>
-                <div id="register-section" class="d-none">
-                    <input type="text" id="reg-user" class="form-control rounded-0 mb-2" placeholder="ตั้งชื่อผู้ใช้ (Username)">
-                    <input type="email" id="reg-email" class="form-control rounded-0 mb-2" placeholder="อีเมล (เช่น name@email.com)">
-                    <input type="text" id="reg-phone" class="form-control rounded-0 mb-2" placeholder="เบอร์โทรศัพท์ (10 หลัก)" maxlength="10">
-                    <input type="password" id="reg-pass" class="form-control rounded-0 mb-4" placeholder="ตั้งรหัสผ่าน">
-                    <button class="btn btn-dark w-100 fw-bold py-2 mb-3 rounded-0" onclick="register()">ลงทะเบียน</button>
-                    <p class="text-center small mt-2 mb-0">มีบัญชีอยู่แล้ว? <a href="#" onclick="toggleAuth('login')" class="text-primary fw-bold text-decoration-none">เข้าสู่ระบบ</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="profileModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content shadow-lg">
-            <div class="modal-header border-0 text-white position-relative" style="background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(17,17,17,1)), url('https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=600&auto=format&fit=crop'); background-size: cover; background-position: center; height: 150px; align-items: flex-end;">
-                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button>
-                <h5 class="modal-title fw-bold sport-font w-100 text-center text-warning pb-3"><i class="fa fa-user-cog me-2"></i>ตั้งค่าบัญชี</h5>
-            </div>
-            <div class="modal-body text-center bg-white px-4 pb-4" style="margin-top: -65px;">
-                <label for="profile-upload" class="position-relative d-inline-block">
-                    <img id="setting-profile-pic" src="" class="rounded-circle border border-3 border-dark bg-white shadow" style="width:110px;height:110px;object-fit:cover;cursor:pointer; position: relative; z-index: 2;">
-                    <div class="position-absolute bottom-0 end-0 bg-warning rounded-circle p-2 shadow-sm" style="cursor:pointer; z-index: 3;"><i class="fa fa-camera small text-dark"></i></div>
-                </label>
-                <input type="file" id="profile-upload" class="d-none" accept="image/*" onchange="uploadProfilePic(event)">
-                <div class="text-start mt-4 sport-font">
-                    <label class="form-label small fw-bold">ชื่อผู้ใช้ (Username)</label>
-                    <input type="text" id="set-username" class="form-control form-control-sm rounded-0 mb-3 bg-light" disabled>
-                    <div class="row g-3 mb-3">
-                        <div class="col-6"><label class="form-label small fw-bold">ชื่อแสดงผล</label><input type="text" id="set-name" class="form-control form-control-sm rounded-0"></div>
-                        <div class="col-6"><label class="form-label small fw-bold">เบอร์โทรศัพท์</label><input type="text" id="set-phone" class="form-control form-control-sm rounded-0" maxlength="10"></div>
-                    </div>
-                    <label class="form-label small fw-bold">อีเมล</label>
-                    <input type="email" id="set-email" class="form-control form-control-sm rounded-0 mb-1" disabled>
-                    <label class="form-label small fw-bold text-danger mt-3">รหัสผ่านใหม่ (ปล่อยว่างหากไม่เปลี่ยน)</label>
-                    <input type="password" id="set-password" class="form-control form-control-sm rounded-0 mb-4">
-                </div>
-                <button class="btn btn-warning w-100 fw-bold py-2 sport-font rounded-0" onclick="saveProfile()">บันทึกการเปลี่ยนแปลง</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="productDetailModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content shadow-lg">
-            <div class="modal-header bg-light rounded-0">
-                <h5 class="modal-title fw-bold sport-font">รายละเอียดสินค้า</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row mb-3">
-                    <div class="col-md-5 text-center mb-3 mb-md-0 position-relative">
-                        <span id="detail-sale-badge" class="sale-badge d-none">ลดราคา!</span>
-                        <img id="detail-img" src="" class="img-fluid" style="max-height: 400px; object-fit: contain;" onerror="this.src='https://placehold.co/350x450/111111/ffb800?text=NO+IMAGE&font=Montserrat'">
-                    </div>
-                    <div class="col-md-7">
-                        <span id="detail-type" class="badge bg-dark mb-2 sport-font"></span>
-                        <h3 class="fw-bold sport-font" id="detail-name">ชื่อสินค้า</h3>
-                        <div class="mb-3 sport-font">
-                            <span class="text-danger fw-bold fs-2" id="detail-price">฿0</span>
-                            <span class="text-muted text-decoration-line-through ms-2 fs-5 d-none" id="detail-old-price">฿0</span>
-                        </div>
-                        <p class="text-muted small mb-4" id="detail-desc">รายละเอียดสินค้า...</p>
-                        <div class="bg-light p-3 mb-4 small sport-font">
-                            <p class="mb-2"><i class="fa fa-truck me-2"></i> ค่าจัดส่ง: <strong id="detail-shipping">฿50</strong></p>
-                            <p class="mb-0 text-success"><i class="fa fa-clock me-2"></i> จัดส่งภายใน 2-3 วัน</p>
-                        </div>
-                        <div class="row g-3 align-items-end mb-4 sport-font">
-                            <div class="col-8">
-                                <label class="form-label fw-bold small">ไซส์ (Size):</label>
-                                <select id="detail-size" class="form-select rounded-0 border-dark">
-                                    <option value="S">S</option><option value="M" selected>M</option><option value="L">L</option><option value="XL">XL</option><option value="2XL">2XL</option>
-                                </select>
-                            </div>
-                            <div class="col-4">
-                                <label class="form-label fw-bold small">จำนวน:</label>
-                                <input type="number" id="detail-qty" class="form-control rounded-0 border-dark text-center" value="1" min="1">
-                            </div>
-                        </div>
-                        <input type="hidden" id="detail-id">
-                        <div class="row g-2 sport-font">
-                            <div class="col-6"><button type="button" class="btn btn-dark w-100 py-2 fw-bold" onclick="addToCart(false)">เพิ่มลงตะกร้า</button></div>
-                            <div class="col-6"><button type="button" class="btn btn-warning w-100 py-2 fw-bold" onclick="addToCart(true)">ซื้อทันที</button></div>
-                        </div>
-                    </div>
-                </div>
-                <hr>
-                <h6 class="fw-bold sport-font mb-3"><i class="fa fa-comments text-warning me-2"></i>รีวิวจากลูกค้า</h6>
-                <div id="detail-reviews" class="bg-light p-3" style="max-height: 200px; overflow-y: auto;"></div>
-            </div>
-        </div>
-    </div>
-</div>
-
+<div class="modal fade" id="authModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content shadow-lg"><div class="modal-header border-0 text-white position-relative" style="background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(17,17,17,1)), url('https://images.unsplash.com/photo-1600250395178-40fe752e5189?q=80&w=400&auto=format&fit=crop'); background-size: cover; height: 130px; align-items: flex-end;"><button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button><h4 class="modal-title fw-bold sport-font w-100 text-center text-warning pb-2" id="authModalTitle">เข้าสู่ระบบ</h4></div><div class="modal-body sport-font px-4 pb-4 bg-white"><div id="login-section"><input type="text" id="login-user" class="form-control rounded-0 mb-3" placeholder="ชื่อผู้ใช้ (Username)"><input type="password" id="login-pass" class="form-control rounded-0 mb-4" placeholder="รหัสผ่าน"><button class="btn btn-warning w-100 fw-bold py-2 mb-3 rounded-0" onclick="login()">เข้าสู่ระบบ</button><p class="text-center small mt-2 mb-0">ผู้ใช้ใหม่ใช่ไหม? <a href="#" onclick="toggleAuth('register')" class="text-primary fw-bold text-decoration-none">สมัครสมาชิก</a></p></div><div id="register-section" class="d-none"><input type="text" id="reg-user" class="form-control rounded-0 mb-2" placeholder="ตั้งชื่อผู้ใช้ (Username)"><input type="email" id="reg-email" class="form-control rounded-0 mb-2" placeholder="อีเมล (เช่น name@email.com)"><input type="text" id="reg-phone" class="form-control rounded-0 mb-2" placeholder="เบอร์โทรศัพท์ (10 หลัก)" maxlength="10"><input type="password" id="reg-pass" class="form-control rounded-0 mb-4" placeholder="ตั้งรหัสผ่าน"><button class="btn btn-dark w-100 fw-bold py-2 mb-3 rounded-0" onclick="register()">ลงทะเบียน</button><p class="text-center small mt-2 mb-0">มีบัญชีอยู่แล้ว? <a href="#" onclick="toggleAuth('login')" class="text-primary fw-bold text-decoration-none">เข้าสู่ระบบ</a></p></div></div></div></div></div>
+<div class="modal fade" id="profileModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content shadow-lg"><div class="modal-header border-0 text-white position-relative" style="background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(17,17,17,1)), url('https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=600&auto=format&fit=crop'); background-size: cover; background-position: center; height: 150px; align-items: flex-end;"><button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal"></button><h5 class="modal-title fw-bold sport-font w-100 text-center text-warning pb-3"><i class="fa fa-user-cog me-2"></i>ตั้งค่าบัญชี</h5></div><div class="modal-body text-center bg-white px-4 pb-4" style="margin-top: -65px;"><label for="profile-upload" class="position-relative d-inline-block"><img id="setting-profile-pic" src="" class="rounded-circle border border-3 border-dark bg-white shadow" style="width:110px;height:110px;object-fit:cover;cursor:pointer; position: relative; z-index: 2;"><div class="position-absolute bottom-0 end-0 bg-warning rounded-circle p-2 shadow-sm" style="cursor:pointer; z-index: 3;"><i class="fa fa-camera small text-dark"></i></div></label><input type="file" id="profile-upload" class="d-none" accept="image/*" onchange="uploadProfilePic(event)"><div class="text-start mt-4 sport-font"><label class="form-label small fw-bold">ชื่อผู้ใช้ (Username)</label><input type="text" id="set-username" class="form-control form-control-sm rounded-0 mb-3 bg-light" disabled><div class="row g-3 mb-3"><div class="col-6"><label class="form-label small fw-bold">ชื่อแสดงผล</label><input type="text" id="set-name" class="form-control form-control-sm rounded-0"></div><div class="col-6"><label class="form-label small fw-bold">เบอร์โทรศัพท์</label><input type="text" id="set-phone" class="form-control form-control-sm rounded-0" maxlength="10"></div></div><label class="form-label small fw-bold">อีเมล</label><input type="email" id="set-email" class="form-control form-control-sm rounded-0 mb-1" disabled><label class="form-label small fw-bold text-danger mt-3">รหัสผ่านใหม่ (ปล่อยว่างหากไม่เปลี่ยน)</label><input type="password" id="set-password" class="form-control form-control-sm rounded-0 mb-4"></div><button class="btn btn-warning w-100 fw-bold py-2 sport-font rounded-0" onclick="saveProfile()">บันทึกการเปลี่ยนแปลง</button></div></div></div></div>
+<div class="modal fade" id="productDetailModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content shadow-lg"><div class="modal-header bg-light rounded-0"><h5 class="modal-title fw-bold sport-font">รายละเอียดสินค้า</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row mb-3"><div class="col-md-5 text-center mb-3 mb-md-0 position-relative"><span id="detail-sale-badge" class="sale-badge d-none">ลดราคา!</span><img id="detail-img" src="" class="img-fluid" style="max-height: 400px; object-fit: contain;" onerror="this.src='https://placehold.co/350x450/111111/ffb800?text=NO+IMAGE&font=Montserrat'"></div><div class="col-md-7"><span id="detail-type" class="badge bg-dark mb-2 sport-font"></span><h3 class="fw-bold sport-font" id="detail-name">ชื่อสินค้า</h3><div class="mb-3 sport-font"><span class="text-danger fw-bold fs-2" id="detail-price">฿0</span><span class="text-muted text-decoration-line-through ms-2 fs-5 d-none" id="detail-old-price">฿0</span></div><p class="text-muted small mb-4" id="detail-desc">รายละเอียดสินค้า...</p><div class="bg-light p-3 mb-4 small sport-font"><p class="mb-2"><i class="fa fa-truck me-2"></i> ค่าจัดส่ง: <strong id="detail-shipping">฿50</strong></p><p class="mb-0 text-success"><i class="fa fa-clock me-2"></i> จัดส่งภายใน 2-3 วัน</p></div><div class="row g-3 align-items-end mb-4 sport-font"><div class="col-8"><label class="form-label fw-bold small">ไซส์ (Size):</label><select id="detail-size" class="form-select rounded-0 border-dark"><option value="S">S</option><option value="M" selected>M</option><option value="L">L</option><option value="XL">XL</option><option value="2XL">2XL</option></select></div><div class="col-4"><label class="form-label fw-bold small">จำนวน:</label><input type="number" id="detail-qty" class="form-control rounded-0 border-dark text-center" value="1" min="1"></div></div><input type="hidden" id="detail-id"><div class="row g-2 sport-font"><div class="col-6"><button type="button" class="btn btn-dark w-100 py-2 fw-bold" onclick="addToCart(false)">เพิ่มลงตะกร้า</button></div><div class="col-6"><button type="button" class="btn btn-warning w-100 py-2 fw-bold" onclick="addToCart(true)">ซื้อทันที</button></div></div></div></div><hr><h6 class="fw-bold sport-font mb-3"><i class="fa fa-comments text-warning me-2"></i>รีวิวจากลูกค้า</h6><div id="detail-reviews" class="bg-light p-3" style="max-height: 200px; overflow-y: auto;"></div></div></div></div></div>
 <div class="modal fade" id="checkoutModal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content shadow-lg"><div class="modal-header bg-dark text-white rounded-0"><h5 class="modal-title fw-bold sport-font"><i class="fa fa-shopping-cart me-2 text-warning"></i>ตะกร้าสินค้า</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="row g-0"><div class="col-lg-6 p-4 border-end bg-white"><h6 class="fw-bold border-bottom pb-2 mb-3 sport-font">รายการสั่งซื้อ</h6><div id="cart-items-container" style="max-height: 400px; overflow-y: auto;"></div></div><div class="col-lg-6 p-4 bg-light sport-font"><h6 class="fw-bold border-bottom pb-2 mb-3">ที่อยู่จัดส่ง</h6><div class="row g-2 mb-3"><div class="col-sm-6"><input type="text" id="ship-name" class="form-control rounded-0" placeholder="ชื่อผู้รับ"></div><div class="col-sm-6"><input type="text" id="ship-phone" class="form-control rounded-0" placeholder="เบอร์โทร (10หลัก)" maxlength="10"></div><div class="col-12"><textarea id="ship-address" class="form-control rounded-0" rows="2" placeholder="ที่อยู่..."></textarea></div></div><h6 class="fw-bold border-bottom pb-2 mb-3 mt-4">วิธีชำระเงิน</h6><div class="row g-3 mb-4"><div class="col-6"><div class="payment-box active bg-white" id="pay-cod" onclick="selectPayment('COD')"><i class="fa fa-truck fa-2x mb-2 text-dark"></i><div>เก็บเงินปลายทาง</div></div></div><div class="col-6"><div class="payment-box bg-white" id="pay-qr" onclick="selectPayment('QR')"><i class="fa fa-qrcode fa-2x mb-2 text-dark"></i><div>โอนเงิน (QR)</div></div></div></div><div class="card rounded-0 border-0"><div class="card-body bg-white"><div class="input-group mb-3"><input type="text" id="coupon-input" class="form-control rounded-0" placeholder="โค้ดส่วนลด"><button class="btn btn-dark rounded-0 fw-bold" onclick="applyCoupon()">ใช้โค้ด</button></div><div id="my-coupons-list" class="mb-3 small"></div><div class="d-flex justify-content-between mb-2"><span>ราคาสินค้า:</span> <span id="summary-subtotal" class="fw-bold">฿0</span></div><div class="d-flex justify-content-between mb-2"><span>ค่าจัดส่ง:</span> <span id="summary-shipping" class="fw-bold">฿50</span></div><hr><div class="d-flex justify-content-between fw-bold fs-4 mb-4"><span>ยอดสุทธิ:</span> <span class="text-danger" id="summary-total">฿0</span></div><button class="btn btn-warning w-100 fw-bold py-3 fs-5 rounded-0" onclick="confirmOrder()">ยืนยันคำสั่งซื้อ</button></div></div></div></div></div></div></div></div>
 <div class="modal fade" id="qrModal" data-bs-backdrop="static" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content text-center py-4 rounded-0 border-dark" style="border-width: 2px;"><div class="modal-body sport-font"><h4 class="fw-bold mb-3">สแกนเพื่อชำระเงิน</h4><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=081xxxxxxx" class="img-thumbnail mb-3"><p class="text-danger fw-bold display-5 mb-0" id="qr-timer">05:00</p><p class="small text-muted mb-4">กรุณาโอนเงินภายในเวลาที่กำหนด</p><button class="btn btn-dark w-100 fw-bold mb-2 rounded-0" onclick="qrPaymentSuccess()">จำลองการโอนสำเร็จ</button><button class="btn btn-outline-dark w-100 rounded-0" onclick="qrPaymentCancel()">ยกเลิก</button></div></div></div></div>
-
-<div class="modal fade" id="historyModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content shadow-lg bg-light">
-            <div class="modal-header border-0 text-white rounded-0 position-relative" style="background: linear-gradient(to right, rgba(17,17,17,1), rgba(17,17,17,0.4)), url('https://images.unsplash.com/photo-1553775927-a071d5a6a4cb?q=80&w=800&auto=format&fit=crop'); background-size: cover; background-position: center; height: 100px; align-items: center;">
-                <h4 class="modal-title fw-bold sport-font text-warning"><i class="fa fa-history me-2"></i>ประวัติการสั่งซื้อของคุณ</h4>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4" id="history-container"></div>
-        </div>
-    </div>
-</div>
-
+<div class="modal fade" id="historyModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content shadow-lg bg-light"><div class="modal-header border-0 text-white rounded-0 position-relative" style="background: linear-gradient(to right, rgba(17,17,17,1), rgba(17,17,17,0.4)), url('https://images.unsplash.com/photo-1553775927-a071d5a6a4cb?q=80&w=800&auto=format&fit=crop'); background-size: cover; background-position: center; height: 100px; align-items: center;"><h4 class="modal-title fw-bold sport-font text-warning"><i class="fa fa-history me-2"></i>ประวัติการสั่งซื้อของคุณ</h4><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4" id="history-container"></div></div></div></div>
 <div class="modal fade" id="reviewModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content shadow"><div class="modal-header bg-warning rounded-0"><h5 class="modal-title fw-bold sport-font">ให้คะแนนสินค้า</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center sport-font"><div class="star-rating fs-1 mb-3" id="review-stars"><i class="fa fa-star" onclick="setRating(1)"></i><i class="fa fa-star" onclick="setRating(2)"></i><i class="fa fa-star" onclick="setRating(3)"></i><i class="fa fa-star" onclick="setRating(4)"></i><i class="fa fa-star" onclick="setRating(5)"></i></div><textarea id="review-comment" class="form-control rounded-0 mb-3" rows="3" placeholder="เขียนรีวิว..."></textarea><button class="btn btn-dark w-100 fw-bold rounded-0" onclick="submitReview()">ส่งรีวิว</button></div></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // สั่งให้ Carousel สไลด์อัตโนมัติ
+    // เริ่มทำงานสไลด์โชว์อัตโนมัติ 100%
     document.addEventListener("DOMContentLoaded", function() {
         var myCarousel = document.querySelector('#heroCarousel');
         var carousel = new bootstrap.Carousel(myCarousel, { interval: 4000, ride: 'carousel', pause: false });
@@ -338,7 +241,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     function showToast(message, type = 'success') {
         const toastEl = document.getElementById('liveToast');
         toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-dark', 'bg-dark');
-        if(type === 'success') toastEl.classList.add('bg-dark');
+        if(type === 'success') toastEl.classList.add('bg-dark'); // Theme change
         else if(type === 'error') toastEl.classList.add('bg-danger');
         else if(type === 'warning') toastEl.classList.add('bg-warning', 'text-dark');
         document.getElementById('toast-msg').innerHTML = message;
@@ -346,7 +249,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     }
 
     function openAuthModal(type) { toggleAuth(type); new bootstrap.Modal(document.getElementById('authModal')).show(); }
-    function toggleAuth(type) { document.getElementById('login-section').classList.toggle('d-none', type !== 'login'); document.getElementById('register-section').classList.toggle('d-none', type !== 'register'); document.getElementById('authModalTitle').innerText = type === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิกใหม่'; }
+    function toggleAuth(type) { document.getElementById('login-section').classList.toggle('d-none', type !== 'login'); document.getElementById('register-section').classList.toggle('d-none', type !== 'register'); document.getElementById('authModalTitle').innerText = type === 'login' ? 'เข้าสู่ระบบ' : 'สมัครสมาชิก'; }
 
     function register() {
         const user = document.getElementById('reg-user').value.trim(), email = document.getElementById('reg-email').value.trim(), phone = document.getElementById('reg-phone').value.trim(), pass = document.getElementById('reg-pass').value.trim();
