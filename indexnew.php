@@ -578,10 +578,11 @@ foreach ($productsFromDB as $key => $product) {
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin',
+            credentials: 'same-origin', // <--- ต้องมีบรรทัดนี้
             body: JSON.stringify({ 
                 action: 'update_profile', 
                 fullname: newName, 
+                // ... 
                 phone: newPhone, 
                 password: newPass,
                 profile_pic: newPic // <-- ส่งรูปภาพ Base64 ไปให้หลังบ้านด้วย
