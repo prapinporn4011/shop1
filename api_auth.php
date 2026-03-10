@@ -57,7 +57,7 @@ try {
                 'name' => $userData['fullname'],
                 'email' => $userData['email'],
                 'phone' => $userData['phone'],
-                'profilePic' => $userData['profile_pic'] // ส่งรูปกลับไปด้วย
+                'profilePic' => $userData['profile_pic'] 
             ]]);
         } else {
             echo json_encode(['success' => false, 'message' => 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง']);
@@ -83,7 +83,7 @@ try {
                     'name' => $userData['fullname'],
                     'email' => $userData['email'],
                     'phone' => $userData['phone'],
-                    'profilePic' => $userData['profile_pic'] // ส่งรูปกลับไปด้วย
+                    'profilePic' => $userData['profile_pic'] 
                 ]]);
                 exit;
             }
@@ -91,7 +91,7 @@ try {
         echo json_encode(['success' => false]);
     }
 
-    // ---------------- 5. อัปเดตโปรไฟล์ (อัปโหลดรูป) ----------------
+    // ---------------- 5. อัปเดตโปรไฟล์ (เซฟรูปลง Database โดยตรง) ----------------
     elseif ($action === 'update_profile') {
         if (!isset($_SESSION['user_id'])) {
             echo json_encode(['success' => false, 'message' => 'กรุณาเข้าสู่ระบบก่อนทำรายการ']);
@@ -102,54 +102,37 @@ try {
         $fullname = trim($data['fullname']);
         $phone = trim($data['phone']);
         $new_password = isset($data['password']) ? trim($data['password']) : '';
-        $profile_pic_base64 = isset($data['profile_pic']) ? $data['profile_pic'] : '';
+        $profile_pic_data = isset($data['profile_pic']) ? $data['profile_pic'] : '';
 
         if (empty($fullname) || empty($phone)) {
             echo json_encode(['success' => false, 'message' => 'กรุณากรอกข้อมูลให้ครบถ้วน']);
             exit;
         }
 
-        // ระบบแปลง Base64 เป็นไฟล์รูปภาพ
-        $profile_pic_path = null;
-        if (!empty($profile_pic_base64) && strpos($profile_pic_base64, 'data:image') === 0) {
-            $image_parts = explode(";base64,", $profile_pic_base64);
-            $image_type_aux = explode("image/", $image_parts[0]);
-            $image_type = $image_type_aux[1];
-            $image_base64 = base64_decode($image_parts[1]);
-
-            // สร้างโฟลเดอร์ uploads ถ้ายังไม่มี
-            if (!is_dir('uploads')) {
-                mkdir('uploads', 0777, true);
-            }
-
-            // ตั้งชื่อไฟล์ใหม่ให้ไม่ซ้ำกัน
-            $file_name = 'profile_' . $user_id . '_' . time() . '.' . $image_type;
-            $file_path = 'uploads/' . $file_name;
-            
-            // บันทึกไฟล์ลงเซิร์ฟเวอร์
-            file_put_contents($file_path, $image_base64);
-            $profile_pic_path = $file_path;
-        }
-
-        // สร้างคำสั่ง SQL แบบยืดหยุ่น (อัปเดตเฉพาะสิ่งที่ส่งมา)
+        // เตรียมคำสั่ง SQL
         $query = "UPDATE users SET fullname = ?, phone = ?";
         $params = [$fullname, $phone];
 
+        // ถ้ามีการเปลี่ยนรหัสผ่าน
         if (!empty($new_password)) {
             $query .= ", password = ?";
             $params[] = password_hash($new_password, PASSWORD_DEFAULT);
         }
-        if ($profile_pic_path) {
+        
+        // ถ้ามีการอัปโหลดรูปภาพมาใหม่ (ต้องเป็น base64)
+        if (!empty($profile_pic_data) && strpos($profile_pic_data, 'data:image') === 0) {
             $query .= ", profile_pic = ?";
-            $params[] = $profile_pic_path;
+            $params[] = $profile_pic_data;
         }
+        
         $query .= " WHERE id = ?";
         $params[] = $user_id;
 
         $stmt = $pdo->prepare($query);
         $stmt->execute($params);
 
-        echo json_encode(['success' => true, 'profile_pic' => $profile_pic_path]);
+        // ส่งรูปภาพกลับไปให้หน้าบ้านอัปเดตแบบเรียลไทม์
+        echo json_encode(['success' => true, 'profile_pic' => $profile_pic_data]);
     }
 
 } catch (PDOException $e) {
