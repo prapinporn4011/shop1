@@ -648,15 +648,36 @@ const products = dbProducts.map(p => ({
         if(!newName || !newPhone) return showToast('กรุณากรอกชื่อและเบอร์โทร', 'warning');
         if(newPhone.length !== 10) return showToast('เบอร์โทรศัพท์ต้องมี 10 หลัก', 'warning');
         
-        currentUser.name = newName;
-        currentUser.phone = newPhone;
-        currentUser.profilePic = newPic;
-        if(newPass) currentUser.password = newPass;
-
-        saveDatabase();
-        updateNavUI();
-        bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide();
-        showToast('อัปเดตข้อมูลโปรไฟล์เรียบร้อย', 'success');
+        // ส่งข้อมูลที่แก้ไปอัปเดตใน Database 
+        fetch('api_auth.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                action: 'update_profile', 
+                fullname: newName, 
+                phone: newPhone, 
+                password: newPass 
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if(data.success) {
+                // ถ้า Database อัปเดตสำเร็จ ให้อัปเดตหน้าจอด้วย
+                currentUser.name = newName;
+                currentUser.phone = newPhone;
+                currentUser.profilePic = newPic;
+                
+                updateNavUI();
+                bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide();
+                showToast('อัปเดตข้อมูลโปรไฟล์ลงฐานข้อมูลเรียบร้อย', 'success');
+            } else {
+                showToast('❌ ' + data.message, 'error');
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+        });
     }
 
     // --------------------------------------------------------
