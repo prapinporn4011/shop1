@@ -178,16 +178,13 @@ function getStatusBadge($status) {
         });
 
         function viewOrderDetails(orderId, currentStatus, address) {
-            // เซ็ตค่าลง Modal
             document.getElementById('modal-order-id').innerText = 'ORD-' + String(orderId).padStart(5, '0');
             document.getElementById('form-order-id').value = orderId;
             document.getElementById('modal-status').value = currentStatus;
             document.getElementById('modal-address').innerText = address || 'ไม่มีข้อมูลที่อยู่จัดส่ง';
 
-            // โชว์ Modal
             new bootstrap.Modal(document.getElementById('orderDetailModal')).show();
 
-            // ดึงข้อมูลสินค้าในออเดอร์นั้น
             const container = document.getElementById('order-items-container');
             container.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary"></div></div>';
 
@@ -202,7 +199,7 @@ function getStatusBadge($status) {
                         <tr>
                             <td>
                                 <div class="d-flex align-items-center">
-                                    <img src="${imgUrl}" width="40" class="rounded me-2 border">
+                                    <img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="40" height="40" style="object-fit:cover;" class="rounded me-2 border">
                                     ${item.name || 'สินค้าหมายเลข ' + item.product_id}
                                 </div>
                             </td>
