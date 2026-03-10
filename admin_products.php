@@ -49,13 +49,22 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Sarabun', sans-serif; 
-            color: #333; 
-            /* ลายพื้นหลังสนามฟุตบอลโทนสว่างสำหรับหลังบ้านให้อ่านง่ายๆ */
-            background: linear-gradient(rgba(240, 242, 245, 0.9), rgba(240, 242, 245, 0.95)), url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=1920&auto=format&fit=crop') no-repeat center center fixed;
-            background-size: cover;
-        }
+        :root { --primary: #111111; --accent: #ffb800; }
+        body { font-family: 'Sarabun', sans-serif; background: #f8fafc; }
+        h1, h2, h3, h4, h5, h6, .btn, th, .sport-font { font-family: 'Kanit', sans-serif; }
+        .sidebar { min-height: 100vh; background: linear-gradient(to bottom, rgba(17, 17, 17, 0.95), rgba(17, 17, 17, 0.98)), url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Cristiano_Ronaldo_2018.jpg/800px-Cristiano_Ronaldo_2018.jpg'); background-size: cover; background-position: center; color: white; width: 260px; position: fixed; z-index: 1000; box-shadow: 4px 0 20px rgba(0,0,0,0.1); }
+        .sidebar-header { text-align: center; padding: 30px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid var(--accent); margin-bottom: 10px; object-fit: cover; background: #fff;}
+        .edit-profile-btn { font-size: 12px; color: #aaa; text-decoration: underline; cursor: pointer; }
+        .edit-profile-btn:hover { color: var(--accent); }
+        .sidebar a.menu-link { color: #cbd5e1; text-decoration: none; padding: 15px 25px; display: block; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'Kanit', sans-serif; font-size: 1.05rem; transition: 0.3s; }
+        .sidebar a.menu-link:hover, .sidebar a.menu-link.active { background: rgba(255, 184, 0, 0.1); color: var(--accent); border-left: 4px solid var(--accent); padding-left: 21px; font-weight: 500; }
+        .main-content { margin-left: 260px; padding: 30px; }
+        .card { border-radius: 0; border: 1px solid #eee; box-shadow: none; }
+        .table-dark { background-color: var(--primary) !important; color: #fff; }
+        .btn-warning { background-color: var(--accent); font-weight: 600; color: #000; border-radius: 0; }
+        .btn-dark { border-radius: 0; }
+        .text-warning { color: var(--accent) !important; }
     </style>
 </head>
 <body>
