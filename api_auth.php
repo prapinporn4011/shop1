@@ -134,7 +134,58 @@ try {
         // ส่งรูปภาพกลับไปให้หน้าบ้านอัปเดตแบบเรียลไทม์
         echo json_encode(['success' => true, 'profile_pic' => $profile_pic_data]);
     }
+// ---------------- 6. ดึงประวัติการสั่งซื้อของฉัน ----------------
+    elseif ($action === 'get_my_orders') {
+        if (!isset($_SESSION['user_id'])) {
+            echo json_encode(['success' => false, 'message' => 'กรุณาเข้าสู่ระบบ']);
+            exit;
+        }
 
+        $user_id = $_SESSION['user_id'];
+
+        // ดึงข้อมูลออเดอร์ของ user นี้
+        $stmt = $pdo->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
+        $stmt->execute([$user_id]);
+        $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $result = [];
+        foreach ($orders as $o) {
+            // ดึงรายการสินค้าในแต่ละออเดอร์
+            $stmtItems = $pdo->prepare("
+                SELECT oi.*, p.name, p.image 
+                FROM order_items oi 
+                LEFT JOIN products p ON oi.product_id = p.id 
+                WHERE oi.order_id = ?
+            ");
+            $stmtItems->execute([$o['id']]);
+            $items = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
+
+            // จัดรูปแบบข้อมูลเตรียมส่งกลับไปให้หน้าเว็บ
+            $result[] = [
+                'orderId' => 'ORD-' . str_pad($o['id'], 5, '0', STR_PAD_LEFT),
+                'date' => date('d/m/Y H:i:s', strtotime($o['created_at'])),
+                'status' => $o['status'], // ส่งสถานะจริงจาก DB กลับไป
+                'total' => (float)$o['total_price'],
+                'address' => $o['shipping_address'],
+                'items' => array_map(function($i) {
+                    $imgUrl = $i['image'] ? $i['image'] : 'default.jpg';
+                    if (strpos($imgUrl, 'http') !== 0 && strpos($imgUrl, 'data:') !== 0 && strpos($imgUrl, 'uploads/') !== 0 && $imgUrl !== 'default.jpg') {
+                        $imgUrl = 'uploads/' . $imgUrl;
+                    }
+                    return [
+                        'name' => $i['name'] ?: 'สินค้าหมายเลข ' . $i['product_id'],
+                        'img' => $imgUrl,
+                        'size' => $i['size'],
+                        'qty' => (int)$i['qty'],
+                        'price' => (float)$i['price']
+                    ];
+                }, $items)
+            ];
+        }
+
+        echo json_encode(['success' => true, 'orders' => $result]);
+    }
+    
 } catch (PDOException $e) {
     echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
 }
