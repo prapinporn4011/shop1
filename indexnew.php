@@ -1,22 +1,11 @@
 <?php
 require_once 'db.php';
-
-// ดึงข้อมูลสินค้า พร้อมกับข้อมูลลดราคา
-$sql = "SELECT p.id, p.name, p.price, p.is_sale, p.old_price, p.description as `desc`, p.image as img, c.name as type 
-        FROM products p 
-        LEFT JOIN categories c ON p.category_id = c.id";
-$stmt = $pdo->query($sql);
+$stmt = $pdo->query("SELECT p.id, p.name, p.price, p.is_sale, p.old_price, p.description as `desc`, p.image as img, c.name as type FROM products p LEFT JOIN categories c ON p.category_id = c.id");
 $productsFromDB = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-foreach ($productsFromDB as $key => $product) {
-    $productsFromDB[$key]['price'] = (float)$product['price'];
-    $productsFromDB[$key]['id'] = (int)$product['id'];
-}
-
+foreach ($productsFromDB as $key => $product) { $productsFromDB[$key]['price'] = (float)$product['price']; $productsFromDB[$key]['id'] = (int)$product['id']; }
 $stmtCats = $pdo->query("SELECT * FROM categories ORDER BY id ASC");
 $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -27,11 +16,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { 
-            --primary: #111111; 
-            --accent: #ffb800; /* เหลืองสปอร์ต */
-            --bg-light: #f5f5f5;
-        }
+        :root { --primary: #111111; --accent: #ffb800; --bg-light: #f5f5f5; }
         body { font-family: 'Sarabun', sans-serif; background: #ffffff; color: #333; }
         h1, h2, h3, h4, h5, h6, .nav-link, .btn, .navbar-brand, .sport-font { font-family: 'Kanit', sans-serif; }
         
@@ -48,23 +33,14 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         .btn-warning:hover { background-color: #e6a600; color: #000; }
         .btn-dark { background-color: var(--primary); border: none; border-radius: 0; font-weight: 500;}
         
-        /* สไตล์การ์ดสินค้าแบบทรงสูง (Ari Style) */
         .product-card { border: none; transition: 0.3s; background: #fff; }
         .product-card:hover .product-img-wrap img { transform: scale(1.05); }
-        
-        .product-img-wrap { 
-            background-color: var(--bg-light); /* พื้นหลังสีเทาอ่อน */
-            aspect-ratio: 3/4; /* รูปทรงยาว 3:4 */
-            display: flex; align-items: center; justify-content: center; 
-            overflow: hidden; position: relative;
-        }
+        .product-img-wrap { background-color: var(--bg-light); aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
         .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: top; transition: transform 0.5s ease; }
-        
         .product-card .card-body { padding: 15px 0; }
         .product-card .card-title { font-size: 15px; color: #111; margin-bottom: 5px; }
         
         .sale-badge { position: absolute; top: 10px; right: 10px; background: #e11d48; color: white; padding: 4px 10px; font-weight: bold; font-size: 11px; z-index: 10; font-family: 'Kanit'; text-transform: uppercase; }
-        
         .payment-box { border: 1px solid #ddd; padding: 15px; cursor: pointer; transition: 0.2s; text-align: center; font-family: 'Kanit'; }
         .payment-box.active { border-color: var(--primary); border-width: 2px; font-weight: bold; }
         
@@ -74,7 +50,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         .filter-btn.active:hover { background: var(--primary); }
     </style>
 </head>
-<body onload="initStore()">
+<body>
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1060;">
     <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -88,31 +64,20 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
     <div class="container">
         <a class="navbar-brand fw-bold" href="#" onclick="filterProducts('ทั้งหมด')">THANJAI <span style="color: var(--accent);">SHOP</span></a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item"><a class="nav-link active" href="#" onclick="filterProducts('ทั้งหมด')"><i class="fa fa-home me-1"></i> หน้าหลัก</a></li>
                 <li class="nav-item"><a class="nav-link" href="#product-list" onclick="filterProducts('ทั้งหมด')"><i class="fa fa-list me-1"></i> สินค้าทั้งหมด</a></li>
                 <li class="nav-item"><a class="nav-link text-danger fw-bold" href="#" onclick="filterProducts('โปรโมชั่น')"><i class="fa fa-fire me-1"></i> โปรโมชั่นลดราคา</a></li>
             </ul>
-            
             <div class="d-flex align-items-center gap-3">
-                <div class="input-group input-group-sm d-none d-md-flex">
-                    <input type="text" id="search-input" class="form-control rounded-0" placeholder="ค้นหาชื่อทีม..." onkeyup="searchProducts()" style="font-family: 'Kanit';">
-                </div>
-
-                <div id="guest-zone">
-                    <button class="btn btn-warning btn-sm" onclick="openAuthModal('login')"><i class="fa fa-sign-in-alt me-1"></i> เข้าสู่ระบบ</button>
-                </div>
-
+                <div class="input-group input-group-sm d-none d-md-flex"><input type="text" id="search-input" class="form-control rounded-0" placeholder="ค้นหาชื่อทีม..." onkeyup="searchProducts()" style="font-family: 'Kanit';"></div>
+                <div id="guest-zone"><button class="btn btn-warning btn-sm" onclick="openAuthModal('login')"><i class="fa fa-sign-in-alt me-1"></i> เข้าสู่ระบบ</button></div>
                 <div id="user-zone" class="d-none">
                     <div class="dropdown text-white">
                         <span class="me-2 d-none d-md-inline sport-font">ยินดีต้อนรับ, <strong id="nav-username" class="text-warning">ผู้ใช้</strong></span>
-                        <a href="#" class="link-light dropdown-toggle" data-bs-toggle="dropdown">
-                            <img id="nav-profile-pic" src="" width="35" height="35" class="rounded-circle border border-warning" style="object-fit: cover;">
-                        </a>
+                        <a href="#" class="link-light dropdown-toggle" data-bs-toggle="dropdown"><img id="nav-profile-pic" src="" width="35" height="35" class="rounded-circle border border-warning" style="object-fit: cover;"></a>
                         <ul class="dropdown-menu dropdown-menu-end shadow-sm sport-font rounded-0">
                             <li id="nav-admin-link" class="d-none"><a class="dropdown-item text-warning fw-bold bg-dark" href="admin_orders.php"><i class="fa fa-user-shield me-2"></i>ระบบหลังบ้าน (Admin)</a></li>
                             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal"><i class="fa fa-cog me-2"></i>ตั้งค่าบัญชี</a></li>
@@ -122,11 +87,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
                         </ul>
                     </div>
                 </div>
-                
-                <a href="#" class="text-white position-relative ms-2" onclick="openCart()">
-                    <i class="fa fa-shopping-cart fs-5"></i>
-                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger" style="font-size: 0.6rem;">0</span>
-                </a>
+                <a href="#" class="text-white position-relative ms-2" onclick="openCart()"><i class="fa fa-shopping-cart fs-5"></i><span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-circle bg-danger" style="font-size: 0.6rem;">0</span></a>
             </div>
         </div>
     </div>
@@ -161,7 +122,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 <div class="modal fade" id="authModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content rounded-0"><div class="modal-header bg-dark text-white rounded-0"><h5 class="modal-title fw-bold sport-font" id="authModalTitle">เข้าสู่ระบบ</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body sport-font"><div id="login-section"><input type="text" id="login-user" class="form-control rounded-0 mb-2" placeholder="ชื่อผู้ใช้ (Username)"><input type="password" id="login-pass" class="form-control rounded-0 mb-3" placeholder="รหัสผ่าน"><button class="btn btn-warning w-100 fw-bold mb-2" onclick="login()">เข้าสู่ระบบ</button><p class="text-center small mt-2 mb-0">ผู้ใช้ใหม่ใช่ไหม? <a href="#" onclick="toggleAuth('register')" class="text-primary fw-bold">สมัครสมาชิก</a></p></div><div id="register-section" class="d-none"><input type="text" id="reg-user" class="form-control rounded-0 mb-2" placeholder="ตั้งชื่อผู้ใช้ (Username)"><input type="email" id="reg-email" class="form-control rounded-0 mb-2" placeholder="อีเมล (เช่น name@email.com)"><input type="text" id="reg-phone" class="form-control rounded-0 mb-2" placeholder="เบอร์โทรศัพท์ (10 หลัก)" maxlength="10"><input type="password" id="reg-pass" class="form-control rounded-0 mb-3" placeholder="ตั้งรหัสผ่าน"><button class="btn btn-dark w-100 fw-bold mb-2" onclick="register()">ลงทะเบียน</button><p class="text-center small mt-2 mb-0">มีบัญชีอยู่แล้ว? <a href="#" onclick="toggleAuth('login')" class="text-primary fw-bold">เข้าสู่ระบบ</a></p></div></div></div></div></div>
 <div class="modal fade" id="profileModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content rounded-0"><div class="modal-header bg-dark text-white rounded-0"><h5 class="modal-title fw-bold sport-font">ตั้งค่าบัญชี</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><label for="profile-upload" class="position-relative d-inline-block"><img id="setting-profile-pic" src="" class="rounded-circle border" style="width:100px;height:100px;object-fit:cover;cursor:pointer;"><div class="position-absolute bottom-0 end-0 bg-warning rounded-circle p-2" style="cursor:pointer;"><i class="fa fa-camera small"></i></div></label><input type="file" id="profile-upload" class="d-none" accept="image/*" onchange="uploadProfilePic(event)"><div class="text-start mt-4 sport-font"><label class="form-label small fw-bold">ชื่อผู้ใช้ (Username)</label><input type="text" id="set-username" class="form-control form-control-sm rounded-0 mb-3 bg-light" disabled><div class="row g-3 mb-3"><div class="col-6"><label class="form-label small fw-bold">ชื่อแสดงผล</label><input type="text" id="set-name" class="form-control form-control-sm rounded-0"></div><div class="col-6"><label class="form-label small fw-bold">เบอร์โทรศัพท์</label><input type="text" id="set-phone" class="form-control form-control-sm rounded-0" maxlength="10"></div></div><label class="form-label small fw-bold">อีเมล</label><input type="email" id="set-email" class="form-control form-control-sm rounded-0 mb-1" disabled><label class="form-label small fw-bold text-danger mt-3">รหัสผ่านใหม่ (ปล่อยว่างหากไม่เปลี่ยน)</label><input type="password" id="set-password" class="form-control form-control-sm rounded-0 mb-4"></div><button class="btn btn-warning w-100 fw-bold sport-font" onclick="saveProfile()">บันทึกการเปลี่ยนแปลง</button></div></div></div></div>
 <div class="modal fade" id="productDetailModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content rounded-0"><div class="modal-header bg-light rounded-0"><h5 class="modal-title fw-bold sport-font">รายละเอียดสินค้า</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row mb-3"><div class="col-md-5 text-center mb-3 mb-md-0 position-relative"><span id="detail-sale-badge" class="sale-badge d-none">ลดราคา!</span><img id="detail-img" src="" class="img-fluid" style="max-height: 400px; object-fit: contain;" onerror="this.src='https://dummyimage.com/350x450/f5f5f5/a3a3a3.png&text=No+Image'"></div><div class="col-md-7"><span id="detail-type" class="badge bg-dark mb-2 sport-font"></span><h3 class="fw-bold sport-font" id="detail-name">ชื่อสินค้า</h3><div class="mb-3 sport-font"><span class="text-danger fw-bold fs-2" id="detail-price">฿0</span><span class="text-muted text-decoration-line-through ms-2 fs-5 d-none" id="detail-old-price">฿0</span></div><p class="text-muted small mb-4" id="detail-desc">รายละเอียดสินค้า...</p><div class="bg-light p-3 mb-4 small sport-font"><p class="mb-2"><i class="fa fa-truck me-2"></i> ค่าจัดส่ง: <strong id="detail-shipping">฿50</strong></p><p class="mb-0 text-success"><i class="fa fa-clock me-2"></i> จัดส่งภายใน 2-3 วัน</p></div><div class="row g-3 align-items-end mb-4 sport-font"><div class="col-8"><label class="form-label fw-bold small">ไซส์ (Size):</label><select id="detail-size" class="form-select rounded-0 border-dark"><option value="S">S</option><option value="M" selected>M</option><option value="L">L</option><option value="XL">XL</option><option value="2XL">2XL</option></select></div><div class="col-4"><label class="form-label fw-bold small">จำนวน:</label><input type="number" id="detail-qty" class="form-control rounded-0 border-dark text-center" value="1" min="1"></div></div><input type="hidden" id="detail-id"><div class="row g-2 sport-font"><div class="col-6"><button type="button" class="btn btn-dark w-100 py-2 fw-bold" onclick="addToCart(false)">เพิ่มลงตะกร้า</button></div><div class="col-6"><button type="button" class="btn btn-warning w-100 py-2 fw-bold" onclick="addToCart(true)">ซื้อทันที</button></div></div></div></div><hr><h6 class="fw-bold sport-font mb-3"><i class="fa fa-comments text-warning me-2"></i>รีวิวจากลูกค้า</h6><div id="detail-reviews" class="bg-light p-3" style="max-height: 200px; overflow-y: auto;"></div></div></div></div></div>
-<div class="modal fade" id="checkoutModal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content rounded-0"><div class="modal-header bg-dark text-white rounded-0"><h5 class="modal-title fw-bold sport-font">ตะกร้าสินค้า</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="row g-0"><div class="col-lg-6 p-4 border-end bg-white"><h6 class="fw-bold border-bottom pb-2 mb-3 sport-font">รายการสั่งซื้อ</h6><div id="cart-items-container" style="max-height: 400px; overflow-y: auto;"></div></div><div class="col-lg-6 p-4 bg-light sport-font"><h6 class="fw-bold border-bottom pb-2 mb-3">ที่อยู่จัดส่ง</h6><div class="row g-2 mb-3"><div class="col-sm-6"><input type="text" id="ship-name" class="form-control rounded-0" placeholder="ชื่อผู้รับ"></div><div class="col-sm-6"><input type="text" id="ship-phone" class="form-control rounded-0" placeholder="เบอร์โทร"></div><div class="col-12"><textarea id="ship-address" class="form-control rounded-0" rows="2" placeholder="ที่อยู่..."></textarea></div></div><h6 class="fw-bold border-bottom pb-2 mb-3 mt-4">วิธีชำระเงิน</h6><div class="row g-3 mb-4"><div class="col-6"><div class="payment-box active bg-white" id="pay-cod" onclick="selectPayment('COD')"><i class="fa fa-truck fa-2x mb-2 text-dark"></i><div>เก็บเงินปลายทาง</div></div></div><div class="col-6"><div class="payment-box bg-white" id="pay-qr" onclick="selectPayment('QR')"><i class="fa fa-qrcode fa-2x mb-2 text-dark"></i><div>โอนเงิน (QR)</div></div></div></div><div class="card rounded-0 border-0"><div class="card-body bg-white"><div class="input-group mb-3"><input type="text" id="coupon-input" class="form-control rounded-0" placeholder="โค้ดส่วนลด"><button class="btn btn-dark rounded-0 fw-bold" onclick="applyCoupon()">ใช้โค้ด</button></div><div id="my-coupons-list" class="mb-3 small"></div><div class="d-flex justify-content-between mb-2"><span>ราคาสินค้า:</span> <span id="summary-subtotal" class="fw-bold">฿0</span></div><div class="d-flex justify-content-between mb-2"><span>ค่าจัดส่ง:</span> <span id="summary-shipping" class="fw-bold">฿50</span></div><hr><div class="d-flex justify-content-between fw-bold fs-4 mb-4"><span>ยอดสุทธิ:</span> <span class="text-danger" id="summary-total">฿0</span></div><button class="btn btn-warning w-100 fw-bold py-3 fs-5 rounded-0" onclick="confirmOrder()">ยืนยันคำสั่งซื้อ</button></div></div></div></div></div></div></div></div>
+<div class="modal fade" id="checkoutModal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content rounded-0"><div class="modal-header bg-dark text-white rounded-0"><h5 class="modal-title fw-bold sport-font">ตะกร้าสินค้า</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="row g-0"><div class="col-lg-6 p-4 border-end bg-white"><h6 class="fw-bold border-bottom pb-2 mb-3 sport-font">รายการสั่งซื้อ</h6><div id="cart-items-container" style="max-height: 400px; overflow-y: auto;"></div></div><div class="col-lg-6 p-4 bg-light sport-font"><h6 class="fw-bold border-bottom pb-2 mb-3">ที่อยู่จัดส่ง</h6><div class="row g-2 mb-3"><div class="col-sm-6"><input type="text" id="ship-name" class="form-control rounded-0" placeholder="ชื่อผู้รับ"></div><div class="col-sm-6"><input type="text" id="ship-phone" class="form-control rounded-0" placeholder="เบอร์โทร (10หลัก)" maxlength="10"></div><div class="col-12"><textarea id="ship-address" class="form-control rounded-0" rows="2" placeholder="ที่อยู่..."></textarea></div></div><h6 class="fw-bold border-bottom pb-2 mb-3 mt-4">วิธีชำระเงิน</h6><div class="row g-3 mb-4"><div class="col-6"><div class="payment-box active bg-white" id="pay-cod" onclick="selectPayment('COD')"><i class="fa fa-truck fa-2x mb-2 text-dark"></i><div>เก็บเงินปลายทาง</div></div></div><div class="col-6"><div class="payment-box bg-white" id="pay-qr" onclick="selectPayment('QR')"><i class="fa fa-qrcode fa-2x mb-2 text-dark"></i><div>โอนเงิน (QR)</div></div></div></div><div class="card rounded-0 border-0"><div class="card-body bg-white"><div class="input-group mb-3"><input type="text" id="coupon-input" class="form-control rounded-0" placeholder="โค้ดส่วนลด"><button class="btn btn-dark rounded-0 fw-bold" onclick="applyCoupon()">ใช้โค้ด</button></div><div id="my-coupons-list" class="mb-3 small"></div><div class="d-flex justify-content-between mb-2"><span>ราคาสินค้า:</span> <span id="summary-subtotal" class="fw-bold">฿0</span></div><div class="d-flex justify-content-between mb-2"><span>ค่าจัดส่ง:</span> <span id="summary-shipping" class="fw-bold">฿50</span></div><hr><div class="d-flex justify-content-between fw-bold fs-4 mb-4"><span>ยอดสุทธิ:</span> <span class="text-danger" id="summary-total">฿0</span></div><button class="btn btn-warning w-100 fw-bold py-3 fs-5 rounded-0" onclick="confirmOrder()">ยืนยันคำสั่งซื้อ</button></div></div></div></div></div></div></div></div>
 <div class="modal fade" id="qrModal" data-bs-backdrop="static" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content text-center py-4 rounded-0 border-dark" style="border-width: 2px;"><div class="modal-body sport-font"><h4 class="fw-bold mb-3">สแกนเพื่อชำระเงิน</h4><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=081xxxxxxx" class="img-thumbnail mb-3"><p class="text-danger fw-bold display-5 mb-0" id="qr-timer">05:00</p><p class="small text-muted mb-4">กรุณาโอนเงินภายในเวลาที่กำหนด</p><button class="btn btn-dark w-100 fw-bold mb-2 rounded-0" onclick="qrPaymentSuccess()">จำลองการโอนสำเร็จ</button><button class="btn btn-outline-dark w-100 rounded-0" onclick="qrPaymentCancel()">ยกเลิก</button></div></div></div></div>
 <div class="modal fade" id="historyModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content rounded-0 bg-light"><div class="modal-header bg-dark text-white rounded-0"><h5 class="modal-title fw-bold sport-font">ประวัติการสั่งซื้อ</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4" id="history-container"></div></div></div></div>
 <div class="modal fade" id="reviewModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content rounded-0"><div class="modal-header bg-warning rounded-0"><h5 class="modal-title fw-bold sport-font">ให้คะแนนสินค้า</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center sport-font"><div class="star-rating fs-1 mb-3" id="review-stars"><i class="fa fa-star" onclick="setRating(1)"></i><i class="fa fa-star" onclick="setRating(2)"></i><i class="fa fa-star" onclick="setRating(3)"></i><i class="fa fa-star" onclick="setRating(4)"></i><i class="fa fa-star" onclick="setRating(5)"></i></div><textarea id="review-comment" class="form-control rounded-0 mb-3" rows="3" placeholder="เขียนรีวิว..."></textarea><button class="btn btn-dark w-100 fw-bold rounded-0" onclick="submitReview()">ส่งรีวิว</button></div></div></div></div>
@@ -171,11 +132,8 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     const dbProducts = <?php echo json_encode($productsFromDB); ?>;
     const products = dbProducts.map(p => ({
         id: parseInt(p.id), name: p.name, price: parseFloat(p.price),
-        isSale: parseInt(p.is_sale) === 1, 
-        oldPrice: parseFloat(p.old_price) > 0 ? parseFloat(p.old_price) : null, 
-        type: p.type || "ทั่วไป",
-        img: p.img ? (p.img.startsWith('http') || p.img.startsWith('data:') ? p.img : 'uploads/' + p.img) : 'default.jpg',
-        desc: p.desc
+        isSale: parseInt(p.is_sale) === 1, oldPrice: parseFloat(p.old_price) > 0 ? parseFloat(p.old_price) : null, 
+        type: p.type || "ทั่วไป", img: p.img ? (p.img.startsWith('http') || p.img.startsWith('data:') ? p.img : 'uploads/' + p.img) : 'default.jpg', desc: p.desc
     }));
 
     let currentUser = null; let cart = []; let isFreeShipping = false; let paymentMethod = 'COD';
@@ -183,7 +141,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 
     function initStore() {
         renderProducts(products);
-        fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ action: 'check_session' }) })
+        fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'check_session' }) })
         .then(res => res.json()).then(data => { if(data.success) setupUserSession(data.user); });
     }
 
@@ -200,7 +158,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     function showToast(message, type = 'success') {
         const toastEl = document.getElementById('liveToast');
         toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-dark', 'bg-dark');
-        if(type === 'success') toastEl.classList.add('bg-dark'); // Theme change
+        if(type === 'success') toastEl.classList.add('bg-dark');
         else if(type === 'error') toastEl.classList.add('bg-danger');
         else if(type === 'warning') toastEl.classList.add('bg-warning', 'text-dark');
         document.getElementById('toast-msg').innerHTML = message;
@@ -213,14 +171,14 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     function register() {
         const user = document.getElementById('reg-user').value.trim(), email = document.getElementById('reg-email').value.trim(), phone = document.getElementById('reg-phone').value.trim(), pass = document.getElementById('reg-pass').value.trim();
         if(!user || !email || !phone || !pass) return showToast('กรุณากรอกข้อมูลให้ครบ', 'error');
-        fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ action: 'register', username: user, email: email, phone: phone, password: pass }) })
+        fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'register', username: user, email: email, phone: phone, password: pass }) })
         .then(res => res.json()).then(data => { if(data.success) { setupUserSession(data.user); bootstrap.Modal.getInstance(document.getElementById('authModal')).hide(); showToast('สมัครสมาชิกสำเร็จ', 'success'); } else showToast(data.message, 'error'); });
     }
 
     function login() {
         const user = document.getElementById('login-user').value.trim(), pass = document.getElementById('login-pass').value.trim();
         if(!user || !pass) return showToast('กรุณากรอกข้อมูล', 'warning');
-        fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ action: 'login', username: user, password: pass }) })
+        fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'login', username: user, password: pass }) })
         .then(res => res.json()).then(data => {
             if(data.success) {
                 if(data.user.role === 'admin') window.location.href = 'admin_orders.php';
@@ -231,7 +189,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 
     function logoutUser() {
         if(confirm("ออกจากระบบ?")) {
-            fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ action: 'logout' }) })
+            fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'logout' }) })
             .then(res => res.json()).then(data => { if(data.success) { currentUser = null; cart = []; updateNavUI(); updateCartBadge(); showToast('ออกจากระบบแล้ว', 'success'); } });
         }
     }
@@ -253,12 +211,9 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         const newName = document.getElementById('set-name').value.trim(), newPhone = document.getElementById('set-phone').value.trim(), newPass = document.getElementById('set-password').value.trim(), newPic = document.getElementById('setting-profile-pic').src;
         if(!newName || !newPhone) return showToast('กรุณากรอกชื่อและเบอร์โทร', 'warning');
         let picDataToSend = newPic.startsWith('data:image') ? newPic : '';
-        fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ action: 'update_profile', fullname: newName, phone: newPhone, password: newPass, profile_pic: picDataToSend }) })
+        fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'update_profile', fullname: newName, phone: newPhone, password: newPass, profile_pic: picDataToSend }) })
         .then(res => res.json()).then(data => {
-            if(data.success) {
-                currentUser.name = newName; currentUser.phone = newPhone; if(data.profile_pic) currentUser.profilePic = data.profile_pic;
-                updateNavUI(); bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide(); showToast('อัปเดตข้อมูลแล้ว', 'success');
-            } else showToast(data.message, 'error');
+            if(data.success) { currentUser.name = newName; currentUser.phone = newPhone; if(data.profile_pic) currentUser.profilePic = data.profile_pic; updateNavUI(); bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide(); showToast('อัปเดตข้อมูลแล้ว', 'success'); } else showToast(data.message, 'error');
         });
     }
 
@@ -278,9 +233,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
                     <div class="card-body d-flex flex-column text-center p-3">
                         <small class="text-muted mb-1" style="font-size: 10px; text-transform:uppercase;">${p.type}</small>
                         <h6 class="card-title fw-bold text-dark mb-2" style="font-size: 14px;">${p.name}</h6>
-                        <div class="mt-auto">
-                            <span class="text-dark fw-bold fs-5">฿${p.price.toLocaleString()}</span> ${oldPriceStr}
-                        </div>
+                        <div class="mt-auto"><span class="text-dark fw-bold fs-5">฿${p.price.toLocaleString()}</span> ${oldPriceStr}</div>
                     </div>
                 </div>
             </div>`;
@@ -414,7 +367,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     function openReviewModal(prodId, orderId) { currentReviewProduct = prodId; currentReviewOrder = orderId; setRating(0); document.getElementById('review-comment').value = ''; bootstrap.Modal.getInstance(document.getElementById('historyModal')).hide(); new bootstrap.Modal(document.getElementById('reviewModal')).show(); }
     function submitReview() {
         if(selectedRating === 0) return showToast('กรุณาให้ดาว', 'warning');
-        fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ action: 'add_review', product_id: currentReviewProduct, order_id: currentReviewOrder, rating: selectedRating, comment: document.getElementById('review-comment').value.trim() }) })
+        fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'add_review', product_id: currentReviewProduct, order_id: currentReviewOrder, rating: selectedRating, comment: document.getElementById('review-comment').value.trim() }) })
         .then(res => res.json()).then(data => { if(data.success) { bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide(); showToast('ส่งรีวิวสำเร็จ', 'success'); setTimeout(openOrderHistory, 500); } else showToast(data.message, 'error'); });
     }
 
@@ -422,7 +375,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         if(!currentUser) return showToast('กรุณาเข้าสู่ระบบ', 'warning');
         const container = document.getElementById('history-container'); container.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-dark"></div></div>';
         if(!document.getElementById('historyModal').classList.contains('show')) new bootstrap.Modal(document.getElementById('historyModal')).show();
-        fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', body: JSON.stringify({ action: 'get_my_orders' }) }).then(res => res.json()).then(data => {
+        fetch('api_auth.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'get_my_orders' }) }).then(res => res.json()).then(data => {
             if(data.success) {
                 if(data.orders.length === 0) container.innerHTML = `<div class="text-center py-4"><p>ไม่มีประวัติสั่งซื้อ</p></div>`;
                 else container.innerHTML = data.orders.map(o => {
