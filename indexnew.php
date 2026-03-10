@@ -145,9 +145,11 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 <main class="container my-5" id="product-list">
     <div class="d-flex justify-content-center gap-2 mb-4 overflow-auto pb-2" id="category-filters">
         <button class="btn btn-dark px-4 rounded-pill filter-btn active" onclick="filterProducts('ทั้งหมด')">ทั้งหมด</button>
-        <button class="btn btn-outline-dark px-4 rounded-pill filter-btn" onclick="filterProducts('เหย้า')">เหย้า</button>
-        <button class="btn btn-outline-dark px-4 rounded-pill filter-btn" onclick="filterProducts('เยือน')">เยือน</button>
-        <button class="btn btn-outline-dark px-4 rounded-pill filter-btn" onclick="filterProducts('ซ้อม')">เสื้อซ้อม</button>
+        
+        <?php foreach($categoriesFromDB as $cat): ?>
+            <button class="btn btn-outline-dark px-4 rounded-pill filter-btn" onclick="filterProducts('<?= htmlspecialchars($cat['name']) ?>')"><?= htmlspecialchars($cat['name']) ?></button>
+        <?php endforeach; ?>
+        
     </div>
     <div class="row g-4" id="store-display"></div>
 </main>
