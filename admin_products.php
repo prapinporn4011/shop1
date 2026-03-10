@@ -3,7 +3,7 @@ session_start();
 require_once 'db.php';
 
 // ---------------------------------------------------------
-// 1. ระบบเพิ่มสินค้า (Add)
+// 1. ระบบเพิ่มสินค้า (Add) - เซฟรูปเป็น Base64
 // ---------------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
     $name = $_POST['name'];
@@ -11,15 +11,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $price = $_POST['price'];
     $description = $_POST['description'];
     
-    // ระบบอัปโหลดรูปภาพเข้าโฟลเดอร์ uploads
-    $image = 'default.jpg'; 
+    // จัดการรูปภาพเป็น Base64
+    $image = 'https://via.placeholder.com/250x250?text=No+Image'; // รูปเริ่มต้นถ้าไม่ได้อัป
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-        if (!is_dir('uploads')) mkdir('uploads', 0777, true); // สร้างโฟลเดอร์ถ้าไม่มี
-        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-        $filename = 'prod_' . time() . '.' . $ext;
-        if(move_uploaded_file($_FILES['image']['tmp_name'], 'uploads/' . $filename)){
-            $image = 'uploads/' . $filename;
-        }
+        $type = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        $data = file_get_contents($_FILES['image']['tmp_name']);
+        $image = 'data:image/' . $type . ';base64,' . base64_encode($data);
     }
 
     $stmt = $pdo->prepare("INSERT INTO products (category_id, name, price, description, image) VALUES (?, ?, ?, ?, ?)");
@@ -30,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 // ---------------------------------------------------------
-// 2. ระบบแก้ไขสินค้า (Edit)
+// 2. ระบบแก้ไขสินค้า (Edit) - อัปเดตรูปเป็น Base64
 // ---------------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit') {
     $id = $_POST['id'];
@@ -45,14 +42,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $oldProduct = $stmt->fetch();
     $image = $oldProduct['image']; 
 
-    // ถ้ามีการอัปโหลดรูปใหม่
+    // ถ้ามีการอัปโหลดรูปใหม่ ให้แปลงเป็น Base64
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-        if (!is_dir('uploads')) mkdir('uploads', 0777, true);
-        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-        $filename = 'prod_' . time() . '.' . $ext;
-        if(move_uploaded_file($_FILES['image']['tmp_name'], 'uploads/' . $filename)){
-            $image = 'uploads/' . $filename; // อัปเดต path รูปใหม่
-        }
+        $type = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+        $data = file_get_contents($_FILES['image']['tmp_name']);
+        $image = 'data:image/' . $type . ';base64,' . base64_encode($data);
     }
 
     $stmt = $pdo->prepare("UPDATE products SET category_id=?, name=?, price=?, description=?, image=? WHERE id=?");
@@ -145,14 +139,20 @@ $categories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
                         <tr>
                             <td><?= $p['id'] ?></td>
                             <td>
-                                <?php $imgPath = (strpos($p['image'], 'http') === 0 || strpos($p['image'], 'data:') === 0 || strpos($p['image'], 'uploads/') === 0) ? $p['image'] : 'uploads/'.$p['image']; ?>
-                                <img src="<?= htmlspecialchars($imgPath) ?>" width="50" height="50" style="object-fit: cover;" class="rounded border">
+                                <?php 
+                                    // ตรวจสอบและแสดงผลรูปภาพ
+                                    $imgPath = $p['image'];
+                                    if(empty($imgPath) || $imgPath == 'default.jpg') {
+                                        $imgPath = 'https://via.placeholder.com/250x250?text=No+Image';
+                                    }
+                                ?>
+                                <img src="<?= htmlspecialchars($imgPath) ?>" width="50" height="50" style="object-fit: cover;" class="rounded border bg-white">
                             </td>
                             <td><?= htmlspecialchars($p['name']) ?></td>
-                            <td><span class="badge bg-secondary"><?= htmlspecialchars($p['category_name']) ?></span></td>
+                            <td><span class="badge bg-secondary"><?= htmlspecialchars($p['category_name'] ?? 'ไม่มีหมวดหมู่') ?></span></td>
                             <td class="text-danger fw-bold">฿<?= number_format($p['price'], 2) ?></td>
                             <td>
-                                <button class="btn btn-sm btn-info text-white" onclick="editProduct(<?= $p['id'] ?>, '<?= htmlspecialchars($p['name']) ?>', <?= $p['category_id'] ?>, <?= $p['price'] ?>, '<?= htmlspecialchars(str_replace(array("\r", "\n"), '', $p['description'])) ?>')">
+                                <button class="btn btn-sm btn-info text-white" onclick="editProduct(<?= $p['id'] ?>, '<?= htmlspecialchars(addslashes($p['name'])) ?>', <?= $p['category_id'] ?: 0 ?>, <?= $p['price'] ?>, '<?= htmlspecialchars(addslashes(str_replace(array("\r", "\n"), '', $p['description']))) ?>')">
                                     <i class="fa fa-edit"></i> แก้ไข
                                 </button>
                                 <a href="admin_products.php?delete_id=<?= $p['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('ยืนยันการลบสินค้าชิ้นนี้?');"><i class="fa fa-trash"></i> ลบ</a>
