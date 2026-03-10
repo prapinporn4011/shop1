@@ -14,46 +14,46 @@ $bgImages = [
 $randomBg = $bgImages[array_rand($bgImages)];
 
 // =========================================================================
-// 2. ระบบคลังสไลด์โชว์แบนเนอร์ (ธีมสโมสรระดับโลก สุ่มมาโชว์ 3 อัน)
+// 2. ระบบคลังสไลด์โชว์แบนเนอร์ (ลิงก์รูปใหม่ เสถียร 100%)
 // =========================================================================
 $slidePool = [
     [
-        'img' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Camp_Nou_-_Real_Madrid_vs_FC_Barcelona_-_2018.jpg/1920px-Camp_Nou_-_Real_Madrid_vs_FC_Barcelona_-_2018.jpg',
+        'img' => 'https://images.unsplash.com/photo-1508344928928-7165b67de128?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'EL CLÁSICO',
         'title_1' => 'TOP', 'title_2' => 'TIER',
         'desc' => 'คอลเลคชั่นเสื้อแข่งระดับตำนาน จากสโมสรยักษ์ใหญ่ทั่วทวีปยุโรป',
         'btn_icon' => 'fa-star', 'btn_text' => 'ช้อปคอลเลคชั่นยุโรป'
     ],
     [
-        'img' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Anfield_stadium.jpg/1920px-Anfield_stadium.jpg',
+        'img' => 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'YOU\'LL NEVER WALK ALONE',
         'title_1' => 'THE', 'title_2' => 'REDS',
         'desc' => 'สัมผัสมนต์ขลังแห่งแอนฟิลด์ ด้วยชุดแข่งลิขสิทธิ์แท้เกรดเพลเยอร์',
         'btn_icon' => 'fa-fire', 'btn_text' => 'ดูสินค้า ลิเวอร์พูล'
     ],
     [
-        'img' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Old_Trafford_inside_20060726_1.jpg/1920px-Old_Trafford_inside_20060726_1.jpg',
+        'img' => 'https://images.unsplash.com/photo-1614632537190-23e414ab2b4c?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'THEATRE OF DREAMS',
         'title_1' => 'RED', 'title_2' => 'DEVILS',
         'desc' => 'เสื้อแข่งและอุปกรณ์จาก แมนเชสเตอร์ ยูไนเต็ด พร้อมส่งถึงหน้าบ้านคุณ',
         'btn_icon' => 'fa-shield-halved', 'btn_text' => 'สาวกผีแดงคลิก'
     ],
     [
-        'img' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Allianz_arena_2005.jpg/1920px-Allianz_arena_2005.jpg',
+        'img' => 'https://images.unsplash.com/photo-1518605368461-1e1252220a77?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'MIA SAN MIA',
         'title_1' => 'GERMAN', 'title_2' => 'GIANTS',
         'desc' => 'ความยิ่งใหญ่แห่งแคว้นบาวาเรีย พร้อมให้คุณจับจองเป็นเจ้าของแล้ว',
         'btn_icon' => 'fa-trophy', 'btn_text' => 'ไอเทมเยอรมัน'
     ],
     [
-        'img' => 'https://images.unsplash.com/photo-1553108715-26505600002f?q=80&w=1920&auto=format&fit=crop',
+        'img' => 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'CHAMPION MINDSET',
         'title_1' => 'VICTORY', 'title_2' => 'IS YOURS',
         'desc' => 'สวมใส่ความมุ่งมั่น สวมใส่ความสำเร็จ ไปกับเรา ThanJai Shop',
         'btn_icon' => 'fa-crown', 'btn_text' => 'ดูสินค้าทั้งหมด'
     ],
     [
-        'img' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Westfalenstadion_inside.jpg/1920px-Westfalenstadion_inside.jpg',
+        'img' => 'https://images.unsplash.com/photo-1553108715-26505600002f?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'YELLOW WALL',
         'title_1' => 'FEEL THE', 'title_2' => 'PASSION',
         'desc' => 'ดุดัน ทรงพลัง คอลเลคชั่นใหม่ล่าสุดที่ดึงจิตวิญญาณนักเตะในตัวคุณ',
@@ -313,7 +313,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // สั่งให้สไลด์วิ่งอัตโนมัติ 4 วิ และไม่หยุดเมื่อเอาเมาส์วาง
+    // สั่งให้สไลด์วิ่งอัตโนมัติ ทุกๆ 4 วิ แบบไม่หยุด
     document.addEventListener("DOMContentLoaded", function() {
         var myCarousel = document.querySelector('#heroCarousel');
         var carousel = new bootstrap.Carousel(myCarousel, {
