@@ -16,54 +16,73 @@ $randomBg = $bgImages[array_rand($bgImages)];
 // =========================================================================
 // 2. ระบบคลังสไลด์โชว์แบนเนอร์ (ลิงก์รูปใหม่ เสถียร 100%)
 // =========================================================================
+// =========================================================================
+// 2. ระบบคลังสไลด์โชว์แบนเนอร์ (แสดงครบทุกสไลด์ + สุ่มลำดับ + ภาพบรรยากาศฟุตบอล)
+// =========================================================================
 $slidePool = [
     [
+        // ภาพบรรยากาศสนามแข่งยิ่งใหญ่
         'img' => 'https://images.unsplash.com/photo-1508344928928-7165b67de128?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'EL CLÁSICO',
         'title_1' => 'TOP', 'title_2' => 'TIER',
         'desc' => 'คอลเลคชั่นเสื้อแข่งระดับตำนาน จากสโมสรยักษ์ใหญ่ทั่วทวีปยุโรป',
-        'btn_icon' => 'fa-star', 'btn_text' => 'ช้อปคอลเลคชั่นยุโรป'
+        'btn_icon' => 'fa-star', 'btn_text' => 'ช้อปคอลเลคชั่นยุโรป',
+        'link' => '#'
     ],
     [
-        'img' => 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=1920&auto=format&fit=crop',
+        // ภาพแฟนบอลและพลุควันสีแดง (ฟีลลิเวอร์พูล)
+        'img' => 'https://images.unsplash.com/photo-1589487391730-58f20eb2c308?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'YOU\'LL NEVER WALK ALONE',
         'title_1' => 'THE', 'title_2' => 'REDS',
         'desc' => 'สัมผัสมนต์ขลังแห่งแอนฟิลด์ ด้วยชุดแข่งลิขสิทธิ์แท้เกรดเพลเยอร์',
-        'btn_icon' => 'fa-fire', 'btn_text' => 'ดูสินค้า ลิเวอร์พูล'
+        'btn_icon' => 'fa-fire', 'btn_text' => 'ดูสินค้า ลิเวอร์พูล',
+        'link' => '#'
     ],
     [
-        'img' => 'https://images.unsplash.com/photo-1614632537190-23e414ab2b4c?q=80&w=1920&auto=format&fit=crop',
+        // ภาพสนามฟุตบอลมุมมองจากอัฒจันทร์ (ฟีลโอลด์แทรฟฟอร์ด)
+        'img' => 'https://images.unsplash.com/photo-1431324155629-1a6d0a11f485?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'THEATRE OF DREAMS',
         'title_1' => 'RED', 'title_2' => 'DEVILS',
         'desc' => 'เสื้อแข่งและอุปกรณ์จาก แมนเชสเตอร์ ยูไนเต็ด พร้อมส่งถึงหน้าบ้านคุณ',
-        'btn_icon' => 'fa-shield-halved', 'btn_text' => 'สาวกผีแดงคลิก'
+        'btn_icon' => 'fa-shield-halved', 'btn_text' => 'สาวกผีแดงคลิก',
+        'link' => '#'
     ],
     [
-        'img' => 'https://images.unsplash.com/photo-1518605368461-1e1252220a77?q=80&w=1920&auto=format&fit=crop',
+        // ภาพถ้วยรางวัล / ความสำเร็จ
+        'img' => 'https://images.unsplash.com/photo-1518091043644-c1d44570a2c1?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'MIA SAN MIA',
         'title_1' => 'GERMAN', 'title_2' => 'GIANTS',
         'desc' => 'ความยิ่งใหญ่แห่งแคว้นบาวาเรีย พร้อมให้คุณจับจองเป็นเจ้าของแล้ว',
-        'btn_icon' => 'fa-trophy', 'btn_text' => 'ไอเทมเยอรมัน'
+        'btn_icon' => 'fa-trophy', 'btn_text' => 'ไอเทมเยอรมัน',
+        'link' => '#'
     ],
     [
-        'img' => 'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?q=80&w=1920&auto=format&fit=crop',
+        // ภาพพื้นหญ้าสนามฟุตบอลและลูกบอล
+        'img' => 'https://images.unsplash.com/photo-1518605368461-1e1252220a77?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'CHAMPION MINDSET',
         'title_1' => 'VICTORY', 'title_2' => 'IS YOURS',
         'desc' => 'สวมใส่ความมุ่งมั่น สวมใส่ความสำเร็จ ไปกับเรา ThanJai Shop',
-        'btn_icon' => 'fa-crown', 'btn_text' => 'ดูสินค้าทั้งหมด'
+        'btn_icon' => 'fa-crown', 'btn_text' => 'ดูสินค้าทั้งหมด',
+        'link' => '#'
     ],
     [
-        'img' => 'https://images.unsplash.com/photo-1553108715-26505600002f?q=80&w=1920&auto=format&fit=crop',
+        // ภาพการแข่งขันไฟสนามสว่างจ้า (ฟีลดอร์ทมุนด์ / คึกคัก)
+        'img' => 'https://images.unsplash.com/photo-1556816214-cb336eb49b16?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'YELLOW WALL',
         'title_1' => 'FEEL THE', 'title_2' => 'PASSION',
         'desc' => 'ดุดัน ทรงพลัง คอลเลคชั่นใหม่ล่าสุดที่ดึงจิตวิญญาณนักเตะในตัวคุณ',
-        'btn_icon' => 'fa-bolt', 'btn_text' => 'เลือกช้อปเลย'
+        'btn_icon' => 'fa-bolt', 'btn_text' => 'เลือกช้อปเลย',
+        'link' => '#'
     ]
 ];
-// สับไพ่ (สุ่มลำดับภาพ) เพื่อให้แบนเนอร์ไม่จำเจ
-shuffle($slidePool); 
-$activeSlides = array_slice($slidePool, 0, 3); // ดึงมาแสดงแค่ 3 สไลด์ต่อการโหลด 1 ครั้ง
 
+// สับไพ่ (สุ่มลำดับภาพ) เพื่อให้แบนเนอร์ไม่จำเจในแต่ละครั้งที่โหลดหน้าเว็บ
+shuffle($slidePool); 
+
+// กำหนดให้ตัวแปร activeSlides ดึงข้อมูลมาทั้งหมดโดยไม่ใช้ array_slice ตัดจำนวนแล้ว
+$activeSlides = $slidePool; 
+
+// =========================================================================
 // =========================================================================
 
 // ดึงข้อมูลสินค้า
