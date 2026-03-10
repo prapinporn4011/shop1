@@ -1,11 +1,22 @@
 <?php
 require_once 'db.php';
-$stmt = $pdo->query("SELECT p.id, p.name, p.price, p.is_sale, p.old_price, p.description as `desc`, p.image as img, c.name as type FROM products p LEFT JOIN categories c ON p.category_id = c.id");
+
+// ดึงข้อมูลสินค้า พร้อมกับข้อมูลลดราคา
+$sql = "SELECT p.id, p.name, p.price, p.is_sale, p.old_price, p.description as `desc`, p.image as img, c.name as type 
+        FROM products p 
+        LEFT JOIN categories c ON p.category_id = c.id";
+$stmt = $pdo->query($sql);
 $productsFromDB = $stmt->fetchAll(PDO::FETCH_ASSOC);
-foreach ($productsFromDB as $key => $product) { $productsFromDB[$key]['price'] = (float)$product['price']; $productsFromDB[$key]['id'] = (int)$product['id']; }
+
+foreach ($productsFromDB as $key => $product) {
+    $productsFromDB[$key]['price'] = (float)$product['price'];
+    $productsFromDB[$key]['id'] = (int)$product['id'];
+}
+
 $stmtCats = $pdo->query("SELECT * FROM categories ORDER BY id ASC");
 $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="th">
 <head>
@@ -25,13 +36,13 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         
         /* สไตล์สไลด์โชว์แบนเนอร์ */
         #heroCarousel { height: 450px; background: var(--primary); }
-        .slide-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: top center; }
+        .slide-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center; }
         .slide-bg::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.3)); }
-        .carousel-item { height: 450px; }
+        .carousel-item { height: 450px; transition: transform 1.2s ease-in-out, opacity 1s ease-in-out; }
         .carousel-caption { position: absolute; top: 0; left: 0; right: 0; bottom: 0; text-align: left; padding-top: 0; padding-bottom: 0; z-index: 10; }
         .carousel-caption h1 { font-size: 3.5rem; text-transform: uppercase; font-weight: 800; font-style: italic; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
         .carousel-caption p { text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
-        .carousel-indicators [data-bs-target] { width: 40px; height: 4px; background-color: var(--accent); opacity: 0.4; }
+        .carousel-indicators [data-bs-target] { width: 40px; height: 4px; background-color: var(--accent); opacity: 0.4; border: none; }
         .carousel-indicators .active { opacity: 1; }
         
         .btn-warning { background-color: var(--accent); border: none; color: #000; font-weight: 600; border-radius: 0; text-transform: uppercase; transition: 0.2s;}
@@ -99,7 +110,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 </nav>
 
 <header id="hero-banner">
-    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+    <div id="heroCarousel" class="carousel slide carousel-fade">
         <div class="carousel-indicators">
             <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
             <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
@@ -107,7 +118,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         </div>
         <div class="carousel-inner">
             <div class="carousel-item active">
-                <div class="slide-bg" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Cristiano_Ronaldo_2018.jpg/1200px-Cristiano_Ronaldo_2018.jpg');"></div>
+                <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=1600&auto=format&fit=crop');"></div>
                 <div class="carousel-caption d-flex flex-column justify-content-center h-100 pb-0">
                     <div class="container text-start">
                         <h1 class="mb-2">NEW SEASON <span class="text-warning">2026</span></h1>
@@ -117,7 +128,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
             <div class="carousel-item">
-                <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1508344928928-7165b67de128?q=80&w=1200&auto=format&fit=crop');"></div>
+                <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1600&auto=format&fit=crop');"></div>
                 <div class="carousel-caption d-flex flex-column justify-content-center h-100 pb-0">
                     <div class="container text-start">
                         <h1 class="mb-2">PREMIUM <span class="text-warning">QUALITY</span></h1>
@@ -127,7 +138,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
             <div class="carousel-item">
-                <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1614632537423-1e6c2e7e0aab?q=80&w=1200&auto=format&fit=crop');"></div>
+                <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1553108715-26505600002f?q=80&w=1600&auto=format&fit=crop');"></div>
                 <div class="carousel-caption d-flex flex-column justify-content-center h-100 pb-0">
                     <div class="container text-start">
                         <h1 class="mb-2">VICTORY <span class="text-warning">IS YOURS</span></h1>
@@ -174,6 +185,16 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    // เริ่มทำงานสไลด์โชว์อัตโนมัติ 100%
+    document.addEventListener("DOMContentLoaded", function() {
+        var myCarousel = document.querySelector('#heroCarousel');
+        var carousel = new bootstrap.Carousel(myCarousel, {
+            interval: 4000,
+            ride: 'carousel',
+            pause: false
+        });
+    });
+
     const dbProducts = <?php echo json_encode($productsFromDB); ?>;
     const products = dbProducts.map(p => ({
         id: parseInt(p.id), name: p.name, price: parseFloat(p.price),
