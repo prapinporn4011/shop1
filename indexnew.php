@@ -361,45 +361,37 @@ foreach ($productsFromDB as $key => $product) {
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     // --------------------------------------------------------
-    // ดึงข้อมูลสินค้าจากฐานข้อมูล (PHP)
+    // ตัวแปรระบบ และฐานข้อมูล
     // --------------------------------------------------------
-// โยนข้อมูลจาก Database (PHP) มาใส่ใน JavaScript
-const dbProducts = <?php echo json_encode($productsFromDB); ?>;
+    const dbProducts = <?php echo json_encode($productsFromDB); ?>;
+    const products = dbProducts.map(p => ({
+        id: parseInt(p.id),
+        name: p.name,
+        price: parseFloat(p.price),
+        oldPrice: parseFloat(p.price) + 200, 
+        isSale: false, 
+        type: p.type || "ทั่วไป",
+        img: p.img ? p.img : 'default.jpg',
+        desc: p.desc
+    }));
 
-// แปลงโครงสร้างให้เข้ากับระบบตะกร้าเดิม
-const products = dbProducts.map(p => ({
-    id: parseInt(p.id),
-    name: p.name,
-    price: parseFloat(p.price),
-    oldPrice: parseFloat(p.price) + 200, // สมมติราคาเดิม (ถ้าใน DB ไม่มี)
-    isSale: false, // ถ้าอยากให้มีป้ายลดราคา ค่อยเพิ่มคอลัมน์ใน DB ทีหลัง
-    type: p.type || "ทั่วไป",
-    img: p.img ? p.img : 'default.jpg',
-    desc: p.desc
-}));
-    // --------------------------------------------------------
-    // ตัวแปรระบบ และฐานข้อมูลจำลอง (DB)
-    // --------------------------------------------------------
-    let usersDB = []; // จำลอง Table Users ใน Database
-    let currentUser = null; // ผู้ใช้ที่ล็อกอินอยู่
+    let currentUser = null; 
     let cart = [];
     let discount = 0;
     let paymentMethod = 'COD';
     let qrTimerInterval;
 
     // --------------------------------------------------------
-    // ฟังก์ชันเริ่มต้น
-    // --------------------------------------------------------
-    // --------------------------------------------------------
-    // ฟังก์ชันเริ่มต้น และโหลดข้อมูล Session
+    // ฟังก์ชันเริ่มต้น (โหลดหน้าเว็บ)
     // --------------------------------------------------------
     function initStore() {
         renderProducts(products);
         
-        // ถามหลังบ้านว่าตอนนี้มีใครล็อกอินค้างอยู่ไหม
+        // เช็ค Session จากฝั่งเซิร์ฟเวอร์
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ action: 'check_session' })
         })
         .then(res => res.json())
@@ -407,15 +399,20 @@ const products = dbProducts.map(p => ({
             if(data.success) {
                 setupUserSession(data.user);
             }
-        });
+        })
+        .catch(err => console.error("Session check failed:", err));
     }
 
-    // ฟังก์ชันช่วยจัดการข้อมูลผู้ใช้ตอนล็อกอิน/สมัครสมาชิก
     function setupUserSession(userData) {
         currentUser = userData;
-        currentUser.profilePic = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
         
-        // เพื่อความง่าย ตะกร้าและประวัติที่หน้าบ้านยังให้ผูกกับ LocalStorage ตาม Username ไว้ชั่วคราวได้ครับ
+        // ถ้ามีรูปโปรไฟล์ในฐานข้อมูลให้ใช้รูปนั้น ถ้าไม่มีค่อยสุ่มรูปการ์ตูนให้
+        if (userData.profilePic) {
+            currentUser.profilePic = userData.profilePic;
+        } else {
+            currentUser.profilePic = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
+        }
+        
         const localData = JSON.parse(localStorage.getItem('thanjai_data_' + currentUser.username)) || {};
         cart = localData.cart || [];
         currentUser.orders = localData.orders || [];
@@ -425,7 +422,7 @@ const products = dbProducts.map(p => ({
         updateCartBadge();
     }
 
-    // แก้ไขฟังก์ชันเซฟตะกร้า (ผูกกับชื่อผู้ใช้ที่ล็อกอินจริง)
+    // เซฟตะกร้าลง LocalStorage (อิงตามชื่อผู้ใช้)
     function saveDatabase() {
         if(currentUser) {
             const localData = {
@@ -437,20 +434,49 @@ const products = dbProducts.map(p => ({
         }
     }
 
+    function showToast(message, type = 'success') {
+        const toastEl = document.getElementById('liveToast');
+        const toastBody = document.getElementById('toast-body');
+        
+        toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-dark');
+        
+        if(type === 'success') toastEl.classList.add('bg-success');
+        else if(type === 'error') toastEl.classList.add('bg-danger');
+        else if(type === 'warning') toastEl.classList.add('bg-warning', 'text-dark');
+
+        document.getElementById('toast-msg').innerHTML = message;
+        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
+        toast.show();
+    }
+
     // --------------------------------------------------------
-    // ระบบสมาชิก (Authentication แบบต่อ Database)
+    // ระบบสมาชิก (Login & Register) - ต่อ Database
     // --------------------------------------------------------
+    function openAuthModal(type) {
+        toggleAuth(type);
+        new bootstrap.Modal(document.getElementById('authModal')).show();
+    }
+
+    function toggleAuth(type) {
+        document.getElementById('login-section').classList.toggle('d-none', type !== 'login');
+        document.getElementById('register-section').classList.toggle('d-none', type !== 'register');
+        document.getElementById('authModalTitle').innerText = type === 'login' ? 'เข้าสู่ระบบบัญชีของคุณ' : 'สมัครสมาชิกใหม่';
+    }
+
     function register() {
         const user = document.getElementById('reg-user').value.trim();
         const email = document.getElementById('reg-email').value.trim();
         const phone = document.getElementById('reg-phone').value.trim();
         const pass = document.getElementById('reg-pass').value.trim();
 
-        if(!user || !email || !phone || !pass) return showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+        if(!user || !email || !phone || !pass) return showToast('<i class="fa fa-exclamation-circle"></i> กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast('<i class="fa fa-envelope"></i> รูปแบบอีเมลไม่ถูกต้อง', 'error');
+        if(!/^\d{10}$/.test(phone)) return showToast('<i class="fa fa-phone"></i> เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก', 'error');
 
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ action: 'register', username: user, email: email, phone: phone, password: pass })
         })
         .then(res => res.json())
@@ -474,6 +500,7 @@ const products = dbProducts.map(p => ({
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({ action: 'login', username: user, password: pass })
         })
         .then(res => res.json())
@@ -493,6 +520,7 @@ const products = dbProducts.map(p => ({
             fetch('api_auth.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
                 body: JSON.stringify({ action: 'logout' })
             })
             .then(res => res.json())
@@ -505,107 +533,6 @@ const products = dbProducts.map(p => ({
                     showToast('ออกจากระบบเรียบร้อยแล้ว', 'success');
                 }
             });
-        }
-    }
-
-    // ฟังก์ชันแจ้งเตือนแบบ Toast
-    function showToast(message, type = 'success') {
-        const toastEl = document.getElementById('liveToast');
-        const toastBody = document.getElementById('toast-body');
-        
-        toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-dark');
-        
-        if(type === 'success') toastEl.classList.add('bg-success');
-        else if(type === 'error') toastEl.classList.add('bg-danger');
-        else if(type === 'warning') toastEl.classList.add('bg-warning', 'text-dark');
-
-        document.getElementById('toast-msg').innerHTML = message;
-        const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
-        toast.show();
-    }
-
-    // ฟังก์ชันเซฟข้อมูลลงจำลอง Database (Local Storage)
-    function saveDatabase() {
-        if(currentUser) {
-            const index = usersDB.findIndex(u => u.username === currentUser.username);
-            currentUser.cart = cart;
-            if(index !== -1) usersDB[index] = currentUser;
-            else usersDB.push(currentUser); 
-        }
-        localStorage.setItem('thanjai_users_db', JSON.stringify(usersDB));
-        if(currentUser) localStorage.setItem('thanjai_active_session', currentUser.username);
-    }
-
-    // --------------------------------------------------------
-    // ระบบสมาชิก (Authentication)
-    // --------------------------------------------------------
-    function openAuthModal(type) {
-        toggleAuth(type);
-        new bootstrap.Modal(document.getElementById('authModal')).show();
-    }
-
-    function toggleAuth(type) {
-        document.getElementById('login-section').classList.toggle('d-none', type !== 'login');
-        document.getElementById('register-section').classList.toggle('d-none', type !== 'register');
-        document.getElementById('authModalTitle').innerText = type === 'login' ? 'เข้าสู่ระบบบัญชีของคุณ' : 'สมัครสมาชิกใหม่';
-    }
-
-    function register() {
-        const user = document.getElementById('reg-user').value.trim();
-        const email = document.getElementById('reg-email').value.trim();
-        const phone = document.getElementById('reg-phone').value.trim();
-        const pass = document.getElementById('reg-pass').value.trim();
-
-        if(!user || !email || !phone || !pass) return showToast('<i class="fa fa-exclamation-circle"></i> กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
-        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast('<i class="fa fa-envelope"></i> รูปแบบอีเมลไม่ถูกต้อง', 'error');
-        if(!/^\d{10}$/.test(phone)) return showToast('<i class="fa fa-phone"></i> เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก', 'error');
-
-        if(usersDB.some(u => u.username.toLowerCase() === user.toLowerCase())) return showToast('ชื่อผู้ใช้นี้ถูกใช้งานแล้ว', 'error');
-        if(usersDB.some(u => u.email.toLowerCase() === email.toLowerCase())) return showToast('อีเมลนี้ถูกสมัครสมาชิกไปแล้ว', 'error');
-        if(usersDB.some(u => u.phone === phone)) return showToast('เบอร์โทรศัพท์นี้ถูกลงทะเบียนไปแล้ว', 'error');
-
-        currentUser = {
-            username: user, name: user, email: email, phone: phone, password: pass,
-            profilePic: 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + user,
-            cart: [], orders: [], coupons: []
-        };
-        
-        usersDB.push(currentUser);
-        saveDatabase();
-        
-        bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
-        updateNavUI();
-        showToast('🎉 สมัครสมาชิกและเข้าสู่ระบบสำเร็จ!', 'success');
-    }
-
-    function login() {
-        const user = document.getElementById('login-user').value.trim();
-        const pass = document.getElementById('login-pass').value.trim();
-
-        if(!user || !pass) return showToast('กรุณากรอกชื่อผู้ใช้และรหัสผ่าน', 'warning');
-
-        const foundUser = usersDB.find(u => u.username.toLowerCase() === user.toLowerCase());
-        
-        if(!foundUser) return showToast('❌ ไม่พบชื่อผู้ใช้นี้ในระบบ', 'error');
-        if(foundUser.password !== pass) return showToast('❌ รหัสผ่านไม่ถูกต้อง', 'error');
-
-        currentUser = foundUser;
-        cart = currentUser.cart || [];
-        saveDatabase();
-        bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
-        updateNavUI();
-        updateCartBadge();
-        showToast(`ยินดีต้อนรับกลับมาครับคุณ ${currentUser.name}!`, 'success');
-    }
-
-    function logoutUser() {
-        if(confirm("ต้องการออกจากระบบใช่หรือไม่?")) {
-            localStorage.removeItem('thanjai_active_session');
-            currentUser = null;
-            cart = [];
-            updateNavUI();
-            updateCartBadge();
-            showToast('ออกจากระบบเรียบร้อยแล้ว', 'success');
         }
     }
 
@@ -628,7 +555,7 @@ const products = dbProducts.map(p => ({
     }
 
     // --------------------------------------------------------
-    // จัดการโปรไฟล์
+    // จัดการโปรไฟล์ - ต่อ Database
     // --------------------------------------------------------
     function uploadProfilePic(event) {
         const file = event.target.files[0];
@@ -648,29 +575,32 @@ const products = dbProducts.map(p => ({
         if(!newName || !newPhone) return showToast('กรุณากรอกชื่อและเบอร์โทร', 'warning');
         if(newPhone.length !== 10) return showToast('เบอร์โทรศัพท์ต้องมี 10 หลัก', 'warning');
         
-        // ส่งข้อมูลที่แก้ไปอัปเดตใน Database 
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin', // <--- เพิ่มบรรทัดนี้ เพื่อบังคับส่ง Session Cookie
+            credentials: 'same-origin',
             body: JSON.stringify({ 
                 action: 'update_profile', 
                 fullname: newName, 
                 phone: newPhone, 
-                password: newPass 
+                password: newPass,
+                profile_pic: newPic // <-- ส่งรูปภาพ Base64 ไปให้หลังบ้านด้วย
             })
         })
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                // ถ้า Database อัปเดตสำเร็จ ให้อัปเดตหน้าจอด้วย
                 currentUser.name = newName;
                 currentUser.phone = newPhone;
-                currentUser.profilePic = newPic;
+                
+                // ถ้า PHP ส่ง path รูปกลับมาแปลว่าอัปโหลดสำเร็จ ให้อัปเดต path ในตัวแปร
+                if(data.profile_pic) {
+                    currentUser.profilePic = data.profile_pic;
+                }
                 
                 updateNavUI();
                 bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide();
-                showToast('อัปเดตข้อมูลโปรไฟล์ลงฐานข้อมูลเรียบร้อย', 'success');
+                showToast('อัปเดตข้อมูลโปรไฟล์และรูปภาพเรียบร้อย', 'success');
             } else {
                 showToast('❌ ' + data.message, 'error');
             }
@@ -680,7 +610,6 @@ const products = dbProducts.map(p => ({
             showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
         });
     }
-
     // --------------------------------------------------------
     // แสดงผลสินค้า
     // --------------------------------------------------------
@@ -801,7 +730,7 @@ const products = dbProducts.map(p => ({
     }
 
     // --------------------------------------------------------
-    // ระบบชำระเงิน & คูปอง
+    // ระบบชำระเงิน & คูปอง & สั่งซื้อ - ต่อ Database
     // --------------------------------------------------------
     function openCart() {
         if(!currentUser) return openAuthModal('login');
@@ -954,7 +883,6 @@ const products = dbProducts.map(p => ({
         const addressStr = document.getElementById('ship-address').value.trim();
         const statusStr = paymentMethod === 'QR' ? 'paid' : 'pending';
         
-        // เตรียมข้อมูลส่งไปให้ PHP Backend
         const orderData = {
             username: currentUser ? currentUser.username : null,
             total: total,
@@ -963,7 +891,6 @@ const products = dbProducts.map(p => ({
             items: cart
         };
 
-        // ยิงข้อมูลไปให้หลังบ้าน
         fetch('save_order.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -972,7 +899,6 @@ const products = dbProducts.map(p => ({
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                // อัปเดตประวัติการสั่งซื้อในหน้าบ้าน
                 const newOrder = {
                     orderId: 'ORD-' + String(data.order_id).padStart(5, '0'),
                     date: new Date().toLocaleString('th-TH'),
@@ -1054,9 +980,7 @@ const products = dbProducts.map(p => ({
             `).join('');
         }
         
-        
         new bootstrap.Modal(document.getElementById('historyModal')).show();
-        
     }
 </script>
 </body>
