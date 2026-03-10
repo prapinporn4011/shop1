@@ -93,6 +93,8 @@ foreach ($productsFromDB as $key => $product) {
                             <img id="nav-profile-pic" src="" width="35" height="35" class="rounded-circle border" style="object-fit: cover;">
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li id="nav-admin-link" class="d-none"><a class="dropdown-item text-warning fw-bold bg-dark" href="admin_orders.php"><i class="fa fa-user-shield me-2"></i>เข้าสู่ระบบหลังบ้าน</a></li>
+                            
                             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal"><i class="fa fa-cog me-2"></i>ตั้งค่าบัญชี</a></li>
                             <li><a class="dropdown-item" href="#" onclick="openOrderHistory()"><i class="fa fa-box-open me-2"></i>ประวัติสั่งซื้อ & รีวิว</a></li>
                             <li><hr class="dropdown-divider"></li>

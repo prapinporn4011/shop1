@@ -28,14 +28,16 @@ try {
         }
 
         $hashed_password = password_hash($pass, PASSWORD_DEFAULT);
-        $stmt = $pdo->prepare("INSERT INTO users (username, email, phone, password, fullname) VALUES (?, ?, ?, ?, ?)");
+        // กำหนดให้คนที่สมัครใหม่ เป็นแค่ 'user' เสมอ
+        $stmt = $pdo->prepare("INSERT INTO users (username, email, phone, password, fullname, role) VALUES (?, ?, ?, ?, ?, 'user')");
         $stmt->execute([$user, $email, $phone, $hashed_password, $user]);
 
         $_SESSION['user_id'] = $pdo->lastInsertId();
         $_SESSION['username'] = $user;
+        $_SESSION['role'] = 'user';
 
         echo json_encode(['success' => true, 'user' => [
-            'username' => $user, 'name' => $user, 'email' => $email, 'phone' => $phone, 'profilePic' => null
+            'username' => $user, 'name' => $user, 'email' => $email, 'phone' => $phone, 'profilePic' => null, 'role' => 'user'
         ]]);
     }
     
@@ -51,13 +53,15 @@ try {
         if ($userData && password_verify($pass, $userData['password'])) {
             $_SESSION['user_id'] = $userData['id'];
             $_SESSION['username'] = $userData['username'];
+            $_SESSION['role'] = $userData['role']; // เก็บสิทธิ์เข้า Session เซิร์ฟเวอร์
 
             echo json_encode(['success' => true, 'user' => [
                 'username' => $userData['username'],
                 'name' => $userData['fullname'],
                 'email' => $userData['email'],
                 'phone' => $userData['phone'],
-                'profilePic' => $userData['profile_pic'] 
+                'profilePic' => $userData['profile_pic'],
+                'role' => $userData['role'] // ส่งสิทธิ์กลับไปให้หน้าบ้าน
             ]]);
         } else {
             echo json_encode(['success' => false, 'message' => 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง']);
@@ -73,7 +77,7 @@ try {
     // ---------------- 4. เช็คสถานะล็อกอิน ----------------
     elseif ($action === 'check_session') {
         if (isset($_SESSION['user_id'])) {
-            $stmt = $pdo->prepare("SELECT username, fullname, email, phone, profile_pic FROM users WHERE id = ?");
+            $stmt = $pdo->prepare("SELECT username, fullname, email, phone, profile_pic, role FROM users WHERE id = ?");
             $stmt->execute([$_SESSION['user_id']]);
             $userData = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -83,7 +87,8 @@ try {
                     'name' => $userData['fullname'],
                     'email' => $userData['email'],
                     'phone' => $userData['phone'],
-                    'profilePic' => $userData['profile_pic'] 
+                    'profilePic' => $userData['profile_pic'],
+                    'role' => $userData['role']
                 ]]);
                 exit;
             }
@@ -97,7 +102,6 @@ try {
             echo json_encode(['success' => false, 'message' => 'กรุณาเข้าสู่ระบบก่อนทำรายการ']);
             exit;
         }
-
         $user_id = $_SESSION['user_id'];
         $fullname = trim($data['fullname']);
         $phone = trim($data['phone']);
@@ -126,17 +130,15 @@ try {
 
         $stmt = $pdo->prepare($query);
         $stmt->execute($params);
-
         echo json_encode(['success' => true, 'profile_pic' => $profile_pic_data]);
     }
 
-    // ---------------- 6. ดึงประวัติการสั่งซื้อ (ดึงแบบเรียลไทม์) ----------------
+    // ---------------- 6. ดึงประวัติการสั่งซื้อ ----------------
     elseif ($action === 'get_my_orders') {
         if (!isset($_SESSION['user_id'])) {
             echo json_encode(['success' => false, 'message' => 'กรุณาเข้าสู่ระบบ']);
             exit;
         }
-
         $user_id = $_SESSION['user_id'];
         $stmt = $pdo->prepare("SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC");
         $stmt->execute([$user_id]);
@@ -144,12 +146,7 @@ try {
 
         $result = [];
         foreach ($orders as $o) {
-            $stmtItems = $pdo->prepare("
-                SELECT oi.*, p.name, p.image 
-                FROM order_items oi 
-                LEFT JOIN products p ON oi.product_id = p.id 
-                WHERE oi.order_id = ?
-            ");
+            $stmtItems = $pdo->prepare("SELECT oi.*, p.name, p.image FROM order_items oi LEFT JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
             $stmtItems->execute([$o['id']]);
             $items = $stmtItems->fetchAll(PDO::FETCH_ASSOC);
 
@@ -162,68 +159,33 @@ try {
                 'address' => $o['shipping_address'],
                 'items' => array_map(function($i) {
                     $imgUrl = $i['image'] ? $i['image'] : 'default.jpg';
-                    if (strpos($imgUrl, 'http') !== 0 && strpos($imgUrl, 'data:') !== 0 && strpos($imgUrl, 'uploads/') !== 0 && $imgUrl !== 'default.jpg') {
-                        $imgUrl = 'uploads/' . $imgUrl;
-                    }
-                    return [
-                        'product_id' => $i['product_id'],
-                        'name' => $i['name'] ?: 'สินค้าหมายเลข ' . $i['product_id'],
-                        'img' => $imgUrl,
-                        'size' => $i['size'],
-                        'qty' => (int)$i['qty'],
-                        'price' => (float)$i['price']
-                    ];
+                    if (strpos($imgUrl, 'http') !== 0 && strpos($imgUrl, 'data:') !== 0 && strpos($imgUrl, 'uploads/') !== 0 && $imgUrl !== 'default.jpg') $imgUrl = 'uploads/' . $imgUrl;
+                    return ['product_id' => $i['product_id'], 'name' => $i['name'] ?: 'สินค้า', 'img' => $imgUrl, 'size' => $i['size'], 'qty' => (int)$i['qty'], 'price' => (float)$i['price']];
                 }, $items)
             ];
         }
-
         echo json_encode(['success' => true, 'orders' => $result]);
     }
     
     // ---------------- 7. บันทึกรีวิวสินค้า ----------------
     elseif ($action === 'add_review') {
-        if (!isset($_SESSION['user_id'])) {
-            echo json_encode(['success' => false, 'message' => 'กรุณาเข้าสู่ระบบ']);
-            exit;
-        }
+        if (!isset($_SESSION['user_id'])) { echo json_encode(['success' => false, 'message' => 'กรุณาเข้าสู่ระบบ']); exit; }
         
-        // เช็คว่าเคยรีวิวออเดอร์สินค้านี้ไปหรือยัง
         $stmtCheck = $pdo->prepare("SELECT id FROM reviews WHERE order_id = ? AND product_id = ?");
         $stmtCheck->execute([$data['order_id'], $data['product_id']]);
-        if ($stmtCheck->fetch()) {
-            echo json_encode(['success' => false, 'message' => 'คุณได้รีวิวสินค้านี้ในออเดอร์นี้ไปแล้วครับ']);
-            exit;
-        }
+        if ($stmtCheck->fetch()) { echo json_encode(['success' => false, 'message' => 'คุณได้รีวิวสินค้านี้ในออเดอร์นี้ไปแล้วครับ']); exit; }
 
         $stmt = $pdo->prepare("INSERT INTO reviews (product_id, user_id, order_id, rating, comment) VALUES (?, ?, ?, ?, ?)");
-        $stmt->execute([
-            $data['product_id'], 
-            $_SESSION['user_id'], 
-            $data['order_id'], 
-            $data['rating'], 
-            $data['comment']
-        ]);
+        $stmt->execute([$data['product_id'], $_SESSION['user_id'], $data['order_id'], $data['rating'], $data['comment']]);
         echo json_encode(['success' => true]);
     }
     
-    // ---------------- 8. ดึงรีวิวของสินค้ามาโชว์ ----------------
+    // ---------------- 8. ดึงรีวิว ----------------
     elseif ($action === 'get_reviews') {
-        // ดึงรีวิวเชื่อมกับผู้ใช้เพื่อเอาชื่อและรูปโปรไฟล์มาโชว์
-        $stmt = $pdo->prepare("
-            SELECT r.*, u.fullname, u.username, u.profile_pic 
-            FROM reviews r 
-            LEFT JOIN users u ON r.user_id = u.id 
-            WHERE r.product_id = ? 
-            ORDER BY r.created_at DESC
-        ");
+        $stmt = $pdo->prepare("SELECT r.*, u.fullname, u.username, u.profile_pic FROM reviews r LEFT JOIN users u ON r.user_id = u.id WHERE r.product_id = ? ORDER BY r.created_at DESC");
         $stmt->execute([$data['product_id']]);
         $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // จัด Format วันที่ให้สวยงามก่อนส่งกลับ
-        foreach($reviews as $k => $v) {
-            $reviews[$k]['created_at'] = date('d/m/Y H:i', strtotime($v['created_at']));
-        }
-
+        foreach($reviews as $k => $v) { $reviews[$k]['created_at'] = date('d/m/Y H:i', strtotime($v['created_at'])); }
         echo json_encode(['success' => true, 'reviews' => $reviews]);
     }
 
