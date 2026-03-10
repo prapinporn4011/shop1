@@ -1,30 +1,23 @@
 <?php
+// ดึงไฟล์เชื่อมต่อฐานข้อมูลเข้ามา
 require_once 'db.php';
 
+// ดึงข้อมูลสินค้า พร้อมกับชื่อประเภทสินค้า (JOIN ตาราง)
 $sql = "SELECT p.id, p.name, p.price, p.description as `desc`, p.image as img, c.name as type 
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.id";
 $stmt = $pdo->query($sql);
 $productsFromDB = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-foreach ($productsFromDB as $key => $product) {
-    $productsFromDB[$key]['price'] = (float)$product['price'];
-    $productsFromDB[$key]['id'] = (int)$product['id'];
-    // --- โค้ดเดิมที่อยู่บนสุด ---
+// แปลงข้อมูลให้อยู่ในรูปแบบตัวเลขที่ถูกต้อง
 foreach ($productsFromDB as $key => $product) {
     $productsFromDB[$key]['price'] = (float)$product['price'];
     $productsFromDB[$key]['id'] = (int)$product['id'];
 }
 
-// ----------------เพิ่มโค้ดนี้แทรกเข้าไป-----------------
 // ดึงข้อมูลประเภทสินค้า (Categories) มาโชว์เป็นปุ่มหมวดหมู่
 $stmtCats = $pdo->query("SELECT * FROM categories ORDER BY id ASC");
 $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
-// -----------------------------------------------------
-
-?>
-<!DOCTYPE html>
-
 ?>
 
 <!DOCTYPE html>
@@ -285,7 +278,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
                 <hr>
                 <h6 class="fw-bold"><i class="fa fa-comments text-warning me-2"></i>รีวิวจากลูกค้า</h6>
                 <div id="detail-reviews" class="bg-light p-3 rounded border" style="max-height: 250px; overflow-y: auto;">
-                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -535,7 +528,6 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                // แจกแจงสิทธิ์ ถ้าเป็นแอดมินเด้งไปหลังบ้านเลย
                 if(data.user.role === 'admin') {
                     window.location.href = 'admin_orders.php';
                 } else {
@@ -581,7 +573,6 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
             document.getElementById('set-email').value = currentUser.email || '';
             document.getElementById('set-password').value = '';
 
-            // ถ้าเป็นแอดมิน ให้โชว์ปุ่มทางเข้าหลังบ้านในเมนู
             if(currentUser.role === 'admin') {
                 document.getElementById('nav-admin-link').classList.remove('d-none');
             } else {
@@ -984,3 +975,4 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 </script>
 </body>
 </html>
+}
