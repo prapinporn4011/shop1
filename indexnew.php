@@ -22,36 +22,56 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThanJai Shop - Store</title>
+    <title>ThanJai Shop - Premium Sports</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #1a1a1a; --accent: #ffae00; }
-        body { font-family: 'Sarabun', sans-serif; background: #f8f9fa; }
-        .navbar { background: var(--primary) !important; }
-        .hero-banner { 
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1510566337590-2fc1f21d0faa?q=80&w=2070&auto=format&fit=crop');
-            background-size: cover; background-position: center; height: 350px; display: flex; align-items: center; color: white;
+        :root { 
+            --primary: #0a0a0a; /* ดำเข้ม */
+            --accent: #FBBF24; /* เหลืองทองสปอร์ต */
+            --secondary: #1e293b; /* กรมท่าเข้ม */
         }
-        .product-card { border: none; border-radius: 15px; transition: 0.3s; overflow: hidden; height: 100%; position: relative; }
-        .product-card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1); }
-        .product-card img { height: 250px; object-fit: cover; }
-        .btn-cart { background: #f1f1f1; color: var(--primary); border-radius: 8px; font-weight: bold; }
-        .btn-cart:hover { background: #e2e2e2; }
-        .btn-buy-now { background: var(--accent); color: var(--primary); border-radius: 8px; font-weight: bold; }
-        .btn-buy-now:hover { background: #e69d00; }
-        .member-badge { font-size: 0.7rem; background: var(--accent); color: var(--primary); padding: 2px 8px; border-radius: 10px; font-weight: bold; }
-        .cart-badge { font-size: 0.6rem; padding: 2px 5px; }
-        .payment-box { border: 2px solid #ddd; border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.2s; text-align: center; }
-        .payment-box:hover { border-color: var(--accent); background: #fffdf5; }
-        .payment-box.active { border-color: var(--accent); background: #fff8e1; font-weight: bold; }
-        .sale-badge { position: absolute; top: 10px; right: 10px; background: #dc3545; color: white; padding: 5px 12px; border-radius: 5px; font-weight: bold; font-size: 12px; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        body { font-family: 'Sarabun', sans-serif; background: #f1f5f9; }
+        h1, h2, h3, h4, h5, h6, .nav-link, .btn, .navbar-brand, .sport-font { font-family: 'Kanit', sans-serif; }
+        
+        .navbar { background: var(--primary) !important; border-bottom: 3px solid var(--accent); padding: 15px 0;}
+        .navbar-brand { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
+        
+        /* แบนเนอร์ CR7 */
+        .hero-banner { 
+            background: linear-gradient(to right, rgba(10, 10, 10, 0.9), rgba(10, 10, 10, 0.2)), url('https://c4.wallpaperflare.com/wallpaper/559/335/751/cristiano-ronaldo-real-madrid-c-f-wallpaper-preview.jpg');
+            background-size: cover; background-position: top center; height: 450px; display: flex; align-items: center; color: white;
+            border-bottom: 5px solid var(--accent);
+        }
+        .hero-banner h1 { font-size: 4rem; text-transform: uppercase; font-weight: 800; font-style: italic; letter-spacing: 2px; text-shadow: 2px 2px 10px rgba(0,0,0,0.8); }
+        .hero-banner p { font-size: 1.2rem; text-shadow: 1px 1px 5px rgba(0,0,0,0.8); }
+        
+        .btn-warning { background-color: var(--accent); border: none; color: #000; font-weight: 600; border-radius: 4px; text-transform: uppercase; }
+        .btn-warning:hover { background-color: #eab308; color: #000; transform: scale(1.02); transition: 0.2s;}
+        .btn-dark { background-color: var(--primary); border: none; border-radius: 4px; font-weight: 500;}
+        
+        .product-card { border: none; border-radius: 8px; transition: 0.3s; overflow: hidden; height: 100%; position: relative; background: #fff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .product-card:hover { transform: translateY(-7px); box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); border-bottom: 4px solid var(--accent); }
+        .product-card img { height: 260px; object-fit: cover; }
+        .product-card .card-title { font-size: 15px; }
+        
+        .sale-badge { position: absolute; top: 12px; right: 12px; background: #dc2626; color: white; padding: 5px 15px; border-radius: 4px; font-weight: bold; font-size: 12px; z-index: 10; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-family: 'Kanit'; text-transform: uppercase; letter-spacing: 1px;}
+        .member-badge { font-size: 0.7rem; background: var(--accent); color: var(--primary); padding: 3px 10px; border-radius: 4px; font-weight: bold; }
+        .cart-badge { font-size: 0.7rem; padding: 3px 6px; }
+        
+        .payment-box { border: 2px solid #e2e8f0; border-radius: 8px; padding: 15px; cursor: pointer; transition: 0.2s; text-align: center; font-family: 'Kanit'; }
+        .payment-box:hover { border-color: var(--accent); background: #fefce8; }
+        .payment-box.active { border-color: var(--accent); background: #fef9c3; font-weight: bold; }
         .profile-img-preview { width: 100px; height: 100px; object-fit: cover; border-radius: 50%; border: 3px solid var(--accent); cursor: pointer; }
-        .star-rating i { color: #ddd; cursor: pointer; transition: 0.2s; }
-        .star-rating i.active { color: #ffc107; }
+        .star-rating i { color: #cbd5e1; cursor: pointer; transition: 0.2s; }
+        .star-rating i.active { color: var(--accent); }
         .star-rating i:hover { transform: scale(1.2); }
         .toast-container { z-index: 1060; }
-        .toast { border-radius: 10px; font-weight: bold; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .toast { border-radius: 8px; font-weight: bold; border: none; box-shadow: 0 10px 15px rgba(0,0,0,0.2); font-family: 'Kanit';}
+        
+        /* ปุ่มตัวกรอง */
+        .filter-btn { font-family: 'Kanit'; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 4px !important; font-weight: 500; }
     </style>
 </head>
 <body onload="initStore()">
@@ -65,102 +85,100 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow">
     <div class="container">
-        <a class="navbar-brand fw-bold" href="#" onclick="filterProducts('ทั้งหมด')">ThanJai <span class="text-warning">Shop</span></a>
+        <a class="navbar-brand fw-bold" href="#" onclick="filterProducts('ทั้งหมด')">ThanJai <span style="color: var(--accent);">Shop</span></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link active" href="#" onclick="filterProducts('ทั้งหมด')"><i class="fa fa-home me-1"></i>หน้าหลัก</a></li>
-                <li class="nav-item"><a class="nav-link" href="#product-list" onclick="filterProducts('ทั้งหมด')"><i class="fa fa-list me-1"></i>สินค้าทั้งหมด</a></li>
-                <li class="nav-item"><a class="nav-link text-danger fw-bold" href="#" onclick="filterProducts('โปรโมชั่น')"><i class="fa fa-tags me-1"></i>โปรโมชั่นลดราคา</a></li>
+                <li class="nav-item"><a class="nav-link active" href="#" onclick="filterProducts('ทั้งหมด')"><i class="fa fa-home me-1"></i> หน้าหลัก</a></li>
+                <li class="nav-item"><a class="nav-link" href="#product-list" onclick="filterProducts('ทั้งหมด')"><i class="fa fa-list me-1"></i> สินค้าทั้งหมด</a></li>
+                <li class="nav-item"><a class="nav-link text-danger fw-bold" href="#" onclick="filterProducts('โปรโมชั่น')"><i class="fa fa-fire me-1"></i> โปรโมชั่นลดราคา</a></li>
             </ul>
             
             <div class="d-flex align-items-center gap-3">
                 <div class="input-group input-group-sm d-none d-md-flex">
-                    <input type="text" id="search-input" class="form-control" placeholder="ค้นหาชื่อทีม..." onkeyup="searchProducts()">
+                    <input type="text" id="search-input" class="form-control border-0" placeholder="ค้นหาชื่อทีม..." onkeyup="searchProducts()" style="font-family: 'Kanit';">
                 </div>
 
                 <div id="guest-zone">
-                    <button class="btn btn-outline-warning btn-sm fw-bold" onclick="openAuthModal('login')">เข้าสู่ระบบ / สมัครสมาชิก</button>
+                    <button class="btn btn-warning btn-sm shadow-sm" onclick="openAuthModal('login')"><i class="fa fa-sign-in-alt me-1"></i> เข้าสู่ระบบ</button>
                 </div>
 
                 <div id="user-zone" class="d-none">
                     <div class="dropdown text-white">
-                        <span class="me-2 d-none d-md-inline">ยินดีต้อนรับ, <strong id="nav-username">ผู้ใช้</strong> <span class="member-badge">Member</span></span>
+                        <span class="me-2 d-none d-md-inline sport-font">ยินดีต้อนรับ, <strong id="nav-username" class="text-warning">ผู้ใช้</strong> <span class="member-badge ms-1">VIP</span></span>
                         <a href="#" class="link-light dropdown-toggle" data-bs-toggle="dropdown">
-                            <img id="nav-profile-pic" src="" width="35" height="35" class="rounded-circle border" style="object-fit: cover;">
+                            <img id="nav-profile-pic" src="" width="40" height="40" class="rounded-circle border border-warning" style="object-fit: cover;">
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <ul class="dropdown-menu dropdown-menu-end shadow sport-font">
                             <li id="nav-admin-link" class="d-none"><a class="dropdown-item text-warning fw-bold bg-dark" href="admin_orders.php"><i class="fa fa-user-shield me-2"></i>ระบบหลังบ้าน (Admin)</a></li>
-                            
                             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal"><i class="fa fa-cog me-2"></i>ตั้งค่าบัญชี</a></li>
                             <li><a class="dropdown-item" href="#" onclick="openOrderHistory()"><i class="fa fa-box-open me-2"></i>ประวัติสั่งซื้อ & รีวิว</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="#" onclick="logoutUser()"><i class="fa fa-sign-out-alt me-2"></i>ออกจากระบบ</a></li>
+                            <li><a class="dropdown-item text-danger fw-bold" href="#" onclick="logoutUser()"><i class="fa fa-sign-out-alt me-2"></i>ออกจากระบบ</a></li>
                         </ul>
                     </div>
                 </div>
                 
-                <a href="#" class="text-white position-relative" onclick="openCart()">
-                    <i class="fa fa-shopping-cart fs-5"></i>
-                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge">0</span>
+                <a href="#" class="text-white position-relative ms-2" onclick="openCart()">
+                    <i class="fa fa-shopping-cart fs-4"></i>
+                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger cart-badge border border-light">0</span>
                 </a>
             </div>
         </div>
     </div>
 </nav>
 
-<header class="hero-banner text-center" id="hero-banner">
+<header class="hero-banner" id="hero-banner">
     <div class="container">
-        <h1 class="display-4 fw-bold">NEW SEASON 2026</h1>
-        <p class="lead">คอลเลคชั่นใหม่ล่าสุดจากสโมสรดังทั่วโลก พร้อมส่งแล้ววันนี้!</p>
-        <a href="#product-list" class="btn btn-warning btn-lg px-5 fw-bold">เลือกช้อปเลย</a>
+        <h1 class="mb-3">NEW SEASON <span class="text-warning">2026</span></h1>
+        <p class="lead mb-4">คอลเลคชั่นใหม่ล่าสุดจากสโมสรดังทั่วโลก พร้อมส่งแล้ววันนี้! สวมใส่ความมุ่งมั่น สวมใส่ความสำเร็จ</p>
+        <a href="#product-list" class="btn btn-warning btn-lg px-5 py-3 shadow"><i class="fa fa-bolt me-2"></i> เลือกช้อปเลย</a>
     </div>
 </header>
 
 <div class="container mt-4" id="promo-banner">
-    <div class="alert alert-info shadow-sm border-0 rounded-3 text-center position-relative overflow-hidden">
-        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1;"></div>
-        <h3 class="fw-bold mb-2 position-relative"><i class="fa fa-truck-fast me-2"></i> โค้ดส่งฟรี! สำหรับสมาชิกใหม่</h3>
-        <p class="mb-2 fs-5 position-relative">รับสิทธิ์จัดส่งฟรีทั่วประเทศ (โค้ด: <strong class="text-danger">FREESHIP</strong>)</p>
-        <button class="btn btn-primary fw-bold position-relative shadow-sm px-4" onclick="collectCoupon('FREESHIP')">
-            <i class="fa fa-hand-holding-heart me-1"></i> เก็บและใช้งานคูปอง
+    <div class="alert shadow-sm border-0 text-center position-relative overflow-hidden sport-font" style="background-color: var(--secondary); color: white;">
+        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png'); opacity: 0.3;"></div>
+        <h3 class="fw-bold mb-2 position-relative text-warning"><i class="fa fa-truck-fast me-2"></i> โค้ดส่งฟรี! สำหรับสมาชิกใหม่</h3>
+        <p class="mb-3 fs-5 position-relative">รับสิทธิ์จัดส่งฟรีทั่วประเทศ (โค้ด: <span class="bg-danger px-2 py-1 rounded ms-1">FREESHIP</span>)</p>
+        <button class="btn btn-light fw-bold position-relative px-4" onclick="collectCoupon('FREESHIP')">
+            <i class="fa fa-hand-holding-heart me-1 text-danger"></i> เก็บและใช้งานคูปอง
         </button>
     </div>
 </div>
 
 <main class="container my-5" id="product-list">
-    <div class="d-flex justify-content-center gap-2 mb-4 overflow-auto pb-2" id="category-filters">
-        <button class="btn btn-dark px-4 rounded-pill filter-btn active" onclick="filterProducts('ทั้งหมด')">ทั้งหมด</button>
+    <div class="d-flex justify-content-center gap-2 mb-5 overflow-auto pb-2" id="category-filters">
+        <button class="btn btn-dark px-4 filter-btn active shadow-sm" onclick="filterProducts('ทั้งหมด')">ทั้งหมด</button>
         <?php foreach($categoriesFromDB as $cat): ?>
-            <button class="btn btn-outline-dark px-4 rounded-pill filter-btn" onclick="filterProducts('<?= htmlspecialchars($cat['name']) ?>')"><?= htmlspecialchars($cat['name']) ?></button>
+            <button class="btn btn-outline-dark px-4 filter-btn" onclick="filterProducts('<?= htmlspecialchars($cat['name']) ?>')"><?= htmlspecialchars($cat['name']) ?></button>
         <?php endforeach; ?>
     </div>
     <div class="row g-4" id="store-display"></div>
 </main>
 
-<div class="modal fade" id="authModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold" id="authModalTitle">เข้าสู่ระบบ</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="login-section"><input type="text" id="login-user" class="form-control mb-2" placeholder="ชื่อผู้ใช้ (Username)"><input type="password" id="login-pass" class="form-control mb-3" placeholder="รหัสผ่าน"><button class="btn btn-warning w-100 fw-bold mb-2" onclick="login()">เข้าสู่ระบบ</button><p class="text-center small mt-2 mb-0">ผู้ใช้ใหม่ใช่ไหม? <a href="#" onclick="toggleAuth('register')" class="text-primary fw-bold">สมัครสมาชิกที่นี่</a></p></div><div id="register-section" class="d-none"><input type="text" id="reg-user" class="form-control mb-2" placeholder="ตั้งชื่อผู้ใช้ (Username)"><input type="email" id="reg-email" class="form-control mb-2" placeholder="อีเมล (เช่น name@email.com)"><input type="text" id="reg-phone" class="form-control mb-2" placeholder="เบอร์โทรศัพท์ (10 หลัก)" maxlength="10"><input type="password" id="reg-pass" class="form-control mb-3" placeholder="ตั้งรหัสผ่าน"><button class="btn btn-success w-100 fw-bold mb-2" onclick="register()">ลงทะเบียน</button><p class="text-center small mt-2 mb-0">มีบัญชีอยู่แล้ว? <a href="#" onclick="toggleAuth('login')" class="text-primary fw-bold">เข้าสู่ระบบ</a></p></div></div></div></div></div>
-<div class="modal fade" id="profileModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold"><i class="fa fa-user-cog me-2"></i>ตั้งค่าบัญชี</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><label for="profile-upload" class="position-relative d-inline-block"><img id="setting-profile-pic" src="" class="profile-img-preview mb-2 shadow-sm"><div class="position-absolute bottom-0 end-0 bg-warning rounded-circle p-1 px-2 border border-dark" style="cursor: pointer;"><i class="fa fa-camera small"></i></div></label><input type="file" id="profile-upload" class="d-none" accept="image/*" onchange="uploadProfilePic(event)"><div class="text-start mt-3"><label class="form-label small fw-bold text-primary">ชื่อผู้ใช้สำหรับล็อกอิน (Username)</label><input type="text" id="set-username" class="form-control form-control-sm mb-2 bg-light" disabled><div class="row g-2 mb-2"><div class="col-6"><label class="form-label small fw-bold">ชื่อแสดงผล (Display Name)</label><input type="text" id="set-name" class="form-control form-control-sm"></div><div class="col-6"><label class="form-label small fw-bold">เบอร์โทรศัพท์ (10 หลัก)</label><input type="text" id="set-phone" class="form-control form-control-sm" maxlength="10"></div></div><label class="form-label small fw-bold">อีเมล</label><input type="email" id="set-email" class="form-control form-control-sm mb-2" disabled><small class="text-muted d-block mb-2">ไม่สามารถเปลี่ยนชื่อผู้ใช้และอีเมลได้</small><label class="form-label small fw-bold">รหัสผ่านใหม่ (ปล่อยว่างหากไม่ต้องการเปลี่ยน)</label><input type="password" id="set-password" class="form-control form-control-sm mb-3"></div><button class="btn btn-warning w-100 fw-bold" onclick="saveProfile()">บันทึกการเปลี่ยนแปลง</button></div></div></div></div>
-<div class="modal fade" id="productDetailModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header bg-light"><h5 class="modal-title fw-bold">รายละเอียดสินค้า</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row mb-3"><div class="col-md-5 text-center mb-3 mb-md-0 position-relative"><span id="detail-sale-badge" class="sale-badge d-none">ลดราคา!</span><img id="detail-img" src="" class="img-fluid rounded shadow" style="max-height: 350px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/350?text=No+Image'"></div><div class="col-md-7"><span id="detail-type" class="badge bg-secondary mb-2"></span><h4 class="fw-bold" id="detail-name">ชื่อสินค้า</h4><div class="mb-2"><span class="text-danger fw-bold fs-3" id="detail-price">฿0</span><span class="text-muted text-decoration-line-through ms-2 d-none" id="detail-old-price">฿0</span></div><p class="text-muted small mb-2" id="detail-desc">รายละเอียดสินค้า...</p><div class="bg-light p-2 rounded mb-3 small border"><p class="mb-1 text-primary"><i class="fa fa-truck me-2"></i> ค่าจัดส่ง: <strong id="detail-shipping">฿50</strong></p><p class="mb-0 text-success"><i class="fa fa-clock me-2"></i> ระยะเวลาจัดส่ง: <strong>2-3 วันทำการ</strong></p></div><div class="row g-3 align-items-end mb-4"><div class="col-8"><label class="form-label fw-bold small">เลือกไซส์ (Size):</label><select id="detail-size" class="form-select border-dark"><option value="S">S (อก 36")</option><option value="M" selected>M (อก 38")</option><option value="L">L (อก 40")</option><option value="XL">XL (อก 42")</option><option value="2XL">2XL (อก 44")</option></select></div><div class="col-4"><label class="form-label fw-bold small">จำนวน:</label><input type="number" id="detail-qty" class="form-control border-dark text-center" value="1" min="1"></div></div><input type="hidden" id="detail-id"><div class="row g-2"><div class="col-6"><button type="button" class="btn btn-cart w-100 py-2" onclick="addToCart(false)"><i class="fa fa-cart-plus me-1"></i> เพิ่มลงตะกร้า</button></div><div class="col-6"><button type="button" class="btn btn-buy-now w-100 py-2" onclick="addToCart(true)"><i class="fa fa-bolt me-1"></i> สั่งซื้อทันที</button></div></div></div></div><hr><h6 class="fw-bold"><i class="fa fa-comments text-warning me-2"></i>รีวิวจากลูกค้า</h6><div id="detail-reviews" class="bg-light p-3 rounded border" style="max-height: 250px; overflow-y: auto;"></div></div></div></div></div>
-<div class="modal fade" id="checkoutModal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold"><i class="fa fa-shopping-cart me-2"></i>ตะกร้าและชำระเงิน</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="row g-0"><div class="col-lg-5 p-4 border-end bg-white"><h6 class="fw-bold border-bottom pb-2 mb-3">รายการสินค้าของคุณ</h6><div id="cart-items-container" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;"></div></div><div class="col-lg-7 p-4 bg-light"><h6 class="fw-bold border-bottom pb-2 mb-3">ข้อมูลการจัดส่ง</h6><div class="row g-2 mb-3"><div class="col-sm-6"><input type="text" id="ship-name" class="form-control form-control-sm" placeholder="ชื่อ-นามสกุลผู้รับ"></div><div class="col-sm-6"><input type="text" id="ship-phone" class="form-control form-control-sm" placeholder="เบอร์โทรศัพท์ (10 หลัก)" maxlength="10"></div><div class="col-12"><textarea id="ship-address" class="form-control form-control-sm" rows="2" placeholder="ที่อยู่จัดส่งแบบละเอียด..."></textarea></div></div><h6 class="fw-bold border-bottom pb-2 mb-3">เลือกวิธีชำระเงิน</h6><div class="row g-2 mb-4"><div class="col-6"><div class="payment-box active" id="pay-cod" onclick="selectPayment('COD')"><i class="fa fa-truck fa-2x mb-2 text-dark"></i><div class="small">เก็บเงินปลายทาง</div></div></div><div class="col-6"><div class="payment-box" id="pay-qr" onclick="selectPayment('QR')"><i class="fa fa-qrcode fa-2x mb-2 text-primary"></i><div class="small">โอนเงิน (QR Code)</div></div></div></div><div class="card border-0 shadow-sm"><div class="card-body"><h6 class="fw-bold mb-3">สรุปคำสั่งซื้อ</h6><div class="input-group input-group-sm mb-3"><input type="text" id="coupon-input" class="form-control" placeholder="พิมพ์รหัสคูปองที่มี (เช่น FREESHIP)"><button class="btn btn-dark" onclick="applyCoupon()">ใช้คูปอง</button></div><div id="my-coupons-list" class="mb-3 small"></div><div class="d-flex justify-content-between small mb-1"><span>รวมราคาสินค้า:</span> <span id="summary-subtotal">฿0</span></div><div class="d-flex justify-content-between small mb-1"><span>ค่าจัดส่ง:</span> <span id="summary-shipping">฿50</span></div><div class="d-flex justify-content-between small mb-2 text-primary d-none" id="summary-discount-row"><span>ส่วนลดค่าจัดส่ง:</span> <span id="summary-discount">-฿0</span></div><hr class="my-2"><div class="d-flex justify-content-between fw-bold fs-5 mb-3"><span>ยอดสุทธิทั้งหมด:</span> <span class="text-danger" id="summary-total">฿0</span></div><button class="btn btn-success w-100 fw-bold py-2" onclick="confirmOrder()"><i class="fa fa-check-circle me-1"></i> ยืนยันคำสั่งซื้อ</button></div></div></div></div></div></div></div></div>
-<div class="modal fade" id="qrModal" data-bs-backdrop="static" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content text-center py-4 border-primary" style="border-width: 3px;"><div class="modal-body"><h5 class="fw-bold text-primary mb-3">สแกนเพื่อชำระเงิน</h5><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=081xxxxxxx" class="img-thumbnail shadow-sm mb-3"><p class="text-danger fw-bold display-6 mb-0" id="qr-timer">05:00</p><p class="small text-muted mb-4">กรุณาโอนเงินภายในเวลาที่กำหนด</p><button class="btn btn-primary w-100 fw-bold mb-2" onclick="qrPaymentSuccess()">จำลองการโอนสำเร็จ</button><button class="btn btn-outline-danger w-100" onclick="qrPaymentCancel()">ยกเลิกคำสั่งซื้อ</button></div></div></div></div>
-<div class="modal fade" id="historyModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content bg-light"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold"><i class="fa fa-history me-2"></i>ประวัติการสั่งซื้อของคุณ</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4" id="history-container"></div></div></div></div>
-<div class="modal fade" id="reviewModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content"><div class="modal-header bg-warning"><h5 class="modal-title fw-bold"><i class="fa fa-star text-dark"></i> ให้คะแนนและรีวิวสินค้า</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><p class="small text-muted mb-2">ความพึงพอใจในสินค้าและการจัดส่ง</p><div class="star-rating fs-1 mb-3" id="review-stars"><i class="fa fa-star" onclick="setRating(1)"></i><i class="fa fa-star" onclick="setRating(2)"></i><i class="fa fa-star" onclick="setRating(3)"></i><i class="fa fa-star" onclick="setRating(4)"></i><i class="fa fa-star" onclick="setRating(5)"></i></div><textarea id="review-comment" class="form-control mb-3" rows="3" placeholder="เขียนความรู้สึกประทับใจของคุณที่นี่..."></textarea><button class="btn btn-dark w-100 fw-bold" onclick="submitReview()">ส่งรีวิว</button></div></div></div></div>
+<div class="modal fade" id="authModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold sport-font" id="authModalTitle">เข้าสู่ระบบ</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body sport-font"><div id="login-section"><input type="text" id="login-user" class="form-control mb-2" placeholder="ชื่อผู้ใช้ (Username)"><input type="password" id="login-pass" class="form-control mb-3" placeholder="รหัสผ่าน"><button class="btn btn-warning w-100 fw-bold mb-2" onclick="login()">เข้าสู่ระบบ</button><p class="text-center small mt-2 mb-0">ผู้ใช้ใหม่ใช่ไหม? <a href="#" onclick="toggleAuth('register')" class="text-primary fw-bold">สมัครสมาชิกที่นี่</a></p></div><div id="register-section" class="d-none"><input type="text" id="reg-user" class="form-control mb-2" placeholder="ตั้งชื่อผู้ใช้ (Username)"><input type="email" id="reg-email" class="form-control mb-2" placeholder="อีเมล (เช่น name@email.com)"><input type="text" id="reg-phone" class="form-control mb-2" placeholder="เบอร์โทรศัพท์ (10 หลัก)" maxlength="10"><input type="password" id="reg-pass" class="form-control mb-3" placeholder="ตั้งรหัสผ่าน"><button class="btn btn-dark w-100 fw-bold mb-2" onclick="register()">ลงทะเบียน</button><p class="text-center small mt-2 mb-0">มีบัญชีอยู่แล้ว? <a href="#" onclick="toggleAuth('login')" class="text-primary fw-bold">เข้าสู่ระบบ</a></p></div></div></div></div></div>
+<div class="modal fade" id="profileModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold sport-font"><i class="fa fa-user-cog me-2 text-warning"></i>ตั้งค่าบัญชี</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><label for="profile-upload" class="position-relative d-inline-block"><img id="setting-profile-pic" src="" class="profile-img-preview mb-2 shadow"><div class="position-absolute bottom-0 end-0 bg-warning rounded-circle p-2 border border-dark shadow" style="cursor: pointer;"><i class="fa fa-camera small"></i></div></label><input type="file" id="profile-upload" class="d-none" accept="image/*" onchange="uploadProfilePic(event)"><div class="text-start mt-4 sport-font"><label class="form-label small fw-bold text-primary">ชื่อผู้ใช้สำหรับล็อกอิน (Username)</label><input type="text" id="set-username" class="form-control form-control-sm mb-3 bg-light" disabled><div class="row g-3 mb-3"><div class="col-6"><label class="form-label small fw-bold">ชื่อแสดงผล (Display Name)</label><input type="text" id="set-name" class="form-control form-control-sm"></div><div class="col-6"><label class="form-label small fw-bold">เบอร์โทรศัพท์</label><input type="text" id="set-phone" class="form-control form-control-sm" maxlength="10"></div></div><label class="form-label small fw-bold">อีเมล</label><input type="email" id="set-email" class="form-control form-control-sm mb-1" disabled><small class="text-muted d-block mb-3" style="font-family:'Sarabun';">ไม่สามารถเปลี่ยนชื่อผู้ใช้และอีเมลได้</small><label class="form-label small fw-bold text-danger">รหัสผ่านใหม่ (ปล่อยว่างหากไม่ต้องการเปลี่ยน)</label><input type="password" id="set-password" class="form-control form-control-sm mb-4"></div><button class="btn btn-warning w-100 fw-bold sport-font shadow-sm py-2" onclick="saveProfile()">บันทึกการเปลี่ยนแปลง</button></div></div></div></div>
+<div class="modal fade" id="productDetailModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content border-0"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold sport-font">รายละเอียดสินค้า</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row mb-3"><div class="col-md-5 text-center mb-3 mb-md-0 position-relative"><span id="detail-sale-badge" class="sale-badge d-none">ลดราคา!</span><img id="detail-img" src="" class="img-fluid rounded shadow-sm" style="max-height: 350px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/350?text=No+Image'"></div><div class="col-md-7"><span id="detail-type" class="badge bg-secondary mb-2 sport-font"></span><h3 class="fw-bold sport-font" id="detail-name">ชื่อสินค้า</h3><div class="mb-3 sport-font"><span class="text-danger fw-bold fs-2" id="detail-price">฿0</span><span class="text-muted text-decoration-line-through ms-2 fs-5 d-none" id="detail-old-price">฿0</span></div><p class="text-muted small mb-3" id="detail-desc" style="line-height: 1.6;">รายละเอียดสินค้า...</p><div class="bg-light p-3 rounded mb-4 small border sport-font"><p class="mb-2 text-primary"><i class="fa fa-truck me-2"></i> ค่าจัดส่ง: <strong id="detail-shipping">฿50</strong></p><p class="mb-0 text-success"><i class="fa fa-clock me-2"></i> ระยะเวลาจัดส่ง: <strong>2-3 วันทำการ</strong></p></div><div class="row g-3 align-items-end mb-4 sport-font"><div class="col-8"><label class="form-label fw-bold small">เลือกไซส์ (Size):</label><select id="detail-size" class="form-select border-dark"><option value="S">S (อก 36")</option><option value="M" selected>M (อก 38")</option><option value="L">L (อก 40")</option><option value="XL">XL (อก 42")</option><option value="2XL">2XL (อก 44")</option></select></div><div class="col-4"><label class="form-label fw-bold small">จำนวน:</label><input type="number" id="detail-qty" class="form-control border-dark text-center" value="1" min="1"></div></div><input type="hidden" id="detail-id"><div class="row g-2 sport-font"><div class="col-6"><button type="button" class="btn btn-dark w-100 py-2 fw-bold" onclick="addToCart(false)"><i class="fa fa-cart-plus me-1"></i> เพิ่มลงตะกร้า</button></div><div class="col-6"><button type="button" class="btn btn-warning w-100 py-2 fw-bold" onclick="addToCart(true)"><i class="fa fa-bolt me-1"></i> สั่งซื้อทันที</button></div></div></div></div><hr><h5 class="fw-bold sport-font mb-3"><i class="fa fa-comments text-warning me-2"></i>รีวิวจากลูกค้า</h5><div id="detail-reviews" class="bg-light p-3 rounded border" style="max-height: 250px; overflow-y: auto;"></div></div></div></div></div>
+<div class="modal fade" id="checkoutModal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content border-0"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold sport-font"><i class="fa fa-shopping-cart me-2 text-warning"></i>ตะกร้าและชำระเงิน</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="row g-0"><div class="col-lg-5 p-4 border-end bg-white"><h6 class="fw-bold border-bottom pb-2 mb-3 sport-font">รายการสินค้าของคุณ</h6><div id="cart-items-container" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;"></div></div><div class="col-lg-7 p-4 bg-light sport-font"><h6 class="fw-bold border-bottom pb-2 mb-3">ข้อมูลการจัดส่ง</h6><div class="row g-2 mb-3"><div class="col-sm-6"><input type="text" id="ship-name" class="form-control" placeholder="ชื่อ-นามสกุลผู้รับ"></div><div class="col-sm-6"><input type="text" id="ship-phone" class="form-control" placeholder="เบอร์โทรศัพท์ (10 หลัก)" maxlength="10"></div><div class="col-12"><textarea id="ship-address" class="form-control" rows="2" placeholder="ที่อยู่จัดส่งแบบละเอียด..."></textarea></div></div><h6 class="fw-bold border-bottom pb-2 mb-3 mt-4">เลือกวิธีชำระเงิน</h6><div class="row g-3 mb-4"><div class="col-6"><div class="payment-box active shadow-sm bg-white" id="pay-cod" onclick="selectPayment('COD')"><i class="fa fa-truck fa-2x mb-2 text-dark"></i><div>เก็บเงินปลายทาง</div></div></div><div class="col-6"><div class="payment-box shadow-sm bg-white" id="pay-qr" onclick="selectPayment('QR')"><i class="fa fa-qrcode fa-2x mb-2 text-primary"></i><div>โอนเงิน (QR Code)</div></div></div></div><div class="card border-0 shadow-sm"><div class="card-body"><h6 class="fw-bold mb-3">สรุปคำสั่งซื้อ</h6><div class="input-group mb-3"><input type="text" id="coupon-input" class="form-control" placeholder="พิมพ์รหัสคูปอง (เช่น FREESHIP)"><button class="btn btn-dark fw-bold" onclick="applyCoupon()">ใช้คูปอง</button></div><div id="my-coupons-list" class="mb-3 small"></div><div class="d-flex justify-content-between mb-2"><span>รวมราคาสินค้า:</span> <span id="summary-subtotal" class="fw-bold">฿0</span></div><div class="d-flex justify-content-between mb-2"><span>ค่าจัดส่ง:</span> <span id="summary-shipping" class="fw-bold">฿50</span></div><hr class="my-3"><div class="d-flex justify-content-between fw-bold fs-4 mb-4"><span>ยอดสุทธิทั้งหมด:</span> <span class="text-danger" id="summary-total">฿0</span></div><button class="btn btn-success w-100 fw-bold py-3 fs-5" onclick="confirmOrder()"><i class="fa fa-check-circle me-2"></i> ยืนยันคำสั่งซื้อ</button></div></div></div></div></div></div></div></div>
+<div class="modal fade" id="qrModal" data-bs-backdrop="static" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content text-center py-4 border-warning" style="border-width: 4px;"><div class="modal-body sport-font"><h4 class="fw-bold text-primary mb-3">สแกนเพื่อชำระเงิน</h4><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=081xxxxxxx" class="img-thumbnail shadow mb-3"><p class="text-danger fw-bold display-5 mb-0" id="qr-timer">05:00</p><p class="small text-muted mb-4" style="font-family:'Sarabun';">กรุณาโอนเงินภายในเวลาที่กำหนด</p><button class="btn btn-primary w-100 fw-bold mb-2 py-2" onclick="qrPaymentSuccess()">จำลองการโอนสำเร็จ</button><button class="btn btn-outline-danger w-100 py-2" onclick="qrPaymentCancel()">ยกเลิกคำสั่งซื้อ</button></div></div></div></div>
+<div class="modal fade" id="historyModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content border-0 bg-light"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold sport-font"><i class="fa fa-history text-warning me-2"></i>ประวัติการสั่งซื้อของคุณ</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4" id="history-container"></div></div></div></div>
+<div class="modal fade" id="reviewModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content border-0"><div class="modal-header bg-warning"><h5 class="modal-title fw-bold sport-font"><i class="fa fa-star text-dark me-1"></i> ให้คะแนนสินค้า</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center sport-font"><p class="small text-muted mb-2">ความพึงพอใจในสินค้าและการจัดส่ง</p><div class="star-rating fs-1 mb-3" id="review-stars"><i class="fa fa-star" onclick="setRating(1)"></i><i class="fa fa-star" onclick="setRating(2)"></i><i class="fa fa-star" onclick="setRating(3)"></i><i class="fa fa-star" onclick="setRating(4)"></i><i class="fa fa-star" onclick="setRating(5)"></i></div><textarea id="review-comment" class="form-control border-dark mb-3" rows="3" placeholder="เขียนความรู้สึกประทับใจของคุณที่นี่..."></textarea><button class="btn btn-dark w-100 fw-bold py-2" onclick="submitReview()">ส่งรีวิว</button></div></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const dbProducts = <?php echo json_encode($productsFromDB); ?>;
     
-    // ดึงค่าจาก Database แบบ 100% ว่าสินค้านี้ลดราคาอยู่ไหม
     const products = dbProducts.map(p => ({
         id: parseInt(p.id),
         name: p.name,
         price: parseFloat(p.price),
-        isSale: parseInt(p.is_sale) === 1, // ดึงจาก DB
-        oldPrice: parseFloat(p.old_price) > 0 ? parseFloat(p.old_price) : null, // ดึงจาก DB
+        isSale: parseInt(p.is_sale) === 1, 
+        oldPrice: parseFloat(p.old_price) > 0 ? parseFloat(p.old_price) : null, 
         type: p.type || "ทั่วไป",
         img: p.img ? (p.img.startsWith('http') || p.img.startsWith('data:') ? p.img : 'uploads/' + p.img) : 'default.jpg',
         desc: p.desc
@@ -168,17 +186,15 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 
     let currentUser = null; 
     let cart = [];
-    let isFreeShipping = false; // ตัวแปรเก็บสถานะว่าใช้คูปองส่งฟรีหรือยัง
+    let isFreeShipping = false; 
     let paymentMethod = 'COD';
     let qrTimerInterval;
-
     let currentReviewProduct = null;
     let currentReviewOrder = null;
     let selectedRating = 0;
 
     function initStore() {
         renderProducts(products);
-        
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -187,29 +203,22 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         })
         .then(res => res.json())
         .then(data => {
-            if(data.success) {
-                setupUserSession(data.user);
-            }
-        })
-        .catch(err => console.error("Session check failed:", err));
+            if(data.success) setupUserSession(data.user);
+        }).catch(err => console.error("Session check failed:", err));
     }
 
     function setupUserSession(userData) {
         currentUser = userData;
-        
         if (userData.profilePic && userData.profilePic.startsWith('data:image')) {
             currentUser.profilePic = userData.profilePic;
         } else {
             currentUser.profilePic = 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
         }
-        
         const localData = JSON.parse(localStorage.getItem('thanjai_data_' + currentUser.username)) || {};
         cart = localData.cart || [];
         currentUser.orders = localData.orders || [];
         currentUser.coupons = localData.coupons || [];
-
-        updateNavUI();
-        updateCartBadge();
+        updateNavUI(); updateCartBadge();
     }
 
     function saveDatabase() {
@@ -231,8 +240,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     }
 
     function openAuthModal(type) {
-        toggleAuth(type);
-        new bootstrap.Modal(document.getElementById('authModal')).show();
+        toggleAuth(type); new bootstrap.Modal(document.getElementById('authModal')).show();
     }
 
     function toggleAuth(type) {
@@ -300,9 +308,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'same-origin',
                 body: JSON.stringify({ action: 'logout' })
-            })
-            .then(res => res.json())
-            .then(data => {
+            }).then(res => res.json()).then(data => {
                 if(data.success) {
                     currentUser = null; cart = [];
                     updateNavUI(); updateCartBadge();
@@ -316,22 +322,17 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         if(currentUser) {
             document.getElementById('guest-zone').classList.add('d-none');
             document.getElementById('user-zone').classList.remove('d-none');
-            
             document.getElementById('nav-username').innerText = currentUser.name || currentUser.username;
             document.getElementById('nav-profile-pic').src = currentUser.profilePic;
             document.getElementById('setting-profile-pic').src = currentUser.profilePic;
-            
             document.getElementById('set-username').value = currentUser.username; 
             document.getElementById('set-name').value = currentUser.name || currentUser.username;
             document.getElementById('set-phone').value = currentUser.phone || '';
             document.getElementById('set-email').value = currentUser.email || '';
             document.getElementById('set-password').value = '';
 
-            if(currentUser.role === 'admin') {
-                document.getElementById('nav-admin-link').classList.remove('d-none');
-            } else {
-                document.getElementById('nav-admin-link').classList.add('d-none');
-            }
+            if(currentUser.role === 'admin') document.getElementById('nav-admin-link').classList.remove('d-none');
+            else document.getElementById('nav-admin-link').classList.add('d-none');
         } else {
             document.getElementById('guest-zone').classList.remove('d-none');
             document.getElementById('user-zone').classList.add('d-none');
@@ -364,9 +365,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
             body: JSON.stringify({ action: 'update_profile', fullname: newName, phone: newPhone, password: newPass, profile_pic: picDataToSend })
-        })
-        .then(res => res.json())
-        .then(data => {
+        }).then(res => res.json()).then(data => {
             if(data.success) {
                 currentUser.name = newName; currentUser.phone = newPhone;
                 if(data.profile_pic) currentUser.profilePic = data.profile_pic;
@@ -380,27 +379,26 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     function renderProducts(items) {
         const container = document.getElementById('store-display');
         if(items.length === 0) {
-            container.innerHTML = `<div class="col-12 text-center text-muted my-5"><h5>ไม่พบสินค้าที่คุณค้นหา</h5></div>`;
+            container.innerHTML = `<div class="col-12 text-center text-muted my-5"><h5 class="sport-font">ไม่พบสินค้าที่คุณค้นหา</h5></div>`;
             return;
         }
         container.innerHTML = items.map(p => {
-            // ระบบจะโชว์ป้ายและขีดฆ่าราคาเดิมอัตโนมัติถ้าตั้งค่ามาจาก Database
-            const saleBadge = p.isSale ? `<span class="sale-badge">ลดราคา!</span>` : '';
+            const saleBadge = p.isSale ? `<span class="sale-badge">SALE!</span>` : '';
             const oldPriceStr = (p.isSale && p.oldPrice) ? `<small class="text-muted text-decoration-line-through">฿${p.oldPrice.toLocaleString()}</small>` : '';
             return `
             <div class="col-6 col-md-3 mb-4">
-                <div class="card product-card shadow-sm border-0">
+                <div class="card product-card sport-font">
                     ${saleBadge}
                     <img src="${p.img}" onerror="this.src='https://via.placeholder.com/250?text=No+Image'" class="card-img-top" alt="${p.name}">
-                    <div class="card-body d-flex flex-column">
-                        <span class="badge bg-secondary mb-2 align-self-start" style="font-size: 10px;">${p.type}</span>
-                        <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 14px;">${p.name}</h6>
+                    <div class="card-body d-flex flex-column p-3">
+                        <span class="badge bg-dark mb-2 align-self-start" style="font-size: 11px;">${p.type}</span>
+                        <h6 class="card-title fw-bold text-dark mb-1" style="font-size: 15px;">${p.name}</h6>
                         <div class="mt-auto pt-3">
-                            <span class="text-danger fw-bold fs-5 d-inline-block mb-1">฿${p.price.toLocaleString()}</span>
+                            <span class="text-danger fw-bold fs-4 d-inline-block mb-1">฿${p.price.toLocaleString()}</span>
                             ${oldPriceStr}
                             <div class="mt-2">
-                                <button class="btn btn-dark w-100 btn-sm fw-bold rounded-pill" onclick="openProductDetail(${p.id})">
-                                    <i class="fa fa-shopping-cart me-1"></i> เลือกสินค้า
+                                <button class="btn btn-dark w-100 btn-sm fw-bold shadow-sm py-2" onclick="openProductDetail(${p.id})">
+                                    <i class="fa fa-shopping-cart me-1 text-warning"></i> เลือกสินค้า
                                 </button>
                             </div>
                         </div>
@@ -422,12 +420,8 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
             event.currentTarget.classList.remove('btn-outline-dark');
             event.currentTarget.classList.add('btn-dark', 'active');
         }
-        if (type === 'โปรโมชั่น') {
-            // กรองเอาเฉพาะสินค้าที่ is_sale เป็น 1
-            renderProducts(products.filter(p => p.isSale));
-        } else {
-            renderProducts(type === 'ทั้งหมด' ? products : products.filter(p => p.type === type));
-        }
+        if (type === 'โปรโมชั่น') renderProducts(products.filter(p => p.isSale));
+        else renderProducts(type === 'ทั้งหมด' ? products : products.filter(p => p.type === type));
     }
 
     function openProductDetail(id) {
@@ -452,9 +446,8 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         document.getElementById('detail-qty').value = 1;
         document.getElementById('detail-size').selectedIndex = 1; 
 
-        // ตรวจสอบว่าถ้าลูกค้ามีคูปอง FREESHIP ให้แสดงค่าจัดส่งเป็นฟรี
         const hasFreeShip = currentUser && currentUser.coupons && currentUser.coupons.includes('FREESHIP');
-        document.getElementById('detail-shipping').innerHTML = hasFreeShip ? '<span class="text-success">ส่งฟรี (ใช้คูปองได้)</span>' : '฿50';
+        document.getElementById('detail-shipping').innerHTML = hasFreeShip ? '<span class="text-success fw-bold">ส่งฟรี (ใช้คูปองได้)</span>' : '฿50';
 
         const reviewContainer = document.getElementById('detail-reviews');
         reviewContainer.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-warning spinner-border-sm"></div></div>';
@@ -463,27 +456,25 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ action: 'get_reviews', product_id: id })
-        })
-        .then(res => res.json())
-        .then(data => {
+        }).then(res => res.json()).then(data => {
             if(data.success && data.reviews.length > 0) {
                 reviewContainer.innerHTML = data.reviews.map(r => {
                     let stars = '';
                     for(let i=0; i<5; i++) stars += `<i class="fa fa-star ${i < r.rating ? 'text-warning' : 'text-muted'}"></i>`;
                     let pic = r.profile_pic ? r.profile_pic : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + r.username;
                     return `
-                    <div class="d-flex mb-3 border-bottom pb-2">
-                        <img src="${pic}" width="40" height="40" class="rounded-circle border me-3 bg-white" style="object-fit:cover;">
+                    <div class="d-flex mb-3 border-bottom pb-2 font-sarabun">
+                        <img src="${pic}" width="45" height="45" class="rounded-circle border border-warning me-3 bg-white shadow-sm" style="object-fit:cover;">
                         <div>
-                            <div class="fw-bold small">${r.fullname || r.username}</div>
+                            <div class="fw-bold text-primary">${r.fullname || r.username}</div>
                             <div class="small mb-1">${stars}</div>
-                            <p class="small mb-0 text-dark">${r.comment}</p>
-                            <small class="text-muted" style="font-size: 10px;">รีวิวเมื่อ: ${r.created_at}</small>
+                            <p class="small mb-1 text-dark">${r.comment}</p>
+                            <small class="text-muted" style="font-size: 11px;">รีวิวเมื่อ: ${r.created_at}</small>
                         </div>
                     </div>`;
                 }).join('');
             } else {
-                reviewContainer.innerHTML = '<p class="text-muted small text-center mb-0 my-3">ยังไม่มีรีวิวสำหรับสินค้านี้ เป็นคนแรกที่รีวิวสิ!</p>';
+                reviewContainer.innerHTML = '<p class="text-muted small text-center mb-0 my-3 font-sarabun">ยังไม่มีรีวิวสำหรับสินค้านี้ เป็นคนแรกที่รีวิวสิ!</p>';
             }
         });
 
@@ -516,7 +507,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         if(!currentUser) return openAuthModal('login');
         document.getElementById('ship-name').value = currentUser.name || '';
         document.getElementById('ship-phone').value = currentUser.phone || '';
-        isFreeShipping = false; // รีเซ็ตการใช้คูปองทุกครั้งที่เปิดตะกร้า
+        isFreeShipping = false; 
         document.getElementById('coupon-input').value = '';
         renderCartItems(); updateSummary();
         new bootstrap.Modal(document.getElementById('checkoutModal')).show();
@@ -525,20 +516,20 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     function renderCartItems() {
         const container = document.getElementById('cart-items-container');
         if(cart.length === 0) {
-            container.innerHTML = `<div class="text-center py-5"><i class="fa fa-shopping-basket fa-3x text-muted mb-3"></i><p class="text-muted">ตะกร้าของคุณว่างเปล่า</p></div>`;
+            container.innerHTML = `<div class="text-center py-5"><i class="fa fa-shopping-basket fa-3x text-muted mb-3"></i><p class="text-muted sport-font">ตะกร้าของคุณว่างเปล่า</p></div>`;
             return;
         }
         container.innerHTML = cart.map((item, index) => `
-            <div class="d-flex align-items-center mb-3 p-3 border rounded bg-white shadow-sm">
-                <img src="${item.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="80" height="80" class="rounded me-3 border bg-white" style="object-fit: cover;">
+            <div class="d-flex align-items-center mb-3 p-3 border rounded bg-white shadow-sm sport-font">
+                <img src="${item.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="80" height="80" class="rounded me-3 border bg-light" style="object-fit: cover;">
                 <div class="flex-grow-1">
-                    <h6 class="mb-1 fw-bold" style="font-size: 15px;">${item.name}</h6>
-                    <small class="text-muted d-block mb-1">ไซส์: <strong>${item.size}</strong></small>
+                    <h6 class="mb-1 fw-bold fs-5">${item.name}</h6>
+                    <small class="text-muted d-block mb-1">ไซส์: <strong class="text-dark">${item.size}</strong></small>
                     <span class="badge bg-light text-dark border">จำนวน: ${item.qty}</span>
                 </div>
                 <div class="text-end ms-2">
-                    <div class="fw-bold text-danger mb-2">฿${(item.price * item.qty).toLocaleString()}</div>
-                    <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="removeFromCart(${index})"><i class="fa fa-trash"></i> ลบ</button>
+                    <div class="fw-bold text-danger mb-2 fs-5">฿${(item.price * item.qty).toLocaleString()}</div>
+                    <button class="btn btn-sm btn-outline-danger py-0 px-2 fw-bold" onclick="removeFromCart(${index})"><i class="fa fa-trash"></i> ลบ</button>
                 </div>
             </div>`).join('');
     }
@@ -548,55 +539,40 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     function collectCoupon(code) {
         if(!currentUser) return openAuthModal('login');
         if(!currentUser.coupons) currentUser.coupons = [];
-        
-        // เช็คว่าเก็บไปแล้วหรือยัง
         if(currentUser.coupons.includes(code)) return showToast('คุณเก็บคูปองนี้ไปแล้ว', 'warning');
         
-        currentUser.coupons.push(code); 
-        saveDatabase();
+        currentUser.coupons.push(code); saveDatabase();
         showToast(`🎉 เก็บโค้ด ${code} สำเร็จ! นำไปใช้ในหน้าชำระเงินได้เลย`, 'success');
     }
 
     function renderMyCoupons() {
         const container = document.getElementById('my-coupons-list');
         if(!currentUser || !currentUser.coupons || currentUser.coupons.length === 0) { container.innerHTML = ''; return; }
-        
-        // กรองแสดงเฉพาะคูปองที่มีอยู่จริง
-        container.innerHTML = '<strong>คูปองของคุณ (คลิกเพื่อใช้):</strong> ' + currentUser.coupons.map(c => 
-            `<span class="badge bg-primary text-white me-1 shadow-sm p-2" style="cursor:pointer;" onclick="document.getElementById('coupon-input').value='${c}'; applyCoupon();"><i class="fa fa-ticket-alt"></i> ${c}</span>`
+        container.innerHTML = '<strong class="text-dark">คูปองของคุณ (คลิกเพื่อใช้):</strong> ' + currentUser.coupons.map(c => 
+            `<span class="badge bg-dark text-warning me-1 shadow-sm p-2 border border-warning" style="cursor:pointer;" onclick="document.getElementById('coupon-input').value='${c}'; applyCoupon();"><i class="fa fa-ticket-alt"></i> ${c}</span>`
         ).join('');
     }
 
     function applyCoupon() {
         const code = document.getElementById('coupon-input').value.trim().toUpperCase();
         if(code === 'FREESHIP') {
-            if(!currentUser.coupons || !currentUser.coupons.includes(code)) {
-                return showToast('กรุณากดเก็บคูปองที่หน้าหลักก่อนใช้งาน', 'error');
-            }
-            isFreeShipping = true; 
-            showToast('✅ ใช้คูปองส่วนลดค่าจัดส่งฟรี สำเร็จ!', 'success'); 
-            updateSummary();
-        } else if (code === '') {
-            showToast('กรุณากรอกรหัสคูปอง', 'warning');
-        } else { 
-            showToast('รหัสคูปองไม่ถูกต้อง หรือหมดอายุแล้ว', 'error'); 
-        }
+            if(!currentUser.coupons || !currentUser.coupons.includes(code)) return showToast('กรุณากดเก็บคูปองที่หน้าหลักก่อนใช้งาน', 'error');
+            isFreeShipping = true; showToast('✅ ใช้คูปองส่วนลดค่าจัดส่งฟรี สำเร็จ!', 'success'); updateSummary();
+        } else if (code === '') showToast('กรุณากรอกรหัสคูปอง', 'warning');
+        else showToast('รหัสคูปองไม่ถูกต้อง หรือหมดอายุแล้ว', 'error'); 
     }
 
     function updateSummary() {
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        
-        // คำนวณค่าส่ง: ถ้ามีของ 50 บาท, ถ้าใช้คูปองส่งฟรี = 0
         let shipping = cart.length > 0 ? 50 : 0;
         if(isFreeShipping && cart.length > 0) {
-            document.getElementById('summary-shipping').innerHTML = '<span class="text-decoration-line-through text-muted">฿50</span> <strong class="text-success">ฟรี</strong>';
+            document.getElementById('summary-shipping').innerHTML = '<span class="text-decoration-line-through text-muted">฿50</span> <strong class="text-success fs-5">ฟรี</strong>';
             shipping = 0;
         } else {
             document.getElementById('summary-shipping').innerText = '฿' + shipping;
         }
 
         let total = subtotal + shipping;
-        
         document.getElementById('summary-subtotal').innerText = '฿' + subtotal.toLocaleString();
         document.getElementById('summary-total').innerText = '฿' + total.toLocaleString();
         renderMyCoupons();
@@ -653,24 +629,19 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         .then(data => {
             if(data.success) {
                 cart = []; 
-                
-                // หากใช้คูปองไปแล้ว ให้ลบออกจากกระเป๋า เพื่อให้ใช้ได้แค่ครั้งเดียว
                 if(isFreeShipping && currentUser.coupons && currentUser.coupons.includes('FREESHIP')) {
                     currentUser.coupons = currentUser.coupons.filter(c => c !== 'FREESHIP');
                 }
                 isFreeShipping = false;
-
                 saveDatabase(); updateCartBadge();
                 const checkoutModalEl = document.getElementById('checkoutModal');
                 if(checkoutModalEl.classList.contains('show')) bootstrap.Modal.getInstance(checkoutModalEl).hide();
                 showToast('🎉 สั่งซื้อสำเร็จ! ขอบคุณที่ใช้บริการ', 'success');
                 setTimeout(openOrderHistory, 1500); 
             } else { showToast('เกิดข้อผิดพลาด: ' + data.message, 'error'); }
-        })
-        .catch(err => { console.error(err); showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error'); });
+        }).catch(err => { console.error(err); showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error'); });
     }
 
-    // --- ส่วนรีวิวและประวัติ (เหมือนเดิม ไม่มีการแก้ไข) ---
     function setRating(stars) {
         selectedRating = stars;
         const starElements = document.getElementById('review-stars').children;
@@ -709,7 +680,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     function openOrderHistory() {
         if(!currentUser) return showToast('กรุณาเข้าสู่ระบบก่อนดูประวัติ', 'warning');
         const container = document.getElementById('history-container');
-        container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">กำลังดึงข้อมูลออเดอร์ล่าสุด...</p></div>';
+        container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted sport-font">กำลังดึงข้อมูลออเดอร์ล่าสุด...</p></div>';
         
         const historyModalEl = document.getElementById('historyModal');
         if(!historyModalEl.classList.contains('show')) new bootstrap.Modal(historyModalEl).show();
@@ -725,48 +696,47 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
             if(data.success) {
                 const orders = data.orders;
                 if(orders.length === 0) {
-                    container.innerHTML = `<div class="text-center py-5"><i class="fa fa-box-open fa-3x text-muted mb-3"></i><p class="text-muted">คุณยังไม่มีประวัติการสั่งซื้อ</p><button class="btn btn-warning mt-2" data-bs-dismiss="modal">ไปช้อปปิ้งเลย</button></div>`;
+                    container.innerHTML = `<div class="text-center py-5"><i class="fa fa-box-open fa-3x text-muted mb-3"></i><p class="text-muted sport-font fs-5">คุณยังไม่มีประวัติการสั่งซื้อ</p><button class="btn btn-warning mt-2 fw-bold" data-bs-dismiss="modal">ไปช้อปปิ้งเลย</button></div>`;
                 } else {
                     container.innerHTML = orders.map(o => {
                         let badgeClass = 'bg-secondary'; let statusText = o.status;
                         let currentStatus = (o.status || '').trim().toLowerCase();
                         if(currentStatus === 'pending') { badgeClass = 'bg-warning text-dark'; statusText = 'รอชำระเงิน / COD'; }
                         else if(currentStatus === 'paid') { badgeClass = 'bg-success'; statusText = 'ชำระเงินแล้ว'; }
-                        else if(currentStatus === 'shipped') { badgeClass = 'bg-info text-dark'; statusText = 'จัดส่งแล้ว'; }
+                        else if(currentStatus === 'shipped') { badgeClass = 'bg-primary text-white'; statusText = 'จัดส่งแล้ว'; }
                         else if(currentStatus === 'cancelled') { badgeClass = 'bg-danger'; statusText = 'ยกเลิกคำสั่งซื้อ'; }
 
                         return `
-                        <div class="card mb-4 border-0 shadow-sm rounded-3">
+                        <div class="card mb-4 border-0 shadow-sm rounded-3 sport-font">
                             <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom">
-                                <div><span class="fw-bold text-dark"><i class="fa fa-receipt text-primary me-2"></i>ออเดอร์: ${o.orderId}</span><small class="text-muted d-block mt-1"><i class="fa fa-calendar-alt me-1"></i> ${o.date}</small></div>
-                                <span class="badge ${badgeClass} px-3 py-2">${statusText}</span>
+                                <div><span class="fw-bold fs-5 text-dark"><i class="fa fa-receipt text-warning me-2"></i>ออเดอร์: ${o.orderId}</span><small class="text-muted d-block mt-1"><i class="fa fa-calendar-alt me-1"></i> ${o.date}</small></div>
+                                <span class="badge ${badgeClass} px-3 py-2 fs-6 shadow-sm">${statusText}</span>
                             </div>
                             <div class="card-body bg-light">
                                 ${o.items.map(item => {
                                     let reviewBtn = '';
                                     if(currentStatus === 'shipped' || statusText === 'จัดส่งแล้ว') {
-                                        reviewBtn = `<button class="btn btn-sm btn-warning mt-2 px-3 py-1 shadow-sm fw-bold text-dark" onclick="openReviewModal(${item.product_id}, ${o.rawOrderId})"><i class="fa fa-star text-white"></i> ให้คะแนนและรีวิว</button>`;
+                                        reviewBtn = `<button class="btn btn-sm btn-dark mt-2 px-3 py-1 shadow-sm fw-bold text-warning" onclick="openReviewModal(${item.product_id}, ${o.rawOrderId})"><i class="fa fa-star text-white"></i> ให้คะแนนและรีวิว</button>`;
                                     }
                                     return `
-                                    <div class="d-flex justify-content-between align-items-center small mb-2 border-bottom pb-2">
+                                    <div class="d-flex justify-content-between align-items-center small mb-3 border-bottom pb-3">
                                         <div class="d-flex align-items-center">
-                                            <img src="${item.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="50" height="50" style="object-fit:cover;" class="rounded me-3 border bg-white">
-                                            <div><span class="fw-bold">${item.name} <span class="text-muted fw-normal">(Size: ${item.size})</span></span><br>${reviewBtn}</div>
+                                            <img src="${item.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="60" height="60" style="object-fit:cover;" class="rounded me-3 border border-dark bg-white shadow-sm">
+                                            <div><span class="fw-bold fs-6">${item.name} <span class="text-muted fw-normal">(Size: ${item.size})</span></span><br>${reviewBtn}</div>
                                         </div>
-                                        <span>x ${item.qty} = <strong>฿${(item.price * item.qty).toLocaleString()}</strong></span>
+                                        <span class="fs-6">x ${item.qty} = <strong class="text-danger fs-5">฿${(item.price * item.qty).toLocaleString()}</strong></span>
                                     </div>`;
                                 }).join('')}
                                 <div class="d-flex justify-content-between align-items-end mt-3">
                                     <small class="text-muted" style="max-width: 60%;"><i class="fa fa-map-marker-alt"></i> จัดส่ง: ${o.address}</small>
-                                    <div class="text-end fw-bold">ยอดสุทธิ: <span class="text-danger fs-5 ms-2">฿${o.total.toLocaleString()}</span></div>
+                                    <div class="text-end fw-bold">ยอดสุทธิ: <span class="text-danger fs-3 ms-2">฿${o.total.toLocaleString()}</span></div>
                                 </div>
                             </div>
                         </div>`;
                     }).join('');
                 }
             } else { container.innerHTML = '<div class="alert alert-danger">เกิดข้อผิดพลาด: ' + data.message + '</div>'; }
-        })
-        .catch(err => { container.innerHTML = '<div class="alert alert-danger">ไม่สามารถดึงข้อมูลได้ โปรดลองอีกครั้ง</div>'; });
+        }).catch(err => { container.innerHTML = '<div class="alert alert-danger">ไม่สามารถดึงข้อมูลได้ โปรดลองอีกครั้ง</div>'; });
     }
 </script>
 </body>

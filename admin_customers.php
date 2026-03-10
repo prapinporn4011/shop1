@@ -49,27 +49,56 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>จัดการลูกค้า - หลังบ้าน</title>
+    <title>Admin Panel - Premium Sports</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Sarabun', sans-serif; background: #f4f6f9; }
-        .sidebar { min-height: 100vh; background: #1a1a1a; color: white; width: 250px; position: fixed; z-index: 1000; }
-        .sidebar a { color: #ccc; text-decoration: none; padding: 15px 20px; display: block; border-bottom: 1px solid #333; }
-        .sidebar a:hover, .sidebar a.active { background: #ffae00; color: #1a1a1a; font-weight: bold; }
-        .main-content { margin-left: 250px; padding: 20px; }
+        body { font-family: 'Sarabun', sans-serif; background: #f8fafc; }
+        h1, h2, h3, h4, h5, h6, .btn, th, .sport-font { font-family: 'Kanit', sans-serif; }
+        
+        /* เปลี่ยน Sidebar ให้เป็นภาพพื้นหลัง CR7 โทนดาร์ค */
+        .sidebar { 
+            min-height: 100vh; 
+            background: linear-gradient(to bottom, rgba(10, 10, 10, 0.95), rgba(30, 41, 59, 0.95)), url('https://w0.peakpx.com/wallpaper/226/186/HD-wallpaper-cristiano-ronaldo-real-madrid-football.jpg');
+            background-size: cover; background-position: center;
+            color: white; width: 260px; position: fixed; z-index: 1000; 
+            box-shadow: 4px 0 20px rgba(0,0,0,0.3);
+        }
+        
+        /* ส่วนหัวโลโก้ Sidebar */
+        .sidebar-header {
+            text-align: center; padding: 30px 20px 20px; border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); backdrop-filter: blur(5px);
+        }
+        .sidebar-header img { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #FBBF24; margin-bottom: 15px; box-shadow: 0 0 15px rgba(251, 191, 36, 0.5); object-fit: cover; object-position: top;}
+        
+        /* ปุ่มเมนู */
+        .sidebar a { color: #cbd5e1; text-decoration: none; padding: 15px 25px; display: block; border-bottom: 1px solid rgba(255,255,255,0.05); font-family: 'Kanit', sans-serif; font-size: 1.05rem; letter-spacing: 0.5px; transition: 0.3s; }
+        .sidebar a:hover, .sidebar a.active { background: rgba(251, 191, 36, 0.15); color: #FBBF24; border-left: 5px solid #FBBF24; padding-left: 20px; font-weight: 500; }
+        
+        /* พื้นที่เนื้อหาหลัก */
+        .main-content { margin-left: 260px; padding: 30px; }
+        .card { border-radius: 10px; border: none; box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.1); }
+        .table-dark { background-color: #0a0a0a !important; color: #fff; }
+        .btn-warning { background-color: #FBBF24; font-weight: 600; color: #000; }
+        .text-warning { color: #FBBF24 !important; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-        <h4 class="text-center py-4 text-warning fw-bold border-bottom m-0">Admin Panel</h4>
+        <div class="sidebar-header">
+            <img src="https://i.pinimg.com/736x/ec/d7/a7/ecd7a7c2e3532f14371dd38ef72856e7.jpg" alt="Admin Pro">
+            <h4 class="text-warning fw-bold m-0 sport-font text-uppercase">Admin Panel</h4>
+            <small class="text-light opacity-75">Premium Sports Store</small>
+        </div>
+        
         <a href="admin_products.php"><i class="fa fa-tshirt me-2"></i> จัดการสินค้า</a>
         <a href="admin_orders.php"><i class="fa fa-box me-2"></i> จัดการออเดอร์</a>
         <a href="admin_categories.php"><i class="fa fa-tags me-2"></i> จัดการประเภทสินค้า</a>
-        <a href="admin_customers.php" class="active"><i class="fa fa-users me-2"></i> จัดการลูกค้า</a>
-        <a href="indexnew.php" class="text-info mt-5"><i class="fa fa-store me-2"></i> กลับหน้าร้าน</a>
+        <a href="admin_customers.php"><i class="fa fa-users me-2"></i> จัดการลูกค้า</a>
+        <a href="indexnew.php" class="text-info mt-5" style="border-top: 1px solid rgba(255,255,255,0.1);"><i class="fa fa-store me-2"></i> กลับหน้าร้าน</a>
     </div>
 
     <div class="main-content">
