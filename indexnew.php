@@ -652,6 +652,7 @@ const products = dbProducts.map(p => ({
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin', // <--- เพิ่มบรรทัดนี้ เพื่อบังคับส่ง Session Cookie
             body: JSON.stringify({ 
                 action: 'update_profile', 
                 fullname: newName, 
