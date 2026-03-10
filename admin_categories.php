@@ -1,0 +1,181 @@
+<?php
+session_start();
+require_once 'db.php';
+
+// เช็คสิทธิ์การเข้าถึง (ต้องล็อกอินและเป็น admin เท่านั้น)
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    echo "<script>alert('❌ คุณไม่มีสิทธิ์เข้าถึงระบบหลังบ้าน!'); window.location.href='indexnew.php';</script>";
+    exit;
+}
+
+// ---------------------------------------------------------
+// 1. ระบบเพิ่มประเภทสินค้า (Add)
+// ---------------------------------------------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
+    $name = trim($_POST['name']);
+    
+    if (!empty($name)) {
+        $stmt = $pdo->prepare("INSERT INTO categories (name) VALUES (?)");
+        $stmt->execute([$name]);
+    }
+    header("Location: admin_categories.php?status=success");
+    exit;
+}
+
+// ---------------------------------------------------------
+// 2. ระบบแก้ไขประเภทสินค้า (Edit)
+// ---------------------------------------------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit') {
+    $id = $_POST['id'];
+    $name = trim($_POST['name']);
+    
+    if (!empty($name)) {
+        $stmt = $pdo->prepare("UPDATE categories SET name=? WHERE id=?");
+        $stmt->execute([$name, $id]);
+    }
+    header("Location: admin_categories.php?status=edited");
+    exit;
+}
+
+// ---------------------------------------------------------
+// 3. ระบบลบประเภทสินค้า (Delete)
+// ---------------------------------------------------------
+if (isset($_GET['delete_id'])) {
+    $id = (int)$_GET['delete_id'];
+    
+    // ลบข้อมูล
+    $stmt = $pdo->prepare("DELETE FROM categories WHERE id = ?");
+    $stmt->execute([$id]);
+    
+    header("Location: admin_categories.php?status=deleted");
+    exit;
+}
+
+// ดึงข้อมูลประเภทสินค้าทั้งหมดมาแสดง
+$stmt = $pdo->query("SELECT * FROM categories ORDER BY id DESC");
+$categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+?>
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>จัดการประเภทสินค้า - หลังบ้าน</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+    <style>
+        body { font-family: 'Sarabun', sans-serif; background: #f4f6f9; }
+        .sidebar { min-height: 100vh; background: #1a1a1a; color: white; width: 250px; position: fixed; z-index: 1000; }
+        .sidebar a { color: #ccc; text-decoration: none; padding: 15px 20px; display: block; border-bottom: 1px solid #333; }
+        .sidebar a:hover, .sidebar a.active { background: #ffae00; color: #1a1a1a; font-weight: bold; }
+        .main-content { margin-left: 250px; padding: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <h4 class="text-center py-4 text-warning fw-bold border-bottom m-0">Admin Panel</h4>
+        <a href="admin_products.php"><i class="fa fa-tshirt me-2"></i> จัดการสินค้า</a>
+        <a href="admin_orders.php"><i class="fa fa-box me-2"></i> จัดการออเดอร์</a>
+        <a href="admin_categories.php" class="active"><i class="fa fa-tags me-2"></i> จัดการประเภทสินค้า</a>
+        <a href="#"><i class="fa fa-users me-2"></i> จัดการลูกค้า</a>
+        <a href="indexnew.php" class="text-info mt-5"><i class="fa fa-store me-2"></i> กลับหน้าร้าน</a>
+    </div>
+
+    <div class="main-content">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold"><i class="fa fa-tags me-2"></i>ระบบจัดการประเภทสินค้า</h2>
+            <button class="btn btn-warning fw-bold shadow-sm" data-bs-toggle="modal" data-bs-target="#addCategoryModal"><i class="fa fa-plus"></i> เพิ่มประเภทใหม่</button>
+        </div>
+
+        <?php if(isset($_GET['status'])): ?>
+            <div class="alert alert-success alert-dismissible fade show">
+                <i class="fa fa-check-circle"></i> 
+                <?php if($_GET['status'] == 'success') echo "เพิ่มประเภทสินค้าเรียบร้อยแล้ว!"; elseif($_GET['status'] == 'edited') echo "แก้ไขประเภทสินค้าเรียบร้อยแล้ว!"; elseif($_GET['status'] == 'deleted') echo "ลบประเภทสินค้าเรียบร้อยแล้ว!"; ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        <?php endif; ?>
+
+        <div class="row">
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body table-responsive">
+                        <table id="categoryTable" class="table table-striped table-hover align-middle w-100">
+                            <thead class="table-dark"><tr><th>ID</th><th>ชื่อประเภทสินค้า</th><th>จัดการ</th></tr></thead>
+                            <tbody>
+                                <?php foreach($categories as $c): ?>
+                                <tr>
+                                    <td><?= $c['id'] ?></td>
+                                    <td class="fw-bold text-primary"><?= htmlspecialchars($c['name']) ?></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-info text-white" onclick="editCategory(<?= $c['id'] ?>, '<?= htmlspecialchars(addslashes($c['name'])) ?>')"><i class="fa fa-edit"></i> แก้ไข</button>
+                                        <a href="admin_categories.php?delete_id=<?= $c['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('ยืนยันการลบประเภทสินค้านี้?');"><i class="fa fa-trash"></i> ลบ</a>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="addCategoryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-warning"><h5 class="modal-title fw-bold">เพิ่มประเภทใหม่</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+                <form action="admin_categories.php" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="add">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อประเภทสินค้า (เช่น เสื้อผู้รักษาประตู)</label>
+                            <input type="text" name="name" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                        <button type="submit" class="btn btn-dark">บันทึกข้อมูล</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editCategoryModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white"><h5 class="modal-title fw-bold"><i class="fa fa-edit"></i> แก้ไขประเภทสินค้า</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+                <form action="admin_categories.php" method="POST">
+                    <div class="modal-body">
+                        <input type="hidden" name="action" value="edit">
+                        <input type="hidden" name="id" id="edit-id">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">ชื่อประเภทสินค้า</label>
+                            <input type="text" name="name" id="edit-name" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                        <button type="submit" class="btn btn-info text-white fw-bold">อัปเดตข้อมูล</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script>
+        $(document).ready(function() { $('#categoryTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" }, "order": [[ 0, "desc" ]] }); });
+        
+        function editCategory(id, name) {
+            document.getElementById('edit-id').value = id; 
+            document.getElementById('edit-name').value = name;
+            new bootstrap.Modal(document.getElementById('editCategoryModal')).show();
+        }
+    </script>
+</body>
+</html>

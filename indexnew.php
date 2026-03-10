@@ -10,7 +10,21 @@ $productsFromDB = $stmt->fetchAll(PDO::FETCH_ASSOC);
 foreach ($productsFromDB as $key => $product) {
     $productsFromDB[$key]['price'] = (float)$product['price'];
     $productsFromDB[$key]['id'] = (int)$product['id'];
+    // --- โค้ดเดิมที่อยู่บนสุด ---
+foreach ($productsFromDB as $key => $product) {
+    $productsFromDB[$key]['price'] = (float)$product['price'];
+    $productsFromDB[$key]['id'] = (int)$product['id'];
 }
+
+// ----------------เพิ่มโค้ดนี้แทรกเข้าไป-----------------
+// ดึงข้อมูลประเภทสินค้า (Categories) มาโชว์เป็นปุ่มหมวดหมู่
+$stmtCats = $pdo->query("SELECT * FROM categories ORDER BY id ASC");
+$categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
+// -----------------------------------------------------
+
+?>
+<!DOCTYPE html>
+
 ?>
 
 <!DOCTYPE html>
