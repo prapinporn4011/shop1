@@ -1053,6 +1053,9 @@ foreach ($productsFromDB as $key => $product) {
     // --------------------------------------------------------
     // ประวัติการสั่งซื้อ
     // --------------------------------------------------------
+    // --------------------------------------------------------
+    // ประวัติการสั่งซื้อ (ดึงจากฐานข้อมูลแบบ Real-time)
+    // --------------------------------------------------------
     function openOrderHistory() {
         if(!currentUser) {
             showToast('กรุณาเข้าสู่ระบบก่อนดูประวัติ', 'warning');
@@ -1089,10 +1092,13 @@ foreach ($productsFromDB as $key => $product) {
                         let badgeClass = 'bg-secondary';
                         let statusText = o.status;
                         
-                        if(o.status === 'pending') { badgeClass = 'bg-warning text-dark'; statusText = 'รอชำระเงิน / COD'; }
-                        else if(o.status === 'paid') { badgeClass = 'bg-success'; statusText = 'ชำระเงินแล้ว'; }
-                        else if(o.status === 'shipped') { badgeClass = 'bg-info text-dark'; statusText = 'จัดส่งแล้ว'; }
-                        else if(o.status === 'cancelled') { badgeClass = 'bg-danger'; statusText = 'ยกเลิกคำสั่งซื้อ'; }
+                        // เช็คสถานะพร้อมตัดช่องว่างเผื่อพิมพ์ผิด
+                        let currentStatus = (o.status || '').trim().toLowerCase();
+                        
+                        if(currentStatus === 'pending') { badgeClass = 'bg-warning text-dark'; statusText = 'รอชำระเงิน / COD'; }
+                        else if(currentStatus === 'paid') { badgeClass = 'bg-success'; statusText = 'ชำระเงินแล้ว'; }
+                        else if(currentStatus === 'shipped') { badgeClass = 'bg-info text-dark'; statusText = 'จัดส่งแล้ว'; }
+                        else if(currentStatus === 'cancelled') { badgeClass = 'bg-danger'; statusText = 'ยกเลิกคำสั่งซื้อ'; }
 
                         return `
                         <div class="card mb-4 border-0 shadow-sm rounded-3">
@@ -1105,10 +1111,10 @@ foreach ($productsFromDB as $key => $product) {
                             </div>
                             <div class="card-body bg-light">
                                 ${o.items.map(item => {
-                                    // ถ้าสถานะจัดส่งแล้ว (shipped) ให้โชว์ปุ่มรีวิว
+                                    // ดักจับสถานะให้ชัวร์ที่สุด 100% ว่าถ้าจัดส่งแล้วให้แสดงปุ่มรีวิว
                                     let reviewBtn = '';
-                                    if(o.status === 'shipped') {
-                                        reviewBtn = `<button class="btn btn-sm btn-outline-warning mt-1 px-3 py-0" onclick="openReviewModal(${item.product_id}, ${o.rawOrderId})"><i class="fa fa-star"></i> ให้คะแนนและรีวิว</button>`;
+                                    if(currentStatus === 'shipped' || statusText === 'จัดส่งแล้ว') {
+                                        reviewBtn = `<button class="btn btn-sm btn-warning mt-2 px-3 py-1 shadow-sm fw-bold text-dark" onclick="openReviewModal(${item.product_id}, ${o.rawOrderId})"><i class="fa fa-star text-white"></i> ให้คะแนนและรีวิว</button>`;
                                     }
 
                                     return `
