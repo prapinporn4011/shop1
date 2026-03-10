@@ -110,7 +110,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 
                 <div id="user-zone" class="d-none">
                     <div class="dropdown text-white">
-                        <span class="me-2 d-none d-md-inline sport-font">ยินดีต้อนรับ, <strong id="nav-username" class="text-warning">ผู้ใช้</strong> <span class="member-badge ms-1">VIP</span></span>
+                        <span class="me-2 d-none d-md-inline sport-font">ยินดีต้อนรับ, <strong id="nav-username" class="text-warning">ผู้ใช้</strong> <span class="member-badge ms-1">member</span></span>
                         <a href="#" class="link-light dropdown-toggle" data-bs-toggle="dropdown">
                             <img id="nav-profile-pic" src="" width="40" height="40" class="rounded-circle border border-warning" style="object-fit: cover;">
                         </a>
