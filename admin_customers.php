@@ -59,9 +59,10 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
         h1, h2, h3, h4, h5, h6, .btn, th, .sport-font { font-family: 'Kanit', sans-serif; }
         
         /* เปลี่ยน Sidebar ให้เป็นภาพพื้นหลัง CR7 โทนดาร์ค */
+        /* เปลี่ยน Sidebar ให้เป็นภาพพื้นหลัง CR7 โทนดาร์ค */
         .sidebar { 
             min-height: 100vh; 
-            background: linear-gradient(to bottom, rgba(10, 10, 10, 0.95), rgba(30, 41, 59, 0.95)), url('https://w0.peakpx.com/wallpaper/226/186/HD-wallpaper-cristiano-ronaldo-real-madrid-football.jpg');
+            background: linear-gradient(to bottom, rgba(10, 10, 10, 0.95), rgba(30, 41, 59, 0.95)), url('https://i.pinimg.com/originals/82/a4/09/82a409f0f977bd134bb8fce9b77b1029.jpg');
             background-size: cover; background-position: center;
             color: white; width: 260px; position: fixed; z-index: 1000; 
             box-shadow: 4px 0 20px rgba(0,0,0,0.3);
@@ -89,7 +90,7 @@ $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <div class="sidebar">
         <div class="sidebar-header">
-            <img src="https://i.pinimg.com/736x/ec/d7/a7/ecd7a7c2e3532f14371dd38ef72856e7.jpg" alt="Admin Pro">
+            <img src="https://i.pinimg.com/originals/1a/0c/3e/1a0c3e7bc21df0c9e6bb024cf74db26f.jpg" alt="Admin Pro">
             <h4 class="text-warning fw-bold m-0 sport-font text-uppercase">Admin Panel</h4>
             <small class="text-light opacity-75">Premium Sports Store</small>
         </div>

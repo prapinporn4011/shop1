@@ -39,8 +39,9 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         .navbar-brand { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; }
         
         /* แบนเนอร์ CR7 */
+       /* แบนเนอร์ CR7 หน้าร้าน */
         .hero-banner { 
-            background: linear-gradient(to right, rgba(10, 10, 10, 0.9), rgba(10, 10, 10, 0.2)), url('https://c4.wallpaperflare.com/wallpaper/559/335/751/cristiano-ronaldo-real-madrid-c-f-wallpaper-preview.jpg');
+            background: linear-gradient(to right, rgba(10, 10, 10, 0.9), rgba(10, 10, 10, 0.2)), url('https://i.pinimg.com/originals/24/ce/68/24ce68fdfb5cf287ccf615fca58f5043.jpg');
             background-size: cover; background-position: top center; height: 450px; display: flex; align-items: center; color: white;
             border-bottom: 5px solid var(--accent);
         }
