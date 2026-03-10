@@ -959,6 +959,9 @@ foreach ($productsFromDB as $key => $product) {
     f// --------------------------------------------------------
     // ประวัติการสั่งซื้อ (ดึงจากฐานข้อมูลแบบ Real-time)
     // --------------------------------------------------------
+    // --------------------------------------------------------
+    // ประวัติการสั่งซื้อ (ดึงจากฐานข้อมูลแบบ Real-time)
+    // --------------------------------------------------------
     function openOrderHistory() {
         if(!currentUser) {
             showToast('กรุณาเข้าสู่ระบบก่อนดูประวัติ', 'warning');
@@ -966,11 +969,9 @@ foreach ($productsFromDB as $key => $product) {
         }
 
         const container = document.getElementById('history-container');
-        // โชว์อนิเมชั่นโหลดข้อมูลระหว่างรอฐานข้อมูลตอบกลับ
         container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">กำลังดึงข้อมูลออเดอร์ล่าสุด...</p></div>';
         new bootstrap.Modal(document.getElementById('historyModal')).show();
 
-        // ร้องขอข้อมูลออเดอร์ล่าสุดจากฐานข้อมูล
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -990,7 +991,6 @@ foreach ($productsFromDB as $key => $product) {
                         </div>`;
                 } else {
                     container.innerHTML = orders.map(o => {
-                        // แปลงสถานะจาก Database เป็นสีข้อความให้สวยงาม
                         let badgeClass = 'bg-secondary';
                         let statusText = o.status;
                         
@@ -1012,7 +1012,7 @@ foreach ($productsFromDB as $key => $product) {
                                 ${o.items.map(item => `
                                     <div class="d-flex justify-content-between align-items-center small mb-2 border-bottom pb-2">
                                         <div class="d-flex align-items-center">
-                                            <img src="${item.img}" width="40" class="rounded me-2 border bg-white">
+                                            <img src="${item.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="40" height="40" style="object-fit:cover;" class="rounded me-2 border bg-white">
                                             <span>${item.name} <span class="text-muted">(Size: ${item.size})</span></span>
                                         </div>
                                         <span>x ${item.qty} = <strong>฿${(item.price * item.qty).toLocaleString()}</strong></span>
