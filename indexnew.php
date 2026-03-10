@@ -14,54 +14,55 @@ $bgImages = [
 $randomBg = $bgImages[array_rand($bgImages)];
 
 // =========================================================================
-// 2. ระบบคลังสไลด์โชว์แบนเนอร์ระดับพรีเมียม (สุ่มมาโชว์ 3 อัน)
+// 2. ระบบคลังสไลด์โชว์แบนเนอร์ (ธีมสโมสรระดับโลก สุ่มมาโชว์ 3 อัน)
 // =========================================================================
 $slidePool = [
     [
-        'img' => 'https://images.unsplash.com/photo-1518605368461-1e1252220a77?q=80&w=1920&auto=format&fit=crop',
-        'badge' => 'THANJAI EXCLUSIVE',
-        'title_1' => 'NEW SEASON', 'title_2' => '2026',
-        'desc' => 'คอลเลคชั่นใหม่ล่าสุดจากสโมสรดังทั่วโลก พร้อมส่งแล้ววันนี้! สัมผัสความพรีเมียมก่อนใคร',
-        'btn_icon' => 'fa-bolt', 'btn_text' => 'เลือกช้อปเลย', 'link' => '#product-list'
+        'img' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Camp_Nou_-_Real_Madrid_vs_FC_Barcelona_-_2018.jpg/1920px-Camp_Nou_-_Real_Madrid_vs_FC_Barcelona_-_2018.jpg',
+        'badge' => 'EL CLÁSICO',
+        'title_1' => 'TOP', 'title_2' => 'TIER',
+        'desc' => 'คอลเลคชั่นเสื้อแข่งระดับตำนาน จากสโมสรยักษ์ใหญ่ทั่วทวีปยุโรป',
+        'btn_icon' => 'fa-star', 'btn_text' => 'ช้อปคอลเลคชั่นยุโรป'
     ],
     [
-        'img' => 'https://images.unsplash.com/photo-1508344928928-7165b67de128?q=80&w=1920&auto=format&fit=crop',
-        'badge' => 'PLAYER ISSUE',
-        'title_1' => 'PREMIUM', 'title_2' => 'QUALITY',
-        'desc' => 'สัมผัสประสบการณ์ระดับโลก ด้วยเสื้อแข่งเกรดเพลเยอร์ที่ดีที่สุด เนื้อผ้าระบายอากาศขั้นสุด',
-        'btn_icon' => 'fa-fire', 'btn_text' => 'สินค้ามาใหม่', 'link' => '#product-list'
+        'img' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Anfield_stadium.jpg/1920px-Anfield_stadium.jpg',
+        'badge' => 'YOU\'LL NEVER WALK ALONE',
+        'title_1' => 'THE', 'title_2' => 'REDS',
+        'desc' => 'สัมผัสมนต์ขลังแห่งแอนฟิลด์ ด้วยชุดแข่งลิขสิทธิ์แท้เกรดเพลเยอร์',
+        'btn_icon' => 'fa-fire', 'btn_text' => 'ดูสินค้า ลิเวอร์พูล'
+    ],
+    [
+        'img' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Old_Trafford_inside_20060726_1.jpg/1920px-Old_Trafford_inside_20060726_1.jpg',
+        'badge' => 'THEATRE OF DREAMS',
+        'title_1' => 'RED', 'title_2' => 'DEVILS',
+        'desc' => 'เสื้อแข่งและอุปกรณ์จาก แมนเชสเตอร์ ยูไนเต็ด พร้อมส่งถึงหน้าบ้านคุณ',
+        'btn_icon' => 'fa-shield-halved', 'btn_text' => 'สาวกผีแดงคลิก'
+    ],
+    [
+        'img' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Allianz_arena_2005.jpg/1920px-Allianz_arena_2005.jpg',
+        'badge' => 'MIA SAN MIA',
+        'title_1' => 'GERMAN', 'title_2' => 'GIANTS',
+        'desc' => 'ความยิ่งใหญ่แห่งแคว้นบาวาเรีย พร้อมให้คุณจับจองเป็นเจ้าของแล้ว',
+        'btn_icon' => 'fa-trophy', 'btn_text' => 'ไอเทมเยอรมัน'
     ],
     [
         'img' => 'https://images.unsplash.com/photo-1553108715-26505600002f?q=80&w=1920&auto=format&fit=crop',
         'badge' => 'CHAMPION MINDSET',
         'title_1' => 'VICTORY', 'title_2' => 'IS YOURS',
         'desc' => 'สวมใส่ความมุ่งมั่น สวมใส่ความสำเร็จ ไปกับเรา ThanJai Shop',
-        'btn_icon' => 'fa-trophy', 'btn_text' => 'ดูสินค้าทั้งหมด', 'link' => '#product-list'
+        'btn_icon' => 'fa-crown', 'btn_text' => 'ดูสินค้าทั้งหมด'
     ],
     [
-        'img' => 'https://images.unsplash.com/photo-1431324155629-1a6d0a11f582?q=80&w=1920&auto=format&fit=crop',
-        'badge' => 'PRO EQUIPMENT',
-        'title_1' => 'UNLEASH', 'title_2' => 'YOUR POWER',
-        'desc' => 'อุปกรณ์กีฬาฟุตบอลมาตรฐานสากล สำหรับนักเตะตัวจริงที่ต้องการความสมบูรณ์แบบ',
-        'btn_icon' => 'fa-futbol', 'btn_text' => 'ค้นหาไอเทมเด็ด', 'link' => '#product-list'
-    ],
-    [
-        'img' => 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1920&auto=format&fit=crop',
-        'badge' => 'STADIUM READY',
-        'title_1' => 'DOMINATE', 'title_2' => 'THE PITCH',
-        'desc' => 'พร้อมลุยทุกแมตช์การแข่งขัน ด้วยชุดแข่งที่ออกแบบมาเพื่อชัยชนะ',
-        'btn_icon' => 'fa-shield-halved', 'btn_text' => 'เตรียมความพร้อม', 'link' => '#product-list'
-    ],
-    [
-        'img' => 'https://images.unsplash.com/photo-1511886929837-354d827aae26?q=80&w=1920&auto=format&fit=crop',
-        'badge' => 'LIMITED EDITION',
-        'title_1' => 'ICONIC', 'title_2' => 'GEAR',
-        'desc' => 'รองเท้าและอุปกรณ์หายาก สเปคเดียวกับนักเตะระดับท็อปของยุโรป',
-        'btn_icon' => 'fa-star', 'btn_text' => 'ไอเทมหายาก', 'link' => '#product-list'
+        'img' => 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Westfalenstadion_inside.jpg/1920px-Westfalenstadion_inside.jpg',
+        'badge' => 'YELLOW WALL',
+        'title_1' => 'FEEL THE', 'title_2' => 'PASSION',
+        'desc' => 'ดุดัน ทรงพลัง คอลเลคชั่นใหม่ล่าสุดที่ดึงจิตวิญญาณนักเตะในตัวคุณ',
+        'btn_icon' => 'fa-bolt', 'btn_text' => 'เลือกช้อปเลย'
     ]
 ];
-shuffle($slidePool); // สับไพ่ (สุ่มลำดับ Array)
-$activeSlides = array_slice($slidePool, 0, 3); // ดึงมาแสดงแค่ 3 สไลด์แรก
+// สับไพ่ (สุ่มลำดับภาพ) เพื่อให้แบนเนอร์ไม่จำเจ
+shuffle($slidePool); 
+$activeSlides = array_slice($slidePool, 0, 3); // ดึงมาแสดงแค่ 3 สไลด์ต่อการโหลด 1 ครั้ง
 
 // =========================================================================
 
@@ -110,15 +111,16 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         /* เอฟเฟกต์ Ken Burns (ซูมเข้าช้าๆ) */
         .slide-bg { 
             position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background-size: cover; background-position: center 30%; 
+            background-size: cover; background-position: center; 
             transform: scale(1); transition: transform 8s linear; 
         }
+        /* เมื่อสไลด์ทำงาน ให้ค่อยๆ ซูมภาพ 10% */
         .carousel-item.active .slide-bg { transform: scale(1.1); } 
         
         /* เคลือบสีดำไล่ระดับจากซ้ายไปขวา (ทำให้ตัวหนังสือเด่น) */
         .slide-bg::after { 
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
-            background: linear-gradient(100deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.5) 45%, rgba(0,0,0,0.1) 100%); 
+            background: linear-gradient(100deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.1) 100%); 
         }
 
         /* ลายตะแกรงโปร่งแสง (Sport Mesh Texture) */
@@ -140,7 +142,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 
         /* อนิเมชั่นวิ่งเข้าเมื่อสไลด์ถูกแสดง (Staggered Animation) */
         .carousel-item.active .slide-content-wrapper .badge { animation: fadeDown 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.2s; }
-        .carousel-item.active .slide-content-wrapper h1 { animation: slideRight 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.4s; font-size: 3.8rem; }
+        .carousel-item.active .slide-content-wrapper h1 { animation: slideRight 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.4s; font-size: 4rem; line-height: 1.1;}
         .carousel-item.active .slide-content-wrapper p { animation: slideRight 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.6s; font-size: 1.25rem; color: #cbd5e1; }
         .carousel-item.active .slide-btn-group { animation: fadeInUp 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.8s; }
 
@@ -153,7 +155,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         .carousel-indicators [data-bs-target] { width: 35px; height: 5px; background-color: #fff; opacity: 0.3; border: none; transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1); margin-right: 8px; }
         .carousel-indicators .active { opacity: 1; width: 75px; background-color: var(--accent); box-shadow: 0 0 10px rgba(255, 184, 0, 0.8); }
 
-        /* ปุ่มสไลด์ (โฮเวอร์แล้วยกตัว+เรืองแสง) */
+        /* ปุ่มสไลด์ (โฮเวอร์แล้วยกตัว) */
         .slide-btn { position: relative; overflow: hidden; transition: all 0.3s ease; box-shadow: 0 5px 15px rgba(255, 184, 0, 0.2); }
         .slide-btn:hover { transform: translateY(-4px); background-color: #eab308; box-shadow: 0 10px 25px rgba(255, 184, 0, 0.5); }
         
@@ -226,7 +228,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 </nav>
 
 <header id="hero-banner">
-    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-pause="false" data-bs-interval="5000">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-pause="false" data-bs-interval="4000">
         
         <div class="carousel-indicators">
             <?php foreach($activeSlides as $index => $slide): ?>
@@ -241,8 +243,10 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
                     <div class="slide-texture"></div> <div class="carousel-caption d-flex flex-column justify-content-center h-100">
                         <div class="container position-relative">
                             <div class="slide-content-wrapper">
-                                <span class="badge bg-warning text-dark mb-3 px-3 py-2 fw-bold sport-font shadow-sm" style="letter-spacing: 2px;"><?= $slide['badge'] ?></span>
-                                <h1 class="mb-1 fw-bolder fst-italic text-white text-uppercase" style="letter-spacing: 1px;">
+                                <span class="badge bg-warning text-dark mb-3 px-3 py-2 fw-bold sport-font shadow-sm" style="letter-spacing: 2px; font-size: 13px;">
+                                    <?= $slide['badge'] ?>
+                                </span>
+                                <h1 class="mb-1 fw-bolder fst-italic text-white text-uppercase">
                                     <?= $slide['title_1'] ?> <span class="text-warning"><?= $slide['title_2'] ?></span>
                                 </h1>
                                 <p class="mb-4 fw-light font-sarabun">
@@ -309,13 +313,13 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // สั่งให้สไลด์วิ่งอัตโนมัติ 5 วิ
+    // สั่งให้สไลด์วิ่งอัตโนมัติ 4 วิ และไม่หยุดเมื่อเอาเมาส์วาง
     document.addEventListener("DOMContentLoaded", function() {
         var myCarousel = document.querySelector('#heroCarousel');
         var carousel = new bootstrap.Carousel(myCarousel, {
-            interval: 5000,
+            interval: 4000,
             ride: 'carousel',
-            pause: 'hover'
+            pause: false
         });
     });
 
