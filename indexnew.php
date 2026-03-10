@@ -523,8 +523,7 @@ foreach ($productsFromDB as $key => $product) {
             }
         });
     }
-
-    function login() {
+        function login() {
         const user = document.getElementById('login-user').value.trim();
         const pass = document.getElementById('login-pass').value.trim();
 
@@ -539,14 +538,20 @@ foreach ($productsFromDB as $key => $product) {
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                setupUserSession(data.user);
-                bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
-                showToast(`ยินดีต้อนรับกลับมาครับ!`, 'success');
+                // เช็คสิทธิ์: ถ้าเป็น admin ให้พาพุ่งไปหน้าหลังบ้านเลย
+                if(data.user.role === 'admin') {
+                    window.location.href = 'admin_orders.php';
+                } else {
+                    setupUserSession(data.user);
+                    bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
+                    showToast(`ยินดีต้อนรับกลับมาครับ!`, 'success');
+                }
             } else {
                 showToast('❌ ' + data.message, 'error');
             }
         });
     }
+
 
     function logoutUser() {
         if(confirm("ต้องการออกจากระบบใช่หรือไม่?")) {
@@ -575,7 +580,6 @@ foreach ($productsFromDB as $key => $product) {
             document.getElementById('user-zone').classList.remove('d-none');
             
             document.getElementById('nav-username').innerText = currentUser.name || currentUser.username;
-            
             document.getElementById('nav-profile-pic').src = currentUser.profilePic;
             document.getElementById('setting-profile-pic').src = currentUser.profilePic;
             
@@ -584,12 +588,18 @@ foreach ($productsFromDB as $key => $product) {
             document.getElementById('set-phone').value = currentUser.phone || '';
             document.getElementById('set-email').value = currentUser.email || '';
             document.getElementById('set-password').value = '';
+
+            // เปิด/ปิด ปุ่มทางลัดเข้าหลังบ้าน
+            if(currentUser.role === 'admin') {
+                document.getElementById('nav-admin-link').classList.remove('d-none');
+            } else {
+                document.getElementById('nav-admin-link').classList.add('d-none');
+            }
         } else {
             document.getElementById('guest-zone').classList.remove('d-none');
             document.getElementById('user-zone').classList.add('d-none');
         }
     }
-
     // --------------------------------------------------------
     // จัดการโปรไฟล์
     // --------------------------------------------------------
