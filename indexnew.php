@@ -20,17 +20,22 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         body { font-family: 'Sarabun', sans-serif; background: #ffffff; color: #333; }
         h1, h2, h3, h4, h5, h6, .nav-link, .btn, .navbar-brand, .sport-font { font-family: 'Kanit', sans-serif; }
         
-        .navbar { background: var(--primary) !important; padding: 15px 0; border-bottom: 2px solid var(--accent);}
+        .navbar { background: var(--primary) !important; padding: 15px 0; border-bottom: 2px solid var(--accent); z-index: 1050;}
         .navbar-brand { font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px; color: #fff !important; }
         
-        .hero-banner { 
-            background: linear-gradient(to right, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.3)), url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Cristiano_Ronaldo_2018.jpg/1200px-Cristiano_Ronaldo_2018.jpg');
-            background-size: cover; background-position: top center; height: 400px; display: flex; align-items: center; color: white;
-        }
-        .hero-banner h1 { font-size: 3.5rem; text-transform: uppercase; font-weight: 800; font-style: italic; letter-spacing: 2px; }
+        /* สไตล์สไลด์โชว์แบนเนอร์ */
+        #heroCarousel { height: 450px; background: var(--primary); }
+        .slide-bg { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: top center; }
+        .slide-bg::after { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.3)); }
+        .carousel-item { height: 450px; }
+        .carousel-caption { position: absolute; top: 0; left: 0; right: 0; bottom: 0; text-align: left; padding-top: 0; padding-bottom: 0; z-index: 10; }
+        .carousel-caption h1 { font-size: 3.5rem; text-transform: uppercase; font-weight: 800; font-style: italic; letter-spacing: 2px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        .carousel-caption p { text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
+        .carousel-indicators [data-bs-target] { width: 40px; height: 4px; background-color: var(--accent); opacity: 0.4; }
+        .carousel-indicators .active { opacity: 1; }
         
-        .btn-warning { background-color: var(--accent); border: none; color: #000; font-weight: 600; border-radius: 0; text-transform: uppercase; }
-        .btn-warning:hover { background-color: #e6a600; color: #000; }
+        .btn-warning { background-color: var(--accent); border: none; color: #000; font-weight: 600; border-radius: 0; text-transform: uppercase; transition: 0.2s;}
+        .btn-warning:hover { background-color: #e6a600; color: #000; transform: scale(1.02); }
         .btn-dark { background-color: var(--primary); border: none; border-radius: 0; font-weight: 500;}
         
         .product-card { border: none; transition: 0.3s; background: #fff; }
@@ -44,13 +49,13 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         .payment-box { border: 1px solid #ddd; padding: 15px; cursor: pointer; transition: 0.2s; text-align: center; font-family: 'Kanit'; }
         .payment-box.active { border-color: var(--primary); border-width: 2px; font-weight: bold; }
         
-        .filter-btn { font-family: 'Kanit'; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 0 !important; font-weight: 500; border: 1px solid #ddd; color: #555; background: #fff;}
+        .filter-btn { font-family: 'Kanit'; text-transform: uppercase; letter-spacing: 0.5px; border-radius: 0 !important; font-weight: 500; border: 1px solid #ddd; color: #555; background: #fff; transition: 0.2s;}
         .filter-btn.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         .filter-btn:hover { background: #eee; }
         .filter-btn.active:hover { background: var(--primary); }
     </style>
 </head>
-<body>
+<body onload="initStore()">
 
 <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1060;">
     <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
@@ -61,7 +66,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+<nav class="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm">
     <div class="container">
         <a class="navbar-brand fw-bold" href="#" onclick="filterProducts('ทั้งหมด')">THANJAI <span style="color: var(--accent);">SHOP</span></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"><span class="navbar-toggler-icon"></span></button>
@@ -93,11 +98,51 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </nav>
 
-<header class="hero-banner" id="hero-banner">
-    <div class="container">
-        <h1 class="mb-2">NEW SEASON <span class="text-warning">2026</span></h1>
-        <p class="lead mb-4">คอลเลคชั่นใหม่ล่าสุดจากสโมสรดังทั่วโลก พร้อมส่งแล้ววันนี้!</p>
-        <a href="#product-list" class="btn btn-warning btn-lg px-5"><i class="fa fa-bolt me-2"></i> เลือกช้อปเลย</a>
+<header id="hero-banner">
+    <div id="heroCarousel" class="carousel slide carousel-fade" data-bs-ride="carousel" data-bs-interval="4000">
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+        </div>
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <div class="slide-bg" style="background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Cristiano_Ronaldo_2018.jpg/1200px-Cristiano_Ronaldo_2018.jpg');"></div>
+                <div class="carousel-caption d-flex flex-column justify-content-center h-100 pb-0">
+                    <div class="container text-start">
+                        <h1 class="mb-2">NEW SEASON <span class="text-warning">2026</span></h1>
+                        <p class="lead mb-4">คอลเลคชั่นใหม่ล่าสุดจากสโมสรดังทั่วโลก พร้อมส่งแล้ววันนี้!</p>
+                        <a href="#product-list" class="btn btn-warning btn-lg px-5 shadow-sm"><i class="fa fa-bolt me-2"></i> เลือกช้อปเลย</a>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1508344928928-7165b67de128?q=80&w=1200&auto=format&fit=crop');"></div>
+                <div class="carousel-caption d-flex flex-column justify-content-center h-100 pb-0">
+                    <div class="container text-start">
+                        <h1 class="mb-2">PREMIUM <span class="text-warning">QUALITY</span></h1>
+                        <p class="lead mb-4">สัมผัสประสบการณ์ระดับโลก ด้วยเสื้อแข่งเกรดเพลเยอร์ที่ดีที่สุด</p>
+                        <a href="#product-list" class="btn btn-warning btn-lg px-5 shadow-sm"><i class="fa fa-fire me-2"></i> สินค้ามาใหม่</a>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-item">
+                <div class="slide-bg" style="background-image: url('https://images.unsplash.com/photo-1614632537423-1e6c2e7e0aab?q=80&w=1200&auto=format&fit=crop');"></div>
+                <div class="carousel-caption d-flex flex-column justify-content-center h-100 pb-0">
+                    <div class="container text-start">
+                        <h1 class="mb-2">VICTORY <span class="text-warning">IS YOURS</span></h1>
+                        <p class="lead mb-4">สวมใส่ความมุ่งมั่น สวมใส่ความสำเร็จ ไปกับเรา ThanJai Shop</p>
+                        <a href="#product-list" class="btn btn-warning btn-lg px-5 shadow-sm"><i class="fa fa-shopping-cart me-2"></i> ดูสินค้าทั้งหมด</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        </button>
     </div>
 </header>
 
