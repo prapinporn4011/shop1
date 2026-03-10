@@ -540,7 +540,10 @@ foreach ($productsFromDB as $key => $product) {
         if(currentUser) {
             document.getElementById('guest-zone').classList.add('d-none');
             document.getElementById('user-zone').classList.remove('d-none');
-            document.getElementById('nav-username').innerText = currentUser.username;
+            
+            // เปลี่ยนมาใช้ currentUser.name เพื่อแสดงชื่อจริงที่เราตั้งค่าไว้
+            document.getElementById('nav-username').innerText = currentUser.name; 
+            
             document.getElementById('nav-profile-pic').src = currentUser.profilePic;
             
             document.getElementById('setting-profile-pic').src = currentUser.profilePic;
@@ -553,7 +556,6 @@ foreach ($productsFromDB as $key => $product) {
             document.getElementById('user-zone').classList.add('d-none');
         }
     }
-
     // --------------------------------------------------------
     // จัดการโปรไฟล์ - ต่อ Database
     // --------------------------------------------------------
