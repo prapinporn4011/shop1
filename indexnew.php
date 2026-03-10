@@ -1,15 +1,12 @@
 <?php
-// ดึงไฟล์เชื่อมต่อฐานข้อมูลเข้ามา (ต้องมีไฟล์ db.php อยู่ในโฟลเดอร์เดียวกัน)
 require_once 'db.php';
 
-// ดึงข้อมูลสินค้า พร้อมกับชื่อประเภทสินค้า (JOIN ตาราง)
 $sql = "SELECT p.id, p.name, p.price, p.description as `desc`, p.image as img, c.name as type 
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.id";
 $stmt = $pdo->query($sql);
 $productsFromDB = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// แปลงข้อมูลให้อยู่ในรูปแบบตัวเลขที่ถูกต้อง
 foreach ($productsFromDB as $key => $product) {
     $productsFromDB[$key]['price'] = (float)$product['price'];
     $productsFromDB[$key]['id'] = (int)$product['id'];
@@ -21,7 +18,7 @@ foreach ($productsFromDB as $key => $product) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ThanJai Shop - Store (Pro Version)</title>
+    <title>ThanJai Shop - Store</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
@@ -93,7 +90,7 @@ foreach ($productsFromDB as $key => $product) {
                             <img id="nav-profile-pic" src="" width="35" height="35" class="rounded-circle border" style="object-fit: cover;">
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li id="nav-admin-link" class="d-none"><a class="dropdown-item text-warning fw-bold bg-dark" href="admin_orders.php"><i class="fa fa-user-shield me-2"></i>เข้าสู่ระบบหลังบ้าน</a></li>
+                            <li id="nav-admin-link" class="d-none"><a class="dropdown-item text-warning fw-bold bg-dark" href="admin_orders.php"><i class="fa fa-user-shield me-2"></i>ระบบหลังบ้าน (Admin)</a></li>
                             
                             <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#profileModal"><i class="fa fa-cog me-2"></i>ตั้งค่าบัญชี</a></li>
                             <li><a class="dropdown-item" href="#" onclick="openOrderHistory()"><i class="fa fa-box-open me-2"></i>ประวัติสั่งซื้อ & รีวิว</a></li>
@@ -392,9 +389,6 @@ foreach ($productsFromDB as $key => $product) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // --------------------------------------------------------
-    // ตัวแปรระบบ และฐานข้อมูล
-    // --------------------------------------------------------
     const dbProducts = <?php echo json_encode($productsFromDB); ?>;
     const products = dbProducts.map(p => ({
         id: parseInt(p.id),
@@ -413,14 +407,10 @@ foreach ($productsFromDB as $key => $product) {
     let paymentMethod = 'COD';
     let qrTimerInterval;
 
-    // ตัวแปรสำหรับระบบรีวิว
     let currentReviewProduct = null;
     let currentReviewOrder = null;
     let selectedRating = 0;
 
-    // --------------------------------------------------------
-    // ฟังก์ชันเริ่มต้น (โหลดหน้าเว็บ)
-    // --------------------------------------------------------
     function initStore() {
         renderProducts(products);
         
@@ -459,18 +449,13 @@ foreach ($productsFromDB as $key => $product) {
 
     function saveDatabase() {
         if(currentUser) {
-            const localData = {
-                cart: cart,
-                orders: currentUser.orders,
-                coupons: currentUser.coupons
-            };
+            const localData = { cart: cart, orders: currentUser.orders, coupons: currentUser.coupons };
             localStorage.setItem('thanjai_data_' + currentUser.username, JSON.stringify(localData));
         }
     }
 
     function showToast(message, type = 'success') {
         const toastEl = document.getElementById('liveToast');
-        
         toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-dark');
         
         if(type === 'success') toastEl.classList.add('bg-success');
@@ -482,9 +467,6 @@ foreach ($productsFromDB as $key => $product) {
         toast.show();
     }
 
-    // --------------------------------------------------------
-    // ระบบสมาชิก (Login & Register)
-    // --------------------------------------------------------
     function openAuthModal(type) {
         toggleAuth(type);
         new bootstrap.Modal(document.getElementById('authModal')).show();
@@ -502,9 +484,9 @@ foreach ($productsFromDB as $key => $product) {
         const phone = document.getElementById('reg-phone').value.trim();
         const pass = document.getElementById('reg-pass').value.trim();
 
-        if(!user || !email || !phone || !pass) return showToast('<i class="fa fa-exclamation-circle"></i> กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
-        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast('<i class="fa fa-envelope"></i> รูปแบบอีเมลไม่ถูกต้อง', 'error');
-        if(!/^\d{10}$/.test(phone)) return showToast('<i class="fa fa-phone"></i> เบอร์โทรศัพท์ต้องเป็นตัวเลข 10 หลัก', 'error');
+        if(!user || !email || !phone || !pass) return showToast('กรุณากรอกข้อมูลให้ครบถ้วน', 'error');
+        if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showToast('รูปแบบอีเมลไม่ถูกต้อง', 'error');
+        if(!/^\d{10}$/.test(phone)) return showToast('เบอร์โทรศัพท์ต้องเป็น 10 หลัก', 'error');
 
         fetch('api_auth.php', {
             method: 'POST',
@@ -518,12 +500,11 @@ foreach ($productsFromDB as $key => $product) {
                 setupUserSession(data.user);
                 bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
                 showToast('🎉 สมัครสมาชิกและเข้าสู่ระบบสำเร็จ!', 'success');
-            } else {
-                showToast('❌ ' + data.message, 'error');
-            }
+            } else { showToast('❌ ' + data.message, 'error'); }
         });
     }
-        function login() {
+
+    function login() {
         const user = document.getElementById('login-user').value.trim();
         const pass = document.getElementById('login-pass').value.trim();
 
@@ -538,7 +519,7 @@ foreach ($productsFromDB as $key => $product) {
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                // เช็คสิทธิ์: ถ้าเป็น admin ให้พาพุ่งไปหน้าหลังบ้านเลย
+                // แจกแจงสิทธิ์ ถ้าเป็นแอดมินเด้งไปหลังบ้านเลย
                 if(data.user.role === 'admin') {
                     window.location.href = 'admin_orders.php';
                 } else {
@@ -546,12 +527,9 @@ foreach ($productsFromDB as $key => $product) {
                     bootstrap.Modal.getInstance(document.getElementById('authModal')).hide();
                     showToast(`ยินดีต้อนรับกลับมาครับ!`, 'success');
                 }
-            } else {
-                showToast('❌ ' + data.message, 'error');
-            }
+            } else { showToast('❌ ' + data.message, 'error'); }
         });
     }
-
 
     function logoutUser() {
         if(confirm("ต้องการออกจากระบบใช่หรือไม่?")) {
@@ -564,10 +542,8 @@ foreach ($productsFromDB as $key => $product) {
             .then(res => res.json())
             .then(data => {
                 if(data.success) {
-                    currentUser = null;
-                    cart = [];
-                    updateNavUI();
-                    updateCartBadge();
+                    currentUser = null; cart = [];
+                    updateNavUI(); updateCartBadge();
                     showToast('ออกจากระบบเรียบร้อยแล้ว', 'success');
                 }
             });
@@ -589,7 +565,7 @@ foreach ($productsFromDB as $key => $product) {
             document.getElementById('set-email').value = currentUser.email || '';
             document.getElementById('set-password').value = '';
 
-            // เปิด/ปิด ปุ่มทางลัดเข้าหลังบ้าน
+            // ถ้าเป็นแอดมิน ให้โชว์ปุ่มทางเข้าหลังบ้านในเมนู
             if(currentUser.role === 'admin') {
                 document.getElementById('nav-admin-link').classList.remove('d-none');
             } else {
@@ -600,9 +576,7 @@ foreach ($productsFromDB as $key => $product) {
             document.getElementById('user-zone').classList.add('d-none');
         }
     }
-    // --------------------------------------------------------
-    // จัดการโปรไฟล์
-    // --------------------------------------------------------
+
     function uploadProfilePic(event) {
         const file = event.target.files[0];
         if(file) {
@@ -622,55 +596,32 @@ foreach ($productsFromDB as $key => $product) {
         if(newPhone.length !== 10) return showToast('เบอร์โทรศัพท์ต้องมี 10 หลัก', 'warning');
         
         let picDataToSend = '';
-        if(newPic.startsWith('data:image')) {
-            picDataToSend = newPic;
-        }
+        if(newPic.startsWith('data:image')) picDataToSend = newPic;
 
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
-            body: JSON.stringify({ 
-                action: 'update_profile', 
-                fullname: newName, 
-                phone: newPhone, 
-                password: newPass,
-                profile_pic: picDataToSend
-            })
+            body: JSON.stringify({ action: 'update_profile', fullname: newName, phone: newPhone, password: newPass, profile_pic: picDataToSend })
         })
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                currentUser.name = newName;
-                currentUser.phone = newPhone;
-                
-                if(data.profile_pic) {
-                    currentUser.profilePic = data.profile_pic;
-                }
-                
+                currentUser.name = newName; currentUser.phone = newPhone;
+                if(data.profile_pic) currentUser.profilePic = data.profile_pic;
                 updateNavUI();
                 bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide();
                 showToast('อัปเดตข้อมูลบัญชีเรียบร้อย', 'success');
-            } else {
-                showToast('❌ ' + data.message, 'error');
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
+            } else { showToast('❌ ' + data.message, 'error'); }
         });
     }
 
-    // --------------------------------------------------------
-    // แสดงผลสินค้า
-    // --------------------------------------------------------
     function renderProducts(items) {
         const container = document.getElementById('store-display');
         if(items.length === 0) {
             container.innerHTML = `<div class="col-12 text-center text-muted my-5"><h5>ไม่พบสินค้าที่คุณค้นหา</h5></div>`;
             return;
         }
-
         container.innerHTML = items.map(p => {
             const saleBadge = p.isSale ? `<span class="sale-badge">SALE!</span>` : '';
             const oldPriceStr = p.oldPrice ? `<small class="text-muted text-decoration-line-through">฿${p.oldPrice}</small>` : '';
@@ -693,15 +644,13 @@ foreach ($productsFromDB as $key => $product) {
                         </div>
                     </div>
                 </div>
-            </div>
-            `;
+            </div>`;
         }).join('');
     }
 
     function searchProducts() {
         const term = document.getElementById('search-input').value.toLowerCase();
-        const filtered = products.filter(p => p.name.toLowerCase().includes(term));
-        renderProducts(filtered);
+        renderProducts(products.filter(p => p.name.toLowerCase().includes(term)));
     }
 
     function filterProducts(type) {
@@ -711,18 +660,10 @@ foreach ($productsFromDB as $key => $product) {
             event.currentTarget.classList.remove('btn-outline-dark');
             event.currentTarget.classList.add('btn-dark', 'active');
         }
-
-        if (type === 'โปรโมชั่น') {
-            renderProducts(products.filter(p => p.isSale));
-        } else {
-            const filtered = type === 'ทั้งหมด' ? products : products.filter(p => p.type === type);
-            renderProducts(filtered);
-        }
+        if (type === 'โปรโมชั่น') renderProducts(products.filter(p => p.isSale));
+        else renderProducts(type === 'ทั้งหมด' ? products : products.filter(p => p.type === type));
     }
 
-    // --------------------------------------------------------
-    // รายละเอียดสินค้า & ตะกร้า & โหลดรีวิว
-    // --------------------------------------------------------
     function openProductDetail(id) {
         const p = products.find(x => x.id === id);
         document.getElementById('detail-id').value = p.id;
@@ -734,11 +675,9 @@ foreach ($productsFromDB as $key => $product) {
         
         if(p.oldPrice) {
             oldPriceEl.innerText = '฿' + p.oldPrice.toLocaleString();
-            oldPriceEl.classList.remove('d-none');
-            saleBadgeEl.classList.remove('d-none');
+            oldPriceEl.classList.remove('d-none'); saleBadgeEl.classList.remove('d-none');
         } else {
-            oldPriceEl.classList.add('d-none');
-            saleBadgeEl.classList.add('d-none');
+            oldPriceEl.classList.add('d-none'); saleBadgeEl.classList.add('d-none');
         }
 
         document.getElementById('detail-desc').innerText = p.desc;
@@ -747,7 +686,6 @@ foreach ($productsFromDB as $key => $product) {
         document.getElementById('detail-qty').value = 1;
         document.getElementById('detail-size').selectedIndex = 1; 
 
-        // ดึงข้อมูลรีวิวของสินค้านี้จาก Database
         const reviewContainer = document.getElementById('detail-reviews');
         reviewContainer.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-warning spinner-border-sm"></div></div>';
         
@@ -761,9 +699,7 @@ foreach ($productsFromDB as $key => $product) {
             if(data.success && data.reviews.length > 0) {
                 reviewContainer.innerHTML = data.reviews.map(r => {
                     let stars = '';
-                    for(let i=0; i<5; i++) {
-                        stars += `<i class="fa fa-star ${i < r.rating ? 'text-warning' : 'text-muted'}"></i>`;
-                    }
+                    for(let i=0; i<5; i++) stars += `<i class="fa fa-star ${i < r.rating ? 'text-warning' : 'text-muted'}"></i>`;
                     let pic = r.profile_pic ? r.profile_pic : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + r.username;
                     return `
                     <div class="d-flex mb-3 border-bottom pb-2">
@@ -774,8 +710,7 @@ foreach ($productsFromDB as $key => $product) {
                             <p class="small mb-0 text-dark">${r.comment}</p>
                             <small class="text-muted" style="font-size: 10px;">รีวิวเมื่อ: ${r.created_at}</small>
                         </div>
-                    </div>
-                    `;
+                    </div>`;
                 }).join('');
             } else {
                 reviewContainer.innerHTML = '<p class="text-muted small text-center mb-0 my-3">ยังไม่มีรีวิวสำหรับสินค้านี้ เป็นคนแรกที่รีวิวสิ!</p>';
@@ -790,56 +725,37 @@ foreach ($productsFromDB as $key => $product) {
             bootstrap.Modal.getInstance(document.getElementById('productDetailModal')).hide();
             return openAuthModal('login');
         }
-
         const id = parseInt(document.getElementById('detail-id').value);
         const size = document.getElementById('detail-size').value;
         const qty = parseInt(document.getElementById('detail-qty').value);
         const product = products.find(p => p.id === id);
 
         const existingItemIndex = cart.findIndex(item => item.id === id && item.size === size);
-        if (existingItemIndex > -1) {
-            cart[existingItemIndex].qty += qty; 
-        } else {
-            cart.push({ ...product, size: size, qty: qty }); 
-        }
+        if (existingItemIndex > -1) cart[existingItemIndex].qty += qty; 
+        else cart.push({ ...product, size: size, qty: qty }); 
 
-        saveDatabase();
-        updateCartBadge();
+        saveDatabase(); updateCartBadge();
         bootstrap.Modal.getInstance(document.getElementById('productDetailModal')).hide();
         showToast(`<i class="fa fa-check-circle"></i> เพิ่ม <strong>${product.name}</strong> ลงตะกร้าแล้ว`);
-
         if(isBuyNow) setTimeout(openCart, 500);
     }
     
-    function updateCartBadge() {
-        document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0);
-    }
+    function updateCartBadge() { document.getElementById('cart-count').innerText = cart.reduce((sum, item) => sum + item.qty, 0); }
 
-    // --------------------------------------------------------
-    // ระบบชำระเงิน & คูปอง & สั่งซื้อ
-    // --------------------------------------------------------
     function openCart() {
         if(!currentUser) return openAuthModal('login');
-        
         document.getElementById('ship-name').value = currentUser.name || '';
         document.getElementById('ship-phone').value = currentUser.phone || '';
-        
-        renderCartItems();
-        updateSummary();
+        renderCartItems(); updateSummary();
         new bootstrap.Modal(document.getElementById('checkoutModal')).show();
     }
 
     function renderCartItems() {
         const container = document.getElementById('cart-items-container');
         if(cart.length === 0) {
-            container.innerHTML = `
-                <div class="text-center py-5">
-                    <i class="fa fa-shopping-basket fa-3x text-muted mb-3"></i>
-                    <p class="text-muted">ตะกร้าของคุณว่างเปล่า</p>
-                </div>`;
+            container.innerHTML = `<div class="text-center py-5"><i class="fa fa-shopping-basket fa-3x text-muted mb-3"></i><p class="text-muted">ตะกร้าของคุณว่างเปล่า</p></div>`;
             return;
         }
-        
         container.innerHTML = cart.map((item, index) => `
             <div class="d-flex align-items-center mb-3 p-3 border rounded bg-white shadow-sm">
                 <img src="${item.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="80" height="80" class="rounded me-3 border bg-white" style="object-fit: cover;">
@@ -850,39 +766,24 @@ foreach ($productsFromDB as $key => $product) {
                 </div>
                 <div class="text-end ms-2">
                     <div class="fw-bold text-danger mb-2">฿${(item.price * item.qty).toLocaleString()}</div>
-                    <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="removeFromCart(${index})">
-                        <i class="fa fa-trash"></i> ลบ
-                    </button>
+                    <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="removeFromCart(${index})"><i class="fa fa-trash"></i> ลบ</button>
                 </div>
-            </div>
-        `).join('');
+            </div>`).join('');
     }
 
-    function removeFromCart(index) {
-        cart.splice(index, 1);
-        saveDatabase();
-        updateCartBadge();
-        renderCartItems();
-        updateSummary();
-    }
+    function removeFromCart(index) { cart.splice(index, 1); saveDatabase(); updateCartBadge(); renderCartItems(); updateSummary(); }
 
     function collectCoupon(code) {
         if(!currentUser) return openAuthModal('login');
         if(!currentUser.coupons) currentUser.coupons = [];
-        
         if(currentUser.coupons.includes(code)) return showToast('คุณเก็บคูปองนี้ไปแล้ว', 'warning');
-        
-        currentUser.coupons.push(code);
-        saveDatabase();
+        currentUser.coupons.push(code); saveDatabase();
         showToast(`🎉 เก็บโค้ด ${code} สำเร็จ! นำไปใช้ในหน้าชำระเงินได้เลย`, 'success');
     }
 
     function renderMyCoupons() {
         const container = document.getElementById('my-coupons-list');
-        if(!currentUser || !currentUser.coupons || currentUser.coupons.length === 0) {
-            container.innerHTML = '';
-            return;
-        }
+        if(!currentUser || !currentUser.coupons || currentUser.coupons.length === 0) { container.innerHTML = ''; return; }
         container.innerHTML = '<strong>คูปองของคุณ (คลิกเพื่อใช้):</strong> ' + currentUser.coupons.map(c => 
             `<span class="badge bg-warning text-dark me-1 shadow-sm p-2" style="cursor:pointer;" onclick="document.getElementById('coupon-input').value='${c}'; applyCoupon();"><i class="fa fa-ticket-alt"></i> ${c}</span>`
         ).join('');
@@ -891,17 +792,10 @@ foreach ($productsFromDB as $key => $product) {
     function applyCoupon() {
         const code = document.getElementById('coupon-input').value.trim().toUpperCase();
         if(code === 'NEWBIE50') {
-            if(!currentUser.coupons || !currentUser.coupons.includes(code)) {
-                return showToast('กรุณากดเก็บคูปองที่หน้าหลักก่อนใช้งาน', 'error');
-            }
-            discount = 50;
-            showToast('✅ ใช้คูปองส่วนลด 50 บาทสำเร็จ!', 'success');
-            updateSummary();
-        } else if (code === '') {
-            showToast('กรุณากรอกรหัสคูปอง', 'warning');
-        } else {
-            showToast('รหัสคูปองไม่ถูกต้อง หรือหมดอายุแล้ว', 'error');
-        }
+            if(!currentUser.coupons || !currentUser.coupons.includes(code)) return showToast('กรุณากดเก็บคูปองที่หน้าหลักก่อนใช้งาน', 'error');
+            discount = 50; showToast('✅ ใช้คูปองส่วนลด 50 บาทสำเร็จ!', 'success'); updateSummary();
+        } else if (code === '') showToast('กรุณากรอกรหัสคูปอง', 'warning');
+        else showToast('รหัสคูปองไม่ถูกต้อง หรือหมดอายุแล้ว', 'error');
     }
 
     function updateSummary() {
@@ -909,11 +803,9 @@ foreach ($productsFromDB as $key => $product) {
         const shipping = cart.length > 0 ? 50 : 0;
         let total = subtotal + shipping - discount;
         if(total < 0) total = 0;
-
         document.getElementById('summary-subtotal').innerText = '฿' + subtotal.toLocaleString();
         document.getElementById('summary-discount').innerText = '-฿' + discount.toLocaleString();
         document.getElementById('summary-total').innerText = '฿' + total.toLocaleString();
-        
         renderMyCoupons();
     }
 
@@ -927,14 +819,11 @@ foreach ($productsFromDB as $key => $product) {
         if(cart.length === 0) return showToast('ไม่มีสินค้าในตะกร้า', 'warning');
         const address = document.getElementById('ship-address').value.trim();
         if(!address) return showToast('กรุณากรอกที่อยู่จัดส่ง', 'error');
-
         if(paymentMethod === 'QR') {
             bootstrap.Modal.getInstance(document.getElementById('checkoutModal')).hide();
             new bootstrap.Modal(document.getElementById('qrModal')).show();
             startQrTimer();
-        } else {
-            processOrderSuccess();
-        }
+        } else { processOrderSuccess(); }
     }
 
     function startQrTimer() {
@@ -950,18 +839,8 @@ foreach ($productsFromDB as $key => $product) {
         }, 1000);
     }
 
-    function qrPaymentSuccess() {
-        clearInterval(qrTimerInterval);
-        bootstrap.Modal.getInstance(document.getElementById('qrModal')).hide();
-        processOrderSuccess();
-    }
-
-    function qrPaymentCancel() {
-        clearInterval(qrTimerInterval);
-        bootstrap.Modal.getInstance(document.getElementById('qrModal')).hide();
-        showToast('หมดเวลา/ยกเลิก การชำระเงิน', 'error');
-        new bootstrap.Modal(document.getElementById('checkoutModal')).show();
-    }
+    function qrPaymentSuccess() { clearInterval(qrTimerInterval); bootstrap.Modal.getInstance(document.getElementById('qrModal')).hide(); processOrderSuccess(); }
+    function qrPaymentCancel() { clearInterval(qrTimerInterval); bootstrap.Modal.getInstance(document.getElementById('qrModal')).hide(); showToast('หมดเวลา/ยกเลิก การชำระเงิน', 'error'); new bootstrap.Modal(document.getElementById('checkoutModal')).show(); }
 
     function processOrderSuccess() {
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
@@ -969,50 +848,26 @@ foreach ($productsFromDB as $key => $product) {
         const addressStr = document.getElementById('ship-address').value.trim();
         const statusStr = paymentMethod === 'QR' ? 'paid' : 'pending';
         
-        const orderData = {
-            username: currentUser ? currentUser.username : null,
-            total: total,
-            status: statusStr,
-            address: addressStr,
-            items: cart
-        };
-
         fetch('save_order.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(orderData)
+            body: JSON.stringify({ username: currentUser ? currentUser.username : null, total: total, status: statusStr, address: addressStr, items: cart })
         })
         .then(res => res.json())
         .then(data => {
             if(data.success) {
                 cart = []; discount = 0;
-                if(currentUser.coupons && currentUser.coupons.includes('NEWBIE50')) {
-                    currentUser.coupons = currentUser.coupons.filter(c => c !== 'NEWBIE50');
-                }
-                
-                saveDatabase();
-                updateCartBadge();
-                
+                if(currentUser.coupons && currentUser.coupons.includes('NEWBIE50')) currentUser.coupons = currentUser.coupons.filter(c => c !== 'NEWBIE50');
+                saveDatabase(); updateCartBadge();
                 const checkoutModalEl = document.getElementById('checkoutModal');
-                if(checkoutModalEl.classList.contains('show')) {
-                    bootstrap.Modal.getInstance(checkoutModalEl).hide();
-                }
-                
+                if(checkoutModalEl.classList.contains('show')) bootstrap.Modal.getInstance(checkoutModalEl).hide();
                 showToast('🎉 สั่งซื้อสำเร็จ! ขอบคุณที่ใช้บริการ', 'success');
                 setTimeout(openOrderHistory, 1500); 
-            } else {
-                showToast('เกิดข้อผิดพลาดจากเซิร์ฟเวอร์: ' + data.message, 'error');
-            }
+            } else { showToast('เกิดข้อผิดพลาด: ' + data.message, 'error'); }
         })
-        .catch(err => {
-            console.error(err);
-            showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
-        });
+        .catch(err => { console.error(err); showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error'); });
     }
 
-    // --------------------------------------------------------
-    // ระบบรีวิวสินค้า
-    // --------------------------------------------------------
     function setRating(stars) {
         selectedRating = stars;
         const starElements = document.getElementById('review-stars').children;
@@ -1023,12 +878,8 @@ foreach ($productsFromDB as $key => $product) {
     }
 
     function openReviewModal(prodId, orderId) {
-        currentReviewProduct = prodId;
-        currentReviewOrder = orderId;
-        setRating(0);
+        currentReviewProduct = prodId; currentReviewOrder = orderId; setRating(0);
         document.getElementById('review-comment').value = '';
-        
-        // ปิดหน้าต่างประวัติ แล้วเปิดหน้าต่างรีวิว
         bootstrap.Modal.getInstance(document.getElementById('historyModal')).hide();
         new bootstrap.Modal(document.getElementById('reviewModal')).show();
     }
@@ -1036,51 +887,29 @@ foreach ($productsFromDB as $key => $product) {
     function submitReview() {
         if(selectedRating === 0) return showToast('กรุณาเลือกดาวให้คะแนน', 'warning');
         const comment = document.getElementById('review-comment').value.trim();
-
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'same-origin',
-            body: JSON.stringify({ 
-                action: 'add_review', 
-                product_id: currentReviewProduct, 
-                order_id: currentReviewOrder, 
-                rating: selectedRating, 
-                comment: comment 
-            })
+            body: JSON.stringify({ action: 'add_review', product_id: currentReviewProduct, order_id: currentReviewOrder, rating: selectedRating, comment: comment })
         })
         .then(res => res.json())
         .then(data => {
             if(data.success) {
                 bootstrap.Modal.getInstance(document.getElementById('reviewModal')).hide();
                 showToast('ขอบคุณสำหรับรีวิวครับ!', 'success');
-                // เปิดหน้าประวัติกลับมาให้ดู
                 setTimeout(openOrderHistory, 500);
-            } else {
-                showToast('❌ ' + data.message, 'error');
-            }
+            } else { showToast('❌ ' + data.message, 'error'); }
         });
     }
 
-    // --------------------------------------------------------
-    // ประวัติการสั่งซื้อ
-    // --------------------------------------------------------
-    // --------------------------------------------------------
-    // ประวัติการสั่งซื้อ (ดึงจากฐานข้อมูลแบบ Real-time)
-    // --------------------------------------------------------
     function openOrderHistory() {
-        if(!currentUser) {
-            showToast('กรุณาเข้าสู่ระบบก่อนดูประวัติ', 'warning');
-            return;
-        }
-
+        if(!currentUser) return showToast('กรุณาเข้าสู่ระบบก่อนดูประวัติ', 'warning');
         const container = document.getElementById('history-container');
         container.innerHTML = '<div class="text-center py-5"><div class="spinner-border text-primary"></div><p class="mt-2 text-muted">กำลังดึงข้อมูลออเดอร์ล่าสุด...</p></div>';
         
         const historyModalEl = document.getElementById('historyModal');
-        if(!historyModalEl.classList.contains('show')) {
-            new bootstrap.Modal(historyModalEl).show();
-        }
+        if(!historyModalEl.classList.contains('show')) new bootstrap.Modal(historyModalEl).show();
 
         fetch('api_auth.php', {
             method: 'POST',
@@ -1093,20 +922,11 @@ foreach ($productsFromDB as $key => $product) {
             if(data.success) {
                 const orders = data.orders;
                 if(orders.length === 0) {
-                    container.innerHTML = `
-                        <div class="text-center py-5">
-                            <i class="fa fa-box-open fa-3x text-muted mb-3"></i>
-                            <p class="text-muted">คุณยังไม่มีประวัติการสั่งซื้อ</p>
-                            <button class="btn btn-warning mt-2" data-bs-dismiss="modal">ไปช้อปปิ้งเลย</button>
-                        </div>`;
+                    container.innerHTML = `<div class="text-center py-5"><i class="fa fa-box-open fa-3x text-muted mb-3"></i><p class="text-muted">คุณยังไม่มีประวัติการสั่งซื้อ</p><button class="btn btn-warning mt-2" data-bs-dismiss="modal">ไปช้อปปิ้งเลย</button></div>`;
                 } else {
                     container.innerHTML = orders.map(o => {
-                        let badgeClass = 'bg-secondary';
-                        let statusText = o.status;
-                        
-                        // เช็คสถานะพร้อมตัดช่องว่างเผื่อพิมพ์ผิด
+                        let badgeClass = 'bg-secondary'; let statusText = o.status;
                         let currentStatus = (o.status || '').trim().toLowerCase();
-                        
                         if(currentStatus === 'pending') { badgeClass = 'bg-warning text-dark'; statusText = 'รอชำระเงิน / COD'; }
                         else if(currentStatus === 'paid') { badgeClass = 'bg-success'; statusText = 'ชำระเงินแล้ว'; }
                         else if(currentStatus === 'shipped') { badgeClass = 'bg-info text-dark'; statusText = 'จัดส่งแล้ว'; }
@@ -1115,50 +935,35 @@ foreach ($productsFromDB as $key => $product) {
                         return `
                         <div class="card mb-4 border-0 shadow-sm rounded-3">
                             <div class="card-header bg-white d-flex justify-content-between align-items-center py-3 border-bottom">
-                                <div>
-                                    <span class="fw-bold text-dark"><i class="fa fa-receipt text-primary me-2"></i>ออเดอร์: ${o.orderId}</span>
-                                    <small class="text-muted d-block mt-1"><i class="fa fa-calendar-alt me-1"></i> ${o.date}</small>
-                                </div>
+                                <div><span class="fw-bold text-dark"><i class="fa fa-receipt text-primary me-2"></i>ออเดอร์: ${o.orderId}</span><small class="text-muted d-block mt-1"><i class="fa fa-calendar-alt me-1"></i> ${o.date}</small></div>
                                 <span class="badge ${badgeClass} px-3 py-2">${statusText}</span>
                             </div>
                             <div class="card-body bg-light">
                                 ${o.items.map(item => {
-                                    // ดักจับสถานะให้ชัวร์ที่สุด 100% ว่าถ้าจัดส่งแล้วให้แสดงปุ่มรีวิว
                                     let reviewBtn = '';
                                     if(currentStatus === 'shipped' || statusText === 'จัดส่งแล้ว') {
                                         reviewBtn = `<button class="btn btn-sm btn-warning mt-2 px-3 py-1 shadow-sm fw-bold text-dark" onclick="openReviewModal(${item.product_id}, ${o.rawOrderId})"><i class="fa fa-star text-white"></i> ให้คะแนนและรีวิว</button>`;
                                     }
-
                                     return `
                                     <div class="d-flex justify-content-between align-items-center small mb-2 border-bottom pb-2">
                                         <div class="d-flex align-items-center">
                                             <img src="${item.img}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="50" height="50" style="object-fit:cover;" class="rounded me-3 border bg-white">
-                                            <div>
-                                                <span class="fw-bold">${item.name} <span class="text-muted fw-normal">(Size: ${item.size})</span></span>
-                                                <br>
-                                                ${reviewBtn}
-                                            </div>
+                                            <div><span class="fw-bold">${item.name} <span class="text-muted fw-normal">(Size: ${item.size})</span></span><br>${reviewBtn}</div>
                                         </div>
                                         <span>x ${item.qty} = <strong>฿${(item.price * item.qty).toLocaleString()}</strong></span>
-                                    </div>
-                                    `;
+                                    </div>`;
                                 }).join('')}
                                 <div class="d-flex justify-content-between align-items-end mt-3">
                                     <small class="text-muted" style="max-width: 60%;"><i class="fa fa-map-marker-alt"></i> จัดส่ง: ${o.address}</small>
                                     <div class="text-end fw-bold">ยอดสุทธิ: <span class="text-danger fs-5 ms-2">฿${o.total.toLocaleString()}</span></div>
                                 </div>
                             </div>
-                        </div>
-                    `}).join('');
+                        </div>`;
+                    }).join('');
                 }
-            } else {
-                container.innerHTML = '<div class="alert alert-danger">เกิดข้อผิดพลาด: ' + data.message + '</div>';
-            }
+            } else { container.innerHTML = '<div class="alert alert-danger">เกิดข้อผิดพลาด: ' + data.message + '</div>'; }
         })
-        .catch(err => {
-            console.error(err);
-            container.innerHTML = '<div class="alert alert-danger">ไม่สามารถดึงข้อมูลได้ โปรดลองอีกครั้ง</div>';
-        });
+        .catch(err => { container.innerHTML = '<div class="alert alert-danger">ไม่สามารถดึงข้อมูลได้ โปรดลองอีกครั้ง</div>'; });
     }
 </script>
 </body>

@@ -2,49 +2,37 @@
 session_start();
 require_once 'db.php';
 
-// ---------------------------------------------------------
-// 1. ระบบดึงข้อมูลรายละเอียดสินค้าในออเดอร์ (AJAX)
-// ---------------------------------------------------------
+// เช็คสิทธิ์การเข้าถึง (ต้องล็อกอินและเป็น admin เท่านั้น)
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    echo "<script>alert('❌ คุณไม่มีสิทธิ์เข้าถึงระบบหลังบ้าน!'); window.location.href='indexnew.php';</script>";
+    exit;
+}
+
 if (isset($_GET['action']) && $_GET['action'] == 'get_order_details') {
     header('Content-Type: application/json');
     $order_id = $_GET['order_id'];
-    
-    // ดึงข้อมูลจากตาราง order_items เชื่อมกับ products เพื่อเอาชื่อและรูป
-    $stmt = $pdo->prepare("
-        SELECT oi.*, p.name, p.image 
-        FROM order_items oi 
-        LEFT JOIN products p ON oi.product_id = p.id 
-        WHERE oi.order_id = ?
-    ");
+    $stmt = $pdo->prepare("SELECT oi.*, p.name, p.image FROM order_items oi LEFT JOIN products p ON oi.product_id = p.id WHERE oi.order_id = ?");
     $stmt->execute([$order_id]);
     echo json_encode(['success' => true, 'items' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
     exit;
 }
 
-// ---------------------------------------------------------
-// 2. ระบบอัปเดตสถานะออเดอร์
-// ---------------------------------------------------------
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'update_status') {
     $order_id = $_POST['order_id'];
     $new_status = $_POST['status'];
-    
     $stmt = $pdo->prepare("UPDATE orders SET status = ? WHERE id = ?");
     $stmt->execute([$new_status, $order_id]);
-    
     header("Location: admin_orders.php?msg=status_updated");
     exit;
 }
 
-// ดึงข้อมูลออเดอร์ทั้งหมด
 $sql = "SELECT o.id, o.total_price, o.status, o.shipping_address, o.created_at, u.fullname as customer_name, u.phone 
-        FROM orders o 
-        LEFT JOIN users u ON o.user_id = u.id 
-        ORDER BY o.created_at DESC";
+        FROM orders o LEFT JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC";
 $stmt = $pdo->query($sql);
 $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 function getStatusBadge($status) {
-    switch($status) {
+    switch(trim(strtolower($status))) {
         case 'pending': return '<span class="badge bg-warning text-dark">รอชำระเงิน / COD</span>';
         case 'paid': return '<span class="badge bg-success">ชำระเงินแล้ว</span>';
         case 'shipped': return '<span class="badge bg-info text-dark">จัดส่งแล้ว</span>';
@@ -97,31 +85,17 @@ function getStatusBadge($status) {
             <div class="card-body table-responsive">
                 <table id="orderTable" class="table table-striped table-hover align-middle w-100">
                     <thead class="table-dark">
-                        <tr>
-                            <th>เลขที่ออเดอร์</th>
-                            <th>วันที่สั่งซื้อ</th>
-                            <th>ลูกค้า (เบอร์โทร)</th>
-                            <th>ยอดรวม</th>
-                            <th>สถานะ</th>
-                            <th>จัดการ</th>
-                        </tr>
+                        <tr><th>เลขที่ออเดอร์</th><th>วันที่สั่งซื้อ</th><th>ลูกค้า (เบอร์โทร)</th><th>ยอดรวม</th><th>สถานะ</th><th>จัดการ</th></tr>
                     </thead>
                     <tbody>
                         <?php foreach($orders as $o): ?>
                         <tr>
                             <td class="fw-bold text-primary">ORD-<?= str_pad($o['id'], 5, '0', STR_PAD_LEFT) ?></td>
                             <td><?= date('d/m/Y H:i', strtotime($o['created_at'])) ?></td>
-                            <td>
-                                <?= $o['customer_name'] ? htmlspecialchars($o['customer_name']) : 'ลูกค้าทั่วไป' ?>
-                                <br><small class="text-muted"><i class="fa fa-phone"></i> <?= $o['phone'] ? htmlspecialchars($o['phone']) : '-' ?></small>
-                            </td>
+                            <td><?= $o['customer_name'] ? htmlspecialchars($o['customer_name']) : 'ลูกค้าทั่วไป' ?><br><small class="text-muted"><i class="fa fa-phone"></i> <?= $o['phone'] ? htmlspecialchars($o['phone']) : '-' ?></small></td>
                             <td class="text-danger fw-bold">฿<?= number_format($o['total_price'], 2) ?></td>
                             <td><?= getStatusBadge($o['status']) ?></td>
-                            <td>
-                                <button class="btn btn-sm btn-dark" onclick="viewOrderDetails(<?= $o['id'] ?>, '<?= $o['status'] ?>', '<?= htmlspecialchars($o['shipping_address']) ?>')">
-                                    <i class="fa fa-eye"></i> รายละเอียด
-                                </button>
-                            </td>
+                            <td><button class="btn btn-sm btn-dark" onclick="viewOrderDetails(<?= $o['id'] ?>, '<?= $o['status'] ?>', '<?= htmlspecialchars($o['shipping_address']) ?>')"><i class="fa fa-eye"></i> รายละเอียด</button></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -139,10 +113,7 @@ function getStatusBadge($status) {
                 </div>
                 <div class="modal-body">
                     <h6 class="fw-bold border-bottom pb-2">รายการสินค้า</h6>
-                    <div id="order-items-container" class="mb-4">
-                        <div class="text-center py-3"><div class="spinner-border text-primary" role="status"></div></div>
-                    </div>
-
+                    <div id="order-items-container" class="mb-4"></div>
                     <h6 class="fw-bold border-bottom pb-2">ที่อยู่สำหรับจัดส่ง</h6>
                     <p id="modal-address" class="bg-light p-3 rounded border"></p>
 
@@ -170,12 +141,7 @@ function getStatusBadge($status) {
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('#orderTable').DataTable({
-                "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" },
-                "order": [[ 0, "desc" ]] // เรียงออเดอร์ใหม่ล่าสุดขึ้นก่อน
-            });
-        });
+        $(document).ready(function() { $('#orderTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" }, "order": [[ 0, "desc" ]] }); });
 
         function viewOrderDetails(orderId, currentStatus, address) {
             document.getElementById('modal-order-id').innerText = 'ORD-' + String(orderId).padStart(5, '0');
@@ -184,38 +150,18 @@ function getStatusBadge($status) {
             document.getElementById('modal-address').innerText = address || 'ไม่มีข้อมูลที่อยู่จัดส่ง';
 
             new bootstrap.Modal(document.getElementById('orderDetailModal')).show();
-
             const container = document.getElementById('order-items-container');
             container.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-primary"></div></div>';
 
-            fetch('admin_orders.php?action=get_order_details&order_id=' + orderId)
-            .then(res => res.json())
-            .then(data => {
+            fetch('admin_orders.php?action=get_order_details&order_id=' + orderId).then(res => res.json()).then(data => {
                 if(data.success && data.items.length > 0) {
                     let html = '<table class="table table-bordered align-middle"><thead><tr class="bg-light"><th>สินค้า</th><th>ไซส์</th><th>จำนวน</th><th>ราคา/ชิ้น</th></tr></thead><tbody>';
                     data.items.forEach(item => {
                         let imgUrl = item.image ? (item.image.startsWith('http') || item.image.startsWith('data:') ? item.image : 'uploads/' + item.image) : 'default.jpg';
-                        html += `
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="40" height="40" style="object-fit:cover;" class="rounded me-2 border">
-                                    ${item.name || 'สินค้าหมายเลข ' + item.product_id}
-                                </div>
-                            </td>
-                            <td class="text-center">${item.size}</td>
-                            <td class="text-center">${item.qty}</td>
-                            <td class="text-end">฿${parseFloat(item.price).toLocaleString()}</td>
-                        </tr>`;
+                        html += `<tr><td><div class="d-flex align-items-center"><img src="${imgUrl}" onerror="this.src='https://via.placeholder.com/150?text=No+Image'" width="40" height="40" style="object-fit:cover;" class="rounded me-2 border bg-white">${item.name || 'สินค้า'}</div></td><td class="text-center">${item.size}</td><td class="text-center">${item.qty}</td><td class="text-end">฿${parseFloat(item.price).toLocaleString()}</td></tr>`;
                     });
-                    html += '</tbody></table>';
-                    container.innerHTML = html;
-                } else {
-                    container.innerHTML = '<div class="alert alert-warning">ไม่พบรายการสินค้าในออเดอร์นี้ (อาจจะถูกลบไปแล้ว)</div>';
-                }
-            })
-            .catch(err => {
-                container.innerHTML = '<div class="text-danger">เกิดข้อผิดพลาดในการดึงข้อมูล</div>';
+                    html += '</tbody></table>'; container.innerHTML = html;
+                } else { container.innerHTML = '<div class="alert alert-warning">ไม่พบรายการสินค้าในออเดอร์นี้</div>'; }
             });
         }
     </script>
