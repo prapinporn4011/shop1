@@ -1,21 +1,18 @@
 <?php
-// ดึงไฟล์เชื่อมต่อฐานข้อมูลเข้ามา
 require_once 'db.php';
 
-// ดึงข้อมูลสินค้า พร้อมกับชื่อประเภทสินค้า (JOIN ตาราง)
-$sql = "SELECT p.id, p.name, p.price, p.description as `desc`, p.image as img, c.name as type 
+// ดึงข้อมูลสินค้า พร้อมกับข้อมูลลดราคา
+$sql = "SELECT p.id, p.name, p.price, p.is_sale, p.old_price, p.description as `desc`, p.image as img, c.name as type 
         FROM products p 
         LEFT JOIN categories c ON p.category_id = c.id";
 $stmt = $pdo->query($sql);
 $productsFromDB = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-// แปลงข้อมูลให้อยู่ในรูปแบบตัวเลขที่ถูกต้อง
 foreach ($productsFromDB as $key => $product) {
     $productsFromDB[$key]['price'] = (float)$product['price'];
     $productsFromDB[$key]['id'] = (int)$product['id'];
 }
 
-// ดึงข้อมูลประเภทสินค้า (Categories) มาโชว์เป็นปุ่มหมวดหมู่
 $stmtCats = $pdo->query("SELECT * FROM categories ORDER BY id ASC");
 $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -125,11 +122,11 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 </header>
 
 <div class="container mt-4" id="promo-banner">
-    <div class="alert alert-danger shadow-sm border-0 rounded-3 text-center position-relative overflow-hidden">
+    <div class="alert alert-info shadow-sm border-0 rounded-3 text-center position-relative overflow-hidden">
         <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('https://www.transparenttextures.com/patterns/cubes.png'); opacity: 0.1;"></div>
-        <h3 class="fw-bold mb-2 position-relative"><i class="fa fa-gift me-2"></i> โปรโมชั่นพิเศษ!</h3>
-        <p class="mb-2 fs-5 position-relative">โค้ดส่วนลด 50 บาท (โค้ด: <strong>NEWBIE50</strong>)</p>
-        <button class="btn btn-warning fw-bold position-relative shadow-sm px-4" onclick="collectCoupon('NEWBIE50')">
+        <h3 class="fw-bold mb-2 position-relative"><i class="fa fa-truck-fast me-2"></i> โค้ดส่งฟรี! สำหรับสมาชิกใหม่</h3>
+        <p class="mb-2 fs-5 position-relative">รับสิทธิ์จัดส่งฟรีทั่วประเทศ (โค้ด: <strong class="text-danger">FREESHIP</strong>)</p>
+        <button class="btn btn-primary fw-bold position-relative shadow-sm px-4" onclick="collectCoupon('FREESHIP')">
             <i class="fa fa-hand-holding-heart me-1"></i> เก็บและใช้งานคูปอง
         </button>
     </div>
@@ -138,273 +135,32 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 <main class="container my-5" id="product-list">
     <div class="d-flex justify-content-center gap-2 mb-4 overflow-auto pb-2" id="category-filters">
         <button class="btn btn-dark px-4 rounded-pill filter-btn active" onclick="filterProducts('ทั้งหมด')">ทั้งหมด</button>
-        
         <?php foreach($categoriesFromDB as $cat): ?>
             <button class="btn btn-outline-dark px-4 rounded-pill filter-btn" onclick="filterProducts('<?= htmlspecialchars($cat['name']) ?>')"><?= htmlspecialchars($cat['name']) ?></button>
         <?php endforeach; ?>
-        
     </div>
     <div class="row g-4" id="store-display"></div>
 </main>
 
-<div class="modal fade" id="authModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title fw-bold" id="authModalTitle">เข้าสู่ระบบ</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div id="login-section">
-                    <input type="text" id="login-user" class="form-control mb-2" placeholder="ชื่อผู้ใช้ (Username)">
-                    <input type="password" id="login-pass" class="form-control mb-3" placeholder="รหัสผ่าน">
-                    <button class="btn btn-warning w-100 fw-bold mb-2" onclick="login()">เข้าสู่ระบบ</button>
-                    <p class="text-center small mt-2 mb-0">ผู้ใช้ใหม่ใช่ไหม? <a href="#" onclick="toggleAuth('register')" class="text-primary fw-bold">สมัครสมาชิกที่นี่</a></p>
-                </div>
-                <div id="register-section" class="d-none">
-                    <input type="text" id="reg-user" class="form-control mb-2" placeholder="ตั้งชื่อผู้ใช้ (Username)">
-                    <input type="email" id="reg-email" class="form-control mb-2" placeholder="อีเมล (เช่น name@email.com)">
-                    <input type="text" id="reg-phone" class="form-control mb-2" placeholder="เบอร์โทรศัพท์ (10 หลัก)" maxlength="10">
-                    <input type="password" id="reg-pass" class="form-control mb-3" placeholder="ตั้งรหัสผ่าน">
-                    <button class="btn btn-success w-100 fw-bold mb-2" onclick="register()">ลงทะเบียน</button>
-                    <p class="text-center small mt-2 mb-0">มีบัญชีอยู่แล้ว? <a href="#" onclick="toggleAuth('login')" class="text-primary fw-bold">เข้าสู่ระบบ</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="profileModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title fw-bold"><i class="fa fa-user-cog me-2"></i>ตั้งค่าบัญชี</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center">
-                <label for="profile-upload" class="position-relative d-inline-block">
-                    <img id="setting-profile-pic" src="" class="profile-img-preview mb-2 shadow-sm">
-                    <div class="position-absolute bottom-0 end-0 bg-warning rounded-circle p-1 px-2 border border-dark" style="cursor: pointer;"><i class="fa fa-camera small"></i></div>
-                </label>
-                <input type="file" id="profile-upload" class="d-none" accept="image/*" onchange="uploadProfilePic(event)">
-                
-                <div class="text-start mt-3">
-                    <label class="form-label small fw-bold text-primary">ชื่อผู้ใช้สำหรับล็อกอิน (Username)</label>
-                    <input type="text" id="set-username" class="form-control form-control-sm mb-2 bg-light" disabled>
-                    
-                    <div class="row g-2 mb-2">
-                        <div class="col-6">
-                            <label class="form-label small fw-bold">ชื่อแสดงผล (Display Name)</label>
-                            <input type="text" id="set-name" class="form-control form-control-sm">
-                        </div>
-                        <div class="col-6">
-                            <label class="form-label small fw-bold">เบอร์โทรศัพท์ (10 หลัก)</label>
-                            <input type="text" id="set-phone" class="form-control form-control-sm" maxlength="10">
-                        </div>
-                    </div>
-                    <label class="form-label small fw-bold">อีเมล</label>
-                    <input type="email" id="set-email" class="form-control form-control-sm mb-2" disabled>
-                    <small class="text-muted d-block mb-2">ไม่สามารถเปลี่ยนชื่อผู้ใช้และอีเมลได้</small>
-                    
-                    <label class="form-label small fw-bold">รหัสผ่านใหม่ (ปล่อยว่างหากไม่ต้องการเปลี่ยน)</label>
-                    <input type="password" id="set-password" class="form-control form-control-sm mb-3">
-                </div>
-                <button class="btn btn-warning w-100 fw-bold" onclick="saveProfile()">บันทึกการเปลี่ยนแปลง</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="productDetailModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-            <div class="modal-header bg-light">
-                <h5 class="modal-title fw-bold">รายละเอียดสินค้า</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row mb-3">
-                    <div class="col-md-5 text-center mb-3 mb-md-0 position-relative">
-                        <span id="detail-sale-badge" class="sale-badge d-none">ลดราคา!</span>
-                        <img id="detail-img" src="" class="img-fluid rounded shadow" style="max-height: 350px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/350?text=No+Image'">
-                    </div>
-                    <div class="col-md-7">
-                        <span id="detail-type" class="badge bg-secondary mb-2"></span>
-                        <h4 class="fw-bold" id="detail-name">ชื่อสินค้า</h4>
-                        <div class="mb-2">
-                            <span class="text-danger fw-bold fs-3" id="detail-price">฿0</span>
-                            <span class="text-muted text-decoration-line-through ms-2 d-none" id="detail-old-price">฿0</span>
-                        </div>
-                        <p class="text-muted small mb-2" id="detail-desc">รายละเอียดสินค้า...</p>
-                        
-                        <div class="bg-light p-2 rounded mb-3 small border">
-                            <p class="mb-1 text-primary"><i class="fa fa-truck me-2"></i> ค่าจัดส่ง: <strong>฿50</strong></p>
-                            <p class="mb-0 text-success"><i class="fa fa-clock me-2"></i> ระยะเวลาจัดส่ง: <strong>2-3 วันทำการ</strong></p>
-                        </div>
-
-                        <div class="row g-3 align-items-end mb-4">
-                            <div class="col-8">
-                                <label class="form-label fw-bold small">เลือกไซส์ (Size):</label>
-                                <select id="detail-size" class="form-select border-dark">
-                                    <option value="S">S (อก 36")</option>
-                                    <option value="M" selected>M (อก 38")</option>
-                                    <option value="L">L (อก 40")</option>
-                                    <option value="XL">XL (อก 42")</option>
-                                    <option value="2XL">2XL (อก 44")</option>
-                                </select>
-                            </div>
-                            <div class="col-4">
-                                <label class="form-label fw-bold small">จำนวน:</label>
-                                <input type="number" id="detail-qty" class="form-control border-dark text-center" value="1" min="1">
-                            </div>
-                        </div>
-                        
-                        <input type="hidden" id="detail-id">
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <button type="button" class="btn btn-cart w-100 py-2" onclick="addToCart(false)">
-                                    <i class="fa fa-cart-plus me-1"></i> เพิ่มลงตะกร้า
-                                </button>
-                            </div>
-                            <div class="col-6">
-                                <button type="button" class="btn btn-buy-now w-100 py-2" onclick="addToCart(true)">
-                                    <i class="fa fa-bolt me-1"></i> สั่งซื้อทันที
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <hr>
-                <h6 class="fw-bold"><i class="fa fa-comments text-warning me-2"></i>รีวิวจากลูกค้า</h6>
-                <div id="detail-reviews" class="bg-light p-3 rounded border" style="max-height: 250px; overflow-y: auto;">
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="checkoutModal" tabindex="-1">
-    <div class="modal-dialog modal-xl">
-        <div class="modal-content">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title fw-bold"><i class="fa fa-shopping-cart me-2"></i>ตะกร้าและชำระเงิน</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-0">
-                <div class="row g-0">
-                    <div class="col-lg-5 p-4 border-end bg-white">
-                        <h6 class="fw-bold border-bottom pb-2 mb-3">รายการสินค้าของคุณ</h6>
-                        <div id="cart-items-container" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;"></div>
-                    </div>
-                    
-                    <div class="col-lg-7 p-4 bg-light">
-                        <h6 class="fw-bold border-bottom pb-2 mb-3">ข้อมูลการจัดส่ง</h6>
-                        <div class="row g-2 mb-3">
-                            <div class="col-sm-6"><input type="text" id="ship-name" class="form-control form-control-sm" placeholder="ชื่อ-นามสกุลผู้รับ"></div>
-                            <div class="col-sm-6"><input type="text" id="ship-phone" class="form-control form-control-sm" placeholder="เบอร์โทรศัพท์ (10 หลัก)" maxlength="10"></div>
-                            <div class="col-12"><textarea id="ship-address" class="form-control form-control-sm" rows="2" placeholder="ที่อยู่จัดส่งแบบละเอียด..."></textarea></div>
-                        </div>
-
-                        <h6 class="fw-bold border-bottom pb-2 mb-3">เลือกวิธีชำระเงิน</h6>
-                        <div class="row g-2 mb-4">
-                            <div class="col-6">
-                                <div class="payment-box active" id="pay-cod" onclick="selectPayment('COD')">
-                                    <i class="fa fa-truck fa-2x mb-2 text-dark"></i>
-                                    <div class="small">เก็บเงินปลายทาง</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="payment-box" id="pay-qr" onclick="selectPayment('QR')">
-                                    <i class="fa fa-qrcode fa-2x mb-2 text-primary"></i>
-                                    <div class="small">โอนเงิน (QR Code)</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="card border-0 shadow-sm">
-                            <div class="card-body">
-                                <h6 class="fw-bold mb-3">สรุปคำสั่งซื้อ</h6>
-                                <div class="input-group input-group-sm mb-3">
-                                    <input type="text" id="coupon-input" class="form-control" placeholder="พิมพ์รหัสคูปองที่มี (เช่น NEWBIE50)">
-                                    <button class="btn btn-dark" onclick="applyCoupon()">ใช้คูปอง</button>
-                                </div>
-                                <div id="my-coupons-list" class="mb-3 small"></div>
-                                
-                                <div class="d-flex justify-content-between small mb-1"><span>รวมราคาสินค้า:</span> <span id="summary-subtotal">฿0</span></div>
-                                <div class="d-flex justify-content-between small mb-1"><span>ค่าจัดส่ง:</span> <span>฿50</span></div>
-                                <div class="d-flex justify-content-between small mb-2 text-success"><span>ส่วนลดคูปอง:</span> <span id="summary-discount">-฿0</span></div>
-                                <hr class="my-2">
-                                <div class="d-flex justify-content-between fw-bold fs-5 mb-3"><span>ยอดสุทธิทั้งหมด:</span> <span class="text-danger" id="summary-total">฿0</span></div>
-                                <button class="btn btn-success w-100 fw-bold py-2" onclick="confirmOrder()"><i class="fa fa-check-circle me-1"></i> ยืนยันคำสั่งซื้อ</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="qrModal" data-bs-backdrop="static" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content text-center py-4 border-primary" style="border-width: 3px;">
-            <div class="modal-body">
-                <h5 class="fw-bold text-primary mb-3">สแกนเพื่อชำระเงิน</h5>
-                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=081xxxxxxx" class="img-thumbnail shadow-sm mb-3">
-                <p class="text-danger fw-bold display-6 mb-0" id="qr-timer">05:00</p>
-                <p class="small text-muted mb-4">กรุณาโอนเงินภายในเวลาที่กำหนด</p>
-                <button class="btn btn-primary w-100 fw-bold mb-2" onclick="qrPaymentSuccess()">จำลองการโอนสำเร็จ</button>
-                <button class="btn btn-outline-danger w-100" onclick="qrPaymentCancel()">ยกเลิกคำสั่งซื้อ</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="historyModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content bg-light">
-            <div class="modal-header bg-dark text-white">
-                <h5 class="modal-title fw-bold"><i class="fa fa-history me-2"></i>ประวัติการสั่งซื้อของคุณ</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4" id="history-container"></div>
-        </div>
-    </div>
-</div>
-
-<div class="modal fade" id="reviewModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-sm">
-        <div class="modal-content">
-            <div class="modal-header bg-warning">
-                <h5 class="modal-title fw-bold"><i class="fa fa-star text-dark"></i> ให้คะแนนและรีวิวสินค้า</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body text-center">
-                <p class="small text-muted mb-2">ความพึงพอใจในสินค้าและการจัดส่ง</p>
-                <div class="star-rating fs-1 mb-3" id="review-stars">
-                    <i class="fa fa-star" onclick="setRating(1)"></i>
-                    <i class="fa fa-star" onclick="setRating(2)"></i>
-                    <i class="fa fa-star" onclick="setRating(3)"></i>
-                    <i class="fa fa-star" onclick="setRating(4)"></i>
-                    <i class="fa fa-star" onclick="setRating(5)"></i>
-                </div>
-                <textarea id="review-comment" class="form-control mb-3" rows="3" placeholder="เขียนความรู้สึกประทับใจของคุณที่นี่..."></textarea>
-                <button class="btn btn-dark w-100 fw-bold" onclick="submitReview()">ส่งรีวิว</button>
-            </div>
-        </div>
-    </div>
-</div>
+<div class="modal fade" id="authModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold" id="authModalTitle">เข้าสู่ระบบ</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body"><div id="login-section"><input type="text" id="login-user" class="form-control mb-2" placeholder="ชื่อผู้ใช้ (Username)"><input type="password" id="login-pass" class="form-control mb-3" placeholder="รหัสผ่าน"><button class="btn btn-warning w-100 fw-bold mb-2" onclick="login()">เข้าสู่ระบบ</button><p class="text-center small mt-2 mb-0">ผู้ใช้ใหม่ใช่ไหม? <a href="#" onclick="toggleAuth('register')" class="text-primary fw-bold">สมัครสมาชิกที่นี่</a></p></div><div id="register-section" class="d-none"><input type="text" id="reg-user" class="form-control mb-2" placeholder="ตั้งชื่อผู้ใช้ (Username)"><input type="email" id="reg-email" class="form-control mb-2" placeholder="อีเมล (เช่น name@email.com)"><input type="text" id="reg-phone" class="form-control mb-2" placeholder="เบอร์โทรศัพท์ (10 หลัก)" maxlength="10"><input type="password" id="reg-pass" class="form-control mb-3" placeholder="ตั้งรหัสผ่าน"><button class="btn btn-success w-100 fw-bold mb-2" onclick="register()">ลงทะเบียน</button><p class="text-center small mt-2 mb-0">มีบัญชีอยู่แล้ว? <a href="#" onclick="toggleAuth('login')" class="text-primary fw-bold">เข้าสู่ระบบ</a></p></div></div></div></div></div>
+<div class="modal fade" id="profileModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold"><i class="fa fa-user-cog me-2"></i>ตั้งค่าบัญชี</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><label for="profile-upload" class="position-relative d-inline-block"><img id="setting-profile-pic" src="" class="profile-img-preview mb-2 shadow-sm"><div class="position-absolute bottom-0 end-0 bg-warning rounded-circle p-1 px-2 border border-dark" style="cursor: pointer;"><i class="fa fa-camera small"></i></div></label><input type="file" id="profile-upload" class="d-none" accept="image/*" onchange="uploadProfilePic(event)"><div class="text-start mt-3"><label class="form-label small fw-bold text-primary">ชื่อผู้ใช้สำหรับล็อกอิน (Username)</label><input type="text" id="set-username" class="form-control form-control-sm mb-2 bg-light" disabled><div class="row g-2 mb-2"><div class="col-6"><label class="form-label small fw-bold">ชื่อแสดงผล (Display Name)</label><input type="text" id="set-name" class="form-control form-control-sm"></div><div class="col-6"><label class="form-label small fw-bold">เบอร์โทรศัพท์ (10 หลัก)</label><input type="text" id="set-phone" class="form-control form-control-sm" maxlength="10"></div></div><label class="form-label small fw-bold">อีเมล</label><input type="email" id="set-email" class="form-control form-control-sm mb-2" disabled><small class="text-muted d-block mb-2">ไม่สามารถเปลี่ยนชื่อผู้ใช้และอีเมลได้</small><label class="form-label small fw-bold">รหัสผ่านใหม่ (ปล่อยว่างหากไม่ต้องการเปลี่ยน)</label><input type="password" id="set-password" class="form-control form-control-sm mb-3"></div><button class="btn btn-warning w-100 fw-bold" onclick="saveProfile()">บันทึกการเปลี่ยนแปลง</button></div></div></div></div>
+<div class="modal fade" id="productDetailModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-lg"><div class="modal-content"><div class="modal-header bg-light"><h5 class="modal-title fw-bold">รายละเอียดสินค้า</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="row mb-3"><div class="col-md-5 text-center mb-3 mb-md-0 position-relative"><span id="detail-sale-badge" class="sale-badge d-none">ลดราคา!</span><img id="detail-img" src="" class="img-fluid rounded shadow" style="max-height: 350px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/350?text=No+Image'"></div><div class="col-md-7"><span id="detail-type" class="badge bg-secondary mb-2"></span><h4 class="fw-bold" id="detail-name">ชื่อสินค้า</h4><div class="mb-2"><span class="text-danger fw-bold fs-3" id="detail-price">฿0</span><span class="text-muted text-decoration-line-through ms-2 d-none" id="detail-old-price">฿0</span></div><p class="text-muted small mb-2" id="detail-desc">รายละเอียดสินค้า...</p><div class="bg-light p-2 rounded mb-3 small border"><p class="mb-1 text-primary"><i class="fa fa-truck me-2"></i> ค่าจัดส่ง: <strong id="detail-shipping">฿50</strong></p><p class="mb-0 text-success"><i class="fa fa-clock me-2"></i> ระยะเวลาจัดส่ง: <strong>2-3 วันทำการ</strong></p></div><div class="row g-3 align-items-end mb-4"><div class="col-8"><label class="form-label fw-bold small">เลือกไซส์ (Size):</label><select id="detail-size" class="form-select border-dark"><option value="S">S (อก 36")</option><option value="M" selected>M (อก 38")</option><option value="L">L (อก 40")</option><option value="XL">XL (อก 42")</option><option value="2XL">2XL (อก 44")</option></select></div><div class="col-4"><label class="form-label fw-bold small">จำนวน:</label><input type="number" id="detail-qty" class="form-control border-dark text-center" value="1" min="1"></div></div><input type="hidden" id="detail-id"><div class="row g-2"><div class="col-6"><button type="button" class="btn btn-cart w-100 py-2" onclick="addToCart(false)"><i class="fa fa-cart-plus me-1"></i> เพิ่มลงตะกร้า</button></div><div class="col-6"><button type="button" class="btn btn-buy-now w-100 py-2" onclick="addToCart(true)"><i class="fa fa-bolt me-1"></i> สั่งซื้อทันที</button></div></div></div></div><hr><h6 class="fw-bold"><i class="fa fa-comments text-warning me-2"></i>รีวิวจากลูกค้า</h6><div id="detail-reviews" class="bg-light p-3 rounded border" style="max-height: 250px; overflow-y: auto;"></div></div></div></div></div>
+<div class="modal fade" id="checkoutModal" tabindex="-1"><div class="modal-dialog modal-xl"><div class="modal-content"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold"><i class="fa fa-shopping-cart me-2"></i>ตะกร้าและชำระเงิน</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-0"><div class="row g-0"><div class="col-lg-5 p-4 border-end bg-white"><h6 class="fw-bold border-bottom pb-2 mb-3">รายการสินค้าของคุณ</h6><div id="cart-items-container" style="max-height: 400px; overflow-y: auto; overflow-x: hidden;"></div></div><div class="col-lg-7 p-4 bg-light"><h6 class="fw-bold border-bottom pb-2 mb-3">ข้อมูลการจัดส่ง</h6><div class="row g-2 mb-3"><div class="col-sm-6"><input type="text" id="ship-name" class="form-control form-control-sm" placeholder="ชื่อ-นามสกุลผู้รับ"></div><div class="col-sm-6"><input type="text" id="ship-phone" class="form-control form-control-sm" placeholder="เบอร์โทรศัพท์ (10 หลัก)" maxlength="10"></div><div class="col-12"><textarea id="ship-address" class="form-control form-control-sm" rows="2" placeholder="ที่อยู่จัดส่งแบบละเอียด..."></textarea></div></div><h6 class="fw-bold border-bottom pb-2 mb-3">เลือกวิธีชำระเงิน</h6><div class="row g-2 mb-4"><div class="col-6"><div class="payment-box active" id="pay-cod" onclick="selectPayment('COD')"><i class="fa fa-truck fa-2x mb-2 text-dark"></i><div class="small">เก็บเงินปลายทาง</div></div></div><div class="col-6"><div class="payment-box" id="pay-qr" onclick="selectPayment('QR')"><i class="fa fa-qrcode fa-2x mb-2 text-primary"></i><div class="small">โอนเงิน (QR Code)</div></div></div></div><div class="card border-0 shadow-sm"><div class="card-body"><h6 class="fw-bold mb-3">สรุปคำสั่งซื้อ</h6><div class="input-group input-group-sm mb-3"><input type="text" id="coupon-input" class="form-control" placeholder="พิมพ์รหัสคูปองที่มี (เช่น FREESHIP)"><button class="btn btn-dark" onclick="applyCoupon()">ใช้คูปอง</button></div><div id="my-coupons-list" class="mb-3 small"></div><div class="d-flex justify-content-between small mb-1"><span>รวมราคาสินค้า:</span> <span id="summary-subtotal">฿0</span></div><div class="d-flex justify-content-between small mb-1"><span>ค่าจัดส่ง:</span> <span id="summary-shipping">฿50</span></div><div class="d-flex justify-content-between small mb-2 text-primary d-none" id="summary-discount-row"><span>ส่วนลดค่าจัดส่ง:</span> <span id="summary-discount">-฿0</span></div><hr class="my-2"><div class="d-flex justify-content-between fw-bold fs-5 mb-3"><span>ยอดสุทธิทั้งหมด:</span> <span class="text-danger" id="summary-total">฿0</span></div><button class="btn btn-success w-100 fw-bold py-2" onclick="confirmOrder()"><i class="fa fa-check-circle me-1"></i> ยืนยันคำสั่งซื้อ</button></div></div></div></div></div></div></div></div>
+<div class="modal fade" id="qrModal" data-bs-backdrop="static" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content text-center py-4 border-primary" style="border-width: 3px;"><div class="modal-body"><h5 class="fw-bold text-primary mb-3">สแกนเพื่อชำระเงิน</h5><img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=081xxxxxxx" class="img-thumbnail shadow-sm mb-3"><p class="text-danger fw-bold display-6 mb-0" id="qr-timer">05:00</p><p class="small text-muted mb-4">กรุณาโอนเงินภายในเวลาที่กำหนด</p><button class="btn btn-primary w-100 fw-bold mb-2" onclick="qrPaymentSuccess()">จำลองการโอนสำเร็จ</button><button class="btn btn-outline-danger w-100" onclick="qrPaymentCancel()">ยกเลิกคำสั่งซื้อ</button></div></div></div></div>
+<div class="modal fade" id="historyModal" tabindex="-1"><div class="modal-dialog modal-lg"><div class="modal-content bg-light"><div class="modal-header bg-dark text-white"><h5 class="modal-title fw-bold"><i class="fa fa-history me-2"></i>ประวัติการสั่งซื้อของคุณ</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div><div class="modal-body p-4" id="history-container"></div></div></div></div>
+<div class="modal fade" id="reviewModal" tabindex="-1"><div class="modal-dialog modal-dialog-centered modal-sm"><div class="modal-content"><div class="modal-header bg-warning"><h5 class="modal-title fw-bold"><i class="fa fa-star text-dark"></i> ให้คะแนนและรีวิวสินค้า</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body text-center"><p class="small text-muted mb-2">ความพึงพอใจในสินค้าและการจัดส่ง</p><div class="star-rating fs-1 mb-3" id="review-stars"><i class="fa fa-star" onclick="setRating(1)"></i><i class="fa fa-star" onclick="setRating(2)"></i><i class="fa fa-star" onclick="setRating(3)"></i><i class="fa fa-star" onclick="setRating(4)"></i><i class="fa fa-star" onclick="setRating(5)"></i></div><textarea id="review-comment" class="form-control mb-3" rows="3" placeholder="เขียนความรู้สึกประทับใจของคุณที่นี่..."></textarea><button class="btn btn-dark w-100 fw-bold" onclick="submitReview()">ส่งรีวิว</button></div></div></div></div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const dbProducts = <?php echo json_encode($productsFromDB); ?>;
+    
+    // ดึงค่าจาก Database แบบ 100% ว่าสินค้านี้ลดราคาอยู่ไหม
     const products = dbProducts.map(p => ({
         id: parseInt(p.id),
         name: p.name,
         price: parseFloat(p.price),
-        oldPrice: parseFloat(p.price) + 200, 
-        isSale: false, 
+        isSale: parseInt(p.is_sale) === 1, // ดึงจาก DB
+        oldPrice: parseFloat(p.old_price) > 0 ? parseFloat(p.old_price) : null, // ดึงจาก DB
         type: p.type || "ทั่วไป",
         img: p.img ? (p.img.startsWith('http') || p.img.startsWith('data:') ? p.img : 'uploads/' + p.img) : 'default.jpg',
         desc: p.desc
@@ -412,7 +168,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 
     let currentUser = null; 
     let cart = [];
-    let discount = 0;
+    let isFreeShipping = false; // ตัวแปรเก็บสถานะว่าใช้คูปองส่งฟรีหรือยัง
     let paymentMethod = 'COD';
     let qrTimerInterval;
 
@@ -466,11 +222,9 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     function showToast(message, type = 'success') {
         const toastEl = document.getElementById('liveToast');
         toastEl.classList.remove('bg-success', 'bg-danger', 'bg-warning', 'text-dark');
-        
         if(type === 'success') toastEl.classList.add('bg-success');
         else if(type === 'error') toastEl.classList.add('bg-danger');
         else if(type === 'warning') toastEl.classList.add('bg-warning', 'text-dark');
-
         document.getElementById('toast-msg').innerHTML = message;
         const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
         toast.show();
@@ -630,8 +384,9 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
             return;
         }
         container.innerHTML = items.map(p => {
-            const saleBadge = p.isSale ? `<span class="sale-badge">SALE!</span>` : '';
-            const oldPriceStr = p.oldPrice ? `<small class="text-muted text-decoration-line-through">฿${p.oldPrice}</small>` : '';
+            // ระบบจะโชว์ป้ายและขีดฆ่าราคาเดิมอัตโนมัติถ้าตั้งค่ามาจาก Database
+            const saleBadge = p.isSale ? `<span class="sale-badge">ลดราคา!</span>` : '';
+            const oldPriceStr = (p.isSale && p.oldPrice) ? `<small class="text-muted text-decoration-line-through">฿${p.oldPrice.toLocaleString()}</small>` : '';
             return `
             <div class="col-6 col-md-3 mb-4">
                 <div class="card product-card shadow-sm border-0">
@@ -667,8 +422,12 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
             event.currentTarget.classList.remove('btn-outline-dark');
             event.currentTarget.classList.add('btn-dark', 'active');
         }
-        if (type === 'โปรโมชั่น') renderProducts(products.filter(p => p.isSale));
-        else renderProducts(type === 'ทั้งหมด' ? products : products.filter(p => p.type === type));
+        if (type === 'โปรโมชั่น') {
+            // กรองเอาเฉพาะสินค้าที่ is_sale เป็น 1
+            renderProducts(products.filter(p => p.isSale));
+        } else {
+            renderProducts(type === 'ทั้งหมด' ? products : products.filter(p => p.type === type));
+        }
     }
 
     function openProductDetail(id) {
@@ -680,7 +439,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         const oldPriceEl = document.getElementById('detail-old-price');
         const saleBadgeEl = document.getElementById('detail-sale-badge');
         
-        if(p.oldPrice) {
+        if(p.isSale && p.oldPrice) {
             oldPriceEl.innerText = '฿' + p.oldPrice.toLocaleString();
             oldPriceEl.classList.remove('d-none'); saleBadgeEl.classList.remove('d-none');
         } else {
@@ -692,6 +451,10 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         document.getElementById('detail-img').src = p.img; 
         document.getElementById('detail-qty').value = 1;
         document.getElementById('detail-size').selectedIndex = 1; 
+
+        // ตรวจสอบว่าถ้าลูกค้ามีคูปอง FREESHIP ให้แสดงค่าจัดส่งเป็นฟรี
+        const hasFreeShip = currentUser && currentUser.coupons && currentUser.coupons.includes('FREESHIP');
+        document.getElementById('detail-shipping').innerHTML = hasFreeShip ? '<span class="text-success">ส่งฟรี (ใช้คูปองได้)</span>' : '฿50';
 
         const reviewContainer = document.getElementById('detail-reviews');
         reviewContainer.innerHTML = '<div class="text-center py-3"><div class="spinner-border text-warning spinner-border-sm"></div></div>';
@@ -753,6 +516,8 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         if(!currentUser) return openAuthModal('login');
         document.getElementById('ship-name').value = currentUser.name || '';
         document.getElementById('ship-phone').value = currentUser.phone || '';
+        isFreeShipping = false; // รีเซ็ตการใช้คูปองทุกครั้งที่เปิดตะกร้า
+        document.getElementById('coupon-input').value = '';
         renderCartItems(); updateSummary();
         new bootstrap.Modal(document.getElementById('checkoutModal')).show();
     }
@@ -783,35 +548,56 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
     function collectCoupon(code) {
         if(!currentUser) return openAuthModal('login');
         if(!currentUser.coupons) currentUser.coupons = [];
+        
+        // เช็คว่าเก็บไปแล้วหรือยัง
         if(currentUser.coupons.includes(code)) return showToast('คุณเก็บคูปองนี้ไปแล้ว', 'warning');
-        currentUser.coupons.push(code); saveDatabase();
+        
+        currentUser.coupons.push(code); 
+        saveDatabase();
         showToast(`🎉 เก็บโค้ด ${code} สำเร็จ! นำไปใช้ในหน้าชำระเงินได้เลย`, 'success');
     }
 
     function renderMyCoupons() {
         const container = document.getElementById('my-coupons-list');
         if(!currentUser || !currentUser.coupons || currentUser.coupons.length === 0) { container.innerHTML = ''; return; }
+        
+        // กรองแสดงเฉพาะคูปองที่มีอยู่จริง
         container.innerHTML = '<strong>คูปองของคุณ (คลิกเพื่อใช้):</strong> ' + currentUser.coupons.map(c => 
-            `<span class="badge bg-warning text-dark me-1 shadow-sm p-2" style="cursor:pointer;" onclick="document.getElementById('coupon-input').value='${c}'; applyCoupon();"><i class="fa fa-ticket-alt"></i> ${c}</span>`
+            `<span class="badge bg-primary text-white me-1 shadow-sm p-2" style="cursor:pointer;" onclick="document.getElementById('coupon-input').value='${c}'; applyCoupon();"><i class="fa fa-ticket-alt"></i> ${c}</span>`
         ).join('');
     }
 
     function applyCoupon() {
         const code = document.getElementById('coupon-input').value.trim().toUpperCase();
-        if(code === 'NEWBIE50') {
-            if(!currentUser.coupons || !currentUser.coupons.includes(code)) return showToast('กรุณากดเก็บคูปองที่หน้าหลักก่อนใช้งาน', 'error');
-            discount = 50; showToast('✅ ใช้คูปองส่วนลด 50 บาทสำเร็จ!', 'success'); updateSummary();
-        } else if (code === '') showToast('กรุณากรอกรหัสคูปอง', 'warning');
-        else showToast('รหัสคูปองไม่ถูกต้อง หรือหมดอายุแล้ว', 'error');
+        if(code === 'FREESHIP') {
+            if(!currentUser.coupons || !currentUser.coupons.includes(code)) {
+                return showToast('กรุณากดเก็บคูปองที่หน้าหลักก่อนใช้งาน', 'error');
+            }
+            isFreeShipping = true; 
+            showToast('✅ ใช้คูปองส่วนลดค่าจัดส่งฟรี สำเร็จ!', 'success'); 
+            updateSummary();
+        } else if (code === '') {
+            showToast('กรุณากรอกรหัสคูปอง', 'warning');
+        } else { 
+            showToast('รหัสคูปองไม่ถูกต้อง หรือหมดอายุแล้ว', 'error'); 
+        }
     }
 
     function updateSummary() {
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        const shipping = cart.length > 0 ? 50 : 0;
-        let total = subtotal + shipping - discount;
-        if(total < 0) total = 0;
+        
+        // คำนวณค่าส่ง: ถ้ามีของ 50 บาท, ถ้าใช้คูปองส่งฟรี = 0
+        let shipping = cart.length > 0 ? 50 : 0;
+        if(isFreeShipping && cart.length > 0) {
+            document.getElementById('summary-shipping').innerHTML = '<span class="text-decoration-line-through text-muted">฿50</span> <strong class="text-success">ฟรี</strong>';
+            shipping = 0;
+        } else {
+            document.getElementById('summary-shipping').innerText = '฿' + shipping;
+        }
+
+        let total = subtotal + shipping;
+        
         document.getElementById('summary-subtotal').innerText = '฿' + subtotal.toLocaleString();
-        document.getElementById('summary-discount').innerText = '-฿' + discount.toLocaleString();
         document.getElementById('summary-total').innerText = '฿' + total.toLocaleString();
         renderMyCoupons();
     }
@@ -851,7 +637,10 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
 
     function processOrderSuccess() {
         const subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-        const total = subtotal + 50 - discount;
+        let shipping = cart.length > 0 ? 50 : 0;
+        if(isFreeShipping) shipping = 0;
+        const total = subtotal + shipping;
+
         const addressStr = document.getElementById('ship-address').value.trim();
         const statusStr = paymentMethod === 'QR' ? 'paid' : 'pending';
         
@@ -863,8 +652,14 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         .then(res => res.json())
         .then(data => {
             if(data.success) {
-                cart = []; discount = 0;
-                if(currentUser.coupons && currentUser.coupons.includes('NEWBIE50')) currentUser.coupons = currentUser.coupons.filter(c => c !== 'NEWBIE50');
+                cart = []; 
+                
+                // หากใช้คูปองไปแล้ว ให้ลบออกจากกระเป๋า เพื่อให้ใช้ได้แค่ครั้งเดียว
+                if(isFreeShipping && currentUser.coupons && currentUser.coupons.includes('FREESHIP')) {
+                    currentUser.coupons = currentUser.coupons.filter(c => c !== 'FREESHIP');
+                }
+                isFreeShipping = false;
+
                 saveDatabase(); updateCartBadge();
                 const checkoutModalEl = document.getElementById('checkoutModal');
                 if(checkoutModalEl.classList.contains('show')) bootstrap.Modal.getInstance(checkoutModalEl).hide();
@@ -875,6 +670,7 @@ $categoriesFromDB = $stmtCats->fetchAll(PDO::FETCH_ASSOC);
         .catch(err => { console.error(err); showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error'); });
     }
 
+    // --- ส่วนรีวิวและประวัติ (เหมือนเดิม ไม่มีการแก้ไข) ---
     function setRating(stars) {
         selectedRating = stars;
         const starElements = document.getElementById('review-stars').children;

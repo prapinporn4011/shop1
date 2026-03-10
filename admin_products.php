@@ -10,19 +10,29 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role']) || $_SESSION['role
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
     $name = $_POST['name']; $category_id = $_POST['category_id']; $price = $_POST['price']; $description = $_POST['description'];
+    
+    // รับค่าลดราคา
+    $is_sale = isset($_POST['is_sale']) ? 1 : 0;
+    $old_price = !empty($_POST['old_price']) ? $_POST['old_price'] : 0;
+
     $image = 'https://via.placeholder.com/250x250?text=No+Image'; 
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
         $type = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
         $data = file_get_contents($_FILES['image']['tmp_name']);
         $image = 'data:image/' . $type . ';base64,' . base64_encode($data);
     }
-    $stmt = $pdo->prepare("INSERT INTO products (category_id, name, price, description, image) VALUES (?, ?, ?, ?, ?)");
-    $stmt->execute([$category_id, $name, $price, $description, $image]);
+    $stmt = $pdo->prepare("INSERT INTO products (category_id, name, price, is_sale, old_price, description, image) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$category_id, $name, $price, $is_sale, $old_price, $description, $image]);
     header("Location: admin_products.php?status=success"); exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'edit') {
     $id = $_POST['id']; $name = $_POST['name']; $category_id = $_POST['category_id']; $price = $_POST['price']; $description = $_POST['description'];
+    
+    // รับค่าลดราคา
+    $is_sale = isset($_POST['is_sale']) ? 1 : 0;
+    $old_price = !empty($_POST['old_price']) ? $_POST['old_price'] : 0;
+
     $stmt = $pdo->prepare("SELECT image FROM products WHERE id = ?"); $stmt->execute([$id]);
     $oldProduct = $stmt->fetch(); $image = $oldProduct['image']; 
     if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
@@ -30,8 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
         $data = file_get_contents($_FILES['image']['tmp_name']);
         $image = 'data:image/' . $type . ';base64,' . base64_encode($data);
     }
-    $stmt = $pdo->prepare("UPDATE products SET category_id=?, name=?, price=?, description=?, image=? WHERE id=?");
-    $stmt->execute([$category_id, $name, $price, $description, $image, $id]);
+    $stmt = $pdo->prepare("UPDATE products SET category_id=?, name=?, price=?, is_sale=?, old_price=?, description=?, image=? WHERE id=?");
+    $stmt->execute([$category_id, $name, $price, $is_sale, $old_price, $description, $image, $id]);
     header("Location: admin_products.php?status=edited"); exit;
 }
 
@@ -66,7 +76,7 @@ $categories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
 
    <div class="sidebar">
         <h4 class="text-center py-4 text-warning fw-bold border-bottom m-0">Admin Panel</h4>
-        <a href="admin_products.php"><i class="fa fa-tshirt me-2"></i> จัดการสินค้า</a>
+        <a href="admin_products.php" class="active"><i class="fa fa-tshirt me-2"></i> จัดการสินค้า</a>
         <a href="admin_orders.php"><i class="fa fa-box me-2"></i> จัดการออเดอร์</a>
         <a href="admin_categories.php"><i class="fa fa-tags me-2"></i> จัดการประเภทสินค้า</a>
         <a href="admin_customers.php"><i class="fa fa-users me-2"></i> จัดการลูกค้า</a>
@@ -90,7 +100,7 @@ $categories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="card border-0 shadow-sm">
             <div class="card-body table-responsive">
                 <table id="productTable" class="table table-striped table-hover align-middle w-100">
-                    <thead class="table-dark"><tr><th>ID</th><th>รูปภาพ</th><th>ชื่อสินค้า</th><th>ประเภท</th><th>ราคา</th><th>จัดการ</th></tr></thead>
+                    <thead class="table-dark"><tr><th>ID</th><th>รูปภาพ</th><th>ชื่อสินค้า</th><th>ประเภท</th><th>ราคา</th><th>โปรโมชั่น</th><th>จัดการ</th></tr></thead>
                     <tbody>
                         <?php foreach($products as $p): ?>
                         <tr>
@@ -103,7 +113,15 @@ $categories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
                             <td><span class="badge bg-secondary"><?= htmlspecialchars($p['category_name'] ?? 'ไม่มีหมวดหมู่') ?></span></td>
                             <td class="text-danger fw-bold">฿<?= number_format($p['price'], 2) ?></td>
                             <td>
-                                <button class="btn btn-sm btn-info text-white" onclick="editProduct(<?= $p['id'] ?>, '<?= htmlspecialchars(addslashes($p['name'])) ?>', <?= $p['category_id'] ?: 0 ?>, <?= $p['price'] ?>, '<?= htmlspecialchars(addslashes(str_replace(array("\r", "\n"), '', $p['description']))) ?>')"><i class="fa fa-edit"></i> แก้ไข</button>
+                                <?php if($p['is_sale'] == 1): ?>
+                                    <span class="badge bg-danger">ลดราคา!</span><br>
+                                    <small class="text-muted text-decoration-line-through">฿<?= number_format($p['old_price'], 2) ?></small>
+                                <?php else: ?>
+                                    <span class="text-muted small">-</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-info text-white" onclick="editProduct(<?= $p['id'] ?>, '<?= htmlspecialchars(addslashes($p['name'])) ?>', <?= $p['category_id'] ?: 0 ?>, <?= $p['price'] ?>, <?= $p['is_sale'] ?>, <?= $p['old_price'] ?>, '<?= htmlspecialchars(addslashes(str_replace(array("\r", "\n"), '', $p['description']))) ?>')"><i class="fa fa-edit"></i> แก้ไข</button>
                                 <a href="admin_products.php?delete_id=<?= $p['id'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('ยืนยันการลบสินค้าชิ้นนี้?');"><i class="fa fa-trash"></i> ลบ</a>
                             </td>
                         </tr>
@@ -124,8 +142,18 @@ $categories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="mb-3"><label class="form-label fw-bold">ชื่อสินค้า</label><input type="text" name="name" class="form-control" required></div>
                         <div class="row">
                             <div class="col-6 mb-3"><label class="form-label fw-bold">ประเภท</label><select name="category_id" class="form-select" required><option value="">-- เลือก --</option><?php foreach($categories as $c): ?><option value="<?= $c['id'] ?>"><?= $c['name'] ?></option><?php endforeach; ?></select></div>
-                            <div class="col-6 mb-3"><label class="form-label fw-bold">ราคา (บาท)</label><input type="number" name="price" class="form-control" step="0.01" required></div>
+                            <div class="col-6 mb-3"><label class="form-label fw-bold text-danger">ราคาขาย (บาท)</label><input type="number" name="price" class="form-control" step="0.01" required></div>
                         </div>
+                        
+                        <div class="border rounded p-3 mb-3 bg-light">
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" name="is_sale" value="1" id="addSaleCheck">
+                                <label class="form-check-label fw-bold text-danger" for="addSaleCheck">เปิดโปรโมชั่นลดราคา</label>
+                            </div>
+                            <label class="form-label small">ราคาปกติ (ก่อนลด) - จะมีขีดฆ่าให้เห็น</label>
+                            <input type="number" name="old_price" class="form-control form-control-sm" step="0.01" placeholder="เช่น 1290">
+                        </div>
+
                         <div class="mb-3"><label class="form-label fw-bold">รายละเอียด</label><textarea name="description" class="form-control" rows="3"></textarea></div>
                         <div class="mb-3"><label class="form-label fw-bold">รูปภาพ <small class="text-muted">(อัปโหลดไฟล์)</small></label><input type="file" name="image" class="form-control" accept="image/*"></div>
                     </div>
@@ -145,8 +173,18 @@ $categories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="mb-3"><label class="form-label fw-bold">ชื่อสินค้า</label><input type="text" name="name" id="edit-name" class="form-control" required></div>
                         <div class="row">
                             <div class="col-6 mb-3"><label class="form-label fw-bold">ประเภท</label><select name="category_id" id="edit-category" class="form-select" required><?php foreach($categories as $c): ?><option value="<?= $c['id'] ?>"><?= $c['name'] ?></option><?php endforeach; ?></select></div>
-                            <div class="col-6 mb-3"><label class="form-label fw-bold">ราคา (บาท)</label><input type="number" name="price" id="edit-price" class="form-control" step="0.01" required></div>
+                            <div class="col-6 mb-3"><label class="form-label fw-bold text-danger">ราคาขาย (บาท)</label><input type="number" name="price" id="edit-price" class="form-control" step="0.01" required></div>
                         </div>
+
+                        <div class="border rounded p-3 mb-3 bg-light">
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" name="is_sale" value="1" id="edit-is-sale">
+                                <label class="form-check-label fw-bold text-danger" for="edit-is-sale">เปิดโปรโมชั่นลดราคา</label>
+                            </div>
+                            <label class="form-label small">ราคาปกติ (ก่อนลด) - จะมีขีดฆ่าให้เห็น</label>
+                            <input type="number" name="old_price" id="edit-old-price" class="form-control form-control-sm" step="0.01">
+                        </div>
+
                         <div class="mb-3"><label class="form-label fw-bold">รายละเอียด</label><textarea name="description" id="edit-desc" class="form-control" rows="3"></textarea></div>
                         <div class="mb-3"><label class="form-label fw-bold">รูปภาพใหม่ <small class="text-danger">(ปล่อยว่างถ้าใช้รูปเดิม)</small></label><input type="file" name="image" class="form-control" accept="image/*"></div>
                     </div>
@@ -162,9 +200,14 @@ $categories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script>
         $(document).ready(function() { $('#productTable').DataTable({ "language": { "url": "//cdn.datatables.net/plug-ins/1.13.6/i18n/th.json" }, "order": [[ 0, "desc" ]] }); });
-        function editProduct(id, name, cat_id, price, desc) {
-            document.getElementById('edit-id').value = id; document.getElementById('edit-name').value = name;
-            document.getElementById('edit-category').value = cat_id; document.getElementById('edit-price').value = price;
+        
+        function editProduct(id, name, cat_id, price, is_sale, old_price, desc) {
+            document.getElementById('edit-id').value = id; 
+            document.getElementById('edit-name').value = name;
+            document.getElementById('edit-category').value = cat_id; 
+            document.getElementById('edit-price').value = price;
+            document.getElementById('edit-is-sale').checked = is_sale == 1;
+            document.getElementById('edit-old-price').value = old_price;
             document.getElementById('edit-desc').value = desc;
             new bootstrap.Modal(document.getElementById('editProductModal')).show();
         }
