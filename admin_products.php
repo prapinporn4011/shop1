@@ -64,11 +64,11 @@ $categories = $catStmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
 
-    <div class="sidebar">
+   <div class="sidebar">
         <h4 class="text-center py-4 text-warning fw-bold border-bottom m-0">Admin Panel</h4>
         <a href="admin_products.php" class="active"><i class="fa fa-tshirt me-2"></i> จัดการสินค้า</a>
         <a href="admin_orders.php"><i class="fa fa-box me-2"></i> จัดการออเดอร์</a>
-        <a href="#"><i class="fa fa-tags me-2"></i> จัดการประเภทสินค้า</a>
+        <a href="admin_categories.php"><i class="fa fa-tags me-2"></i> จัดการประเภทสินค้า</a>
         <a href="#"><i class="fa fa-users me-2"></i> จัดการลูกค้า</a>
         <a href="indexnew.php" class="text-info mt-5"><i class="fa fa-store me-2"></i> กลับหน้าร้าน</a>
     </div>
