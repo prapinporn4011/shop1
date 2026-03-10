@@ -541,12 +541,19 @@ foreach ($productsFromDB as $key => $product) {
             document.getElementById('guest-zone').classList.add('d-none');
             document.getElementById('user-zone').classList.remove('d-none');
             
-            // เปลี่ยนมาใช้ currentUser.name เพื่อแสดงชื่อจริงที่เราตั้งค่าไว้
-            document.getElementById('nav-username').innerText = currentUser.name; 
+            // ----------------------------------------------------
+            // จุดสำคัญที่แก้ปัญหาชื่อไม่เปลี่ยน: 
+            // ให้ดึง currentUser.name มาโชว์ก่อน ถ้าไม่มีถึงจะใช้ username
+            // ----------------------------------------------------
+            document.getElementById('nav-username').innerText = currentUser.name || currentUser.username;
             
-            document.getElementById('nav-profile-pic').src = currentUser.profilePic;
+            // จัดการรูปโปรไฟล์ (ถ้าไม่มีรูปให้สุ่มรูปการ์ตูน)
+            const picUrl = currentUser.profilePic ? currentUser.profilePic : 'https://api.dicebear.com/7.x/avataaars/svg?seed=' + currentUser.username;
             
-            document.getElementById('setting-profile-pic').src = currentUser.profilePic;
+            document.getElementById('nav-profile-pic').src = picUrl;
+            document.getElementById('setting-profile-pic').src = picUrl;
+            
+            // เติมข้อมูลลงในฟอร์มตั้งค่า
             document.getElementById('set-name').value = currentUser.name || currentUser.username;
             document.getElementById('set-phone').value = currentUser.phone || '';
             document.getElementById('set-email').value = currentUser.email || '';
@@ -568,7 +575,7 @@ foreach ($productsFromDB as $key => $product) {
         }
     }
 
-    function saveProfile() {
+   function saveProfile() {
         const newName = document.getElementById('set-name').value.trim();
         const newPhone = document.getElementById('set-phone').value.trim();
         const newPass = document.getElementById('set-password').value.trim();
@@ -577,40 +584,49 @@ foreach ($productsFromDB as $key => $product) {
         if(!newName || !newPhone) return showToast('กรุณากรอกชื่อและเบอร์โทร', 'warning');
         if(newPhone.length !== 10) return showToast('เบอร์โทรศัพท์ต้องมี 10 หลัก', 'warning');
         
+        // เช็คว่ามีการเปลี่ยนรูปใหม่ไหม (เพื่อป้องกันการส่งข้อมูลรูปซ้ำๆ ให้เซิร์ฟเวอร์ทำงานหนัก)
+        let picDataToSend = '';
+        if(newPic.startsWith('data:image')) {
+            picDataToSend = newPic;
+        }
+
+        // ส่งข้อมูลชื่อใหม่ไปอัปเดตที่หลังบ้าน (api_auth.php)
         fetch('api_auth.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'same-origin', // <--- ต้องมีบรรทัดนี้
+            credentials: 'same-origin', // บังคับให้ส่งตั๋วล็อกอิน (Session) ไปด้วย
             body: JSON.stringify({ 
                 action: 'update_profile', 
                 fullname: newName, 
-                // ... 
                 phone: newPhone, 
                 password: newPass,
-                profile_pic: newPic // <-- ส่งรูปภาพ Base64 ไปให้หลังบ้านด้วย
+                profile_pic: picDataToSend
             })
         })
         .then(res => res.json())
         .then(data => {
             if(data.success) {
+                // ----------------------------------------------------
+                // เมื่อ Database อัปเดตสำเร็จ ให้เปลี่ยนชื่อในตัวแปรระบบด้วย
+                // ----------------------------------------------------
                 currentUser.name = newName;
                 currentUser.phone = newPhone;
                 
-                // ถ้า PHP ส่ง path รูปกลับมาแปลว่าอัปโหลดสำเร็จ ให้อัปเดต path ในตัวแปร
                 if(data.profile_pic) {
                     currentUser.profilePic = data.profile_pic;
                 }
                 
+                // สั่งให้อัปเดตหน้าจอใหม่ (ชื่อที่เมนูจะเปลี่ยนทันที)
                 updateNavUI();
                 bootstrap.Modal.getInstance(document.getElementById('profileModal')).hide();
-                showToast('อัปเดตข้อมูลโปรไฟล์และรูปภาพเรียบร้อย', 'success');
+                showToast('อัปเดตข้อมูลบัญชีเรียบร้อย', 'success');
             } else {
                 showToast('❌ ' + data.message, 'error');
             }
         })
         .catch(err => {
             console.error(err);
-            showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+            showToast('เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์', 'error');
         });
     }
     // --------------------------------------------------------
